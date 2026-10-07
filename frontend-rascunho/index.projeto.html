@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=League+Gothic&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <title> GhostPay | Carros Brasileiros  </title>
+</head>
+
+<body>
+    <header class="topbar">
+        <a href="#" class="logo">GhostPay</a>
+        <nav>
+            <ul>
+                <li><a href="#" class="current">Home</a></li>
+                <li><a href="#destaques">Carros</a></li>
+                <li><a href="#diferenciais">Financiamento</a></li>
+                <li><a href="#diferenciais">Sobre</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+        </nav>
+        <a href="#contato" class="btn btn-red btn-small">Fale conosco</a>
+    </header>
+
+    <section class="container hero">
+        <div class="hero-text">
+            <h1>Loucos por<br>carros brasileiros.</h1>
+            <p class="hero-sub">
+                Clássicos e esportivos selecionados a dedo, com procedência
+                e uma história para contar.
+            </p>
+            <div class="hero-buttons">
+                <a href="#destaques" class="btn btn-red">Ver estoque</a>
+                <a href="#contato" class="btn btn-outline">Saiba mais</a>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="list">
+                <div class="item active">
+                    <div class="car-img">
+                        <img src="./img/opala.1.png" alt="Opala">
+                    </div>
+                    <div class="caption">
+                        <p class="car-information">Único dono</p>
+                        <h2>Opala Diplomata 92</h2>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="car-img">
+                        <img src="./img/carro2.png" alt="Maverick GT">
+                    </div>
+                    <div class="caption">
+                        <p class="car-information">Conversível</p>
+                        <h2>Maverick GT</h2>
+                    </div>
+                </div>
+
+                <div class="item">
+                    <div class="car-img">
+                        <img src="./img/carro3.png" alt="Puma GTE">
+                    </div>
+                    <div class="caption">
+                        <p class="car-information">Restaurado</p>
+                        <h2>Puma GTE</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="indicators">
+                    <div class="number">01</div>
+                    <ul>
+                        <li class="active"></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                </div>
+                <div class="arrows">
+                    <button id="prev" aria-label="Carro anterior">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M15 5l-7 7 7 7" />
+                        </svg>
+                    </button>
+                    <button id="next" aria-label="Próximo carro">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="diferenciais">
+        <div class="feature">
+            <h3>Procedência garantida</h3>
+            <p>Histórico e documentação conferidos.</p>
+        </div>
+        <div class="feature">
+            <h3>Financiamento facilitado</h3>
+            <p>Condições sob medida para você.</p>
+        </div>
+        <div class="feature">
+            <h3>Vistoria completa</h3>
+            <p>Laudo cautelar em todos os carros.</p>
+        </div>
+        <div class="feature">
+            <h3>Atendimento próximo</h3>
+            <p>Do primeiro contato ao pós-venda.</p>
+        </div>
+    </section>
+
+    <section class="featured" id="destaques">
+        <h2 class="section-title">Veículos em destaque</h2>
+        <div class="cards">
+            <article class="card">
+                <div class="card-img"><img src="./img/carro1.png" alt="Opala SS"></div>
+                <div class="card-info">
+                    <h3>Opala SS</h3>
+                    <p>1978 · 72.000 km</p>
+                    <strong>R$ 118.900</strong>
+                </div>
+            </article>
+            <article class="card">
+                <div class="card-img"><img src="./img/carro2.png" alt="Maverick GT"></div>
+                <div class="card-info">
+                    <h3>Maverick GT</h3>
+                    <p>1975 · 64.000 km</p>
+                    <strong>R$ 149.900</strong>
+                </div>
+            </article>
+            <article class="card">
+                <div class="card-img"><img src="./img/carro3.png" alt="Puma GTE"></div>
+                <div class="card-info">
+                    <h3>Puma GTE</h3>
+                    <p>1980 · 51.000 km</p>
+                    <strong>R$ 89.900</strong>
+                </div>
+            </article>
+            <article class="card">
+                <div class="card-img"><img src="./img/carro1.png" alt="Fusca 1300"></div>
+                <div class="card-info">
+                    <h3>Fusca 1300</h3>
+                    <p>1974 · 38.000 km</p>
+                    <strong>R$ 42.500</strong>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer" id="contato">
+        <p>Compra, venda e avaliação de carros clássicos.</p>
+        <a href="#" class="btn btn-red btn-small">Chamar no WhatsApp</a>
+    </footer>
+
+    <script src="./scripts.js"></script>
+</body>
+
+</html>

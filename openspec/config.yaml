@@ -1,0 +1,69 @@
+schema: spec-driven
+
+context: |
+  Project: GhostPay
+  Domain: Plataforma web para divulgação de veículos, permitindo navegação pelo catálogo, cadastro e autenticação de clientes, consulta de detalhes e configurações de veículos, simulação de financiamento e contato com a loja.
+
+  Tech stack:
+  - Interface web.
+  - Xano e XanoScript para o backend.
+  - Xano CLI para sincronização com o workspace Xano.
+  - XanoScript Language Server para suporte ao desenvolvimento.
+  - Xano Developer MCP para documentação e validação de XanoScript.
+  - Git para controle de versão.
+  - OpenSpec para especificação e desenvolvimento incremental.
+
+  Architecture:
+  - Separar a interface web das responsabilidades do backend.
+  - Funcionalidades administrativas devem possuir acesso restrito.
+  - O modelo de dados deve evoluir junto das funcionalidades e não ser implementado isoladamente.
+  - Respeitar o modelo de domínio definido em docs/domain-model.md.
+
+  Security:
+  - Proteger dados pessoais e credenciais.
+  - Aplicar autenticação e autorização no backend quando necessárias.
+  - Não armazenar tokens, senhas ou outras credenciais sensíveis em arquivos versionados.
+
+  Development:
+  - O projeto deve ser desenvolvido incrementalmente utilizando OpenSpec.
+  - Mudanças funcionais ou estruturais relevantes devem ser especificadas antes da implementação.
+  - Não presumir requisitos ainda não definidos.
+  - Consultar docs/project-overview.md, docs/domain-model.md e AGENTS.md para contexto adicional.
+
+  Language:
+  - Escrever a documentação do projeto e os artefatos OpenSpec em português brasileiro.
+
+rules:
+  proposal:
+    - Descrever claramente o problema, o objetivo e o escopo da mudança.
+    - Identificar explicitamente o que está fora do escopo quando necessário.
+    - Evitar incluir funcionalidades não relacionadas na mesma Change.
+
+  specs:
+    - Escrever requisitos claros e verificáveis.
+    - Utilizar cenários para comportamentos relevantes.
+    - Não presumir regras de negócio que ainda não tenham sido definidas.
+
+  design:
+    - Respeitar a arquitetura e o modelo de domínio existentes.
+    - Justificar decisões técnicas relevantes.
+    - Evitar introduzir novas tecnologias sem necessidade e aprovação.
+
+  tasks:
+    - Dividir a implementação em tarefas pequenas e verificáveis.
+    - Manter as tarefas alinhadas ao escopo da Change.
+    - Incluir verificações relevantes para a funcionalidade implementada.
+
+operations:
+  apply:
+    guidance:
+      - Implementar somente o que estiver previsto nos artefatos da Change.
+      - Consultar a documentação oficial ou o Xano Developer MCP quando houver dúvida sobre XanoScript.
+      - Executar verificações relevantes antes de considerar a implementação concluída.
+      - Revisar as alterações realizadas.
+
+  archive:
+    guidance:
+      - Confirmar que a implementação corresponde à especificação.
+      - Confirmar que as verificações relevantes foram realizadas.
+      - Registrar somente Changes efetivamente concluídas.
