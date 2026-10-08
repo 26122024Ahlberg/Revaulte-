@@ -1,0 +1,25 @@
+# Credenciais e variáveis de ambiente (nunca versionar)
+.env
+.env.*
+!.env.example
+credentials.yaml
+credentials.yml
+*.pem
+*.key
+
+# Configuração local do Xano CLI (as credenciais ficam em ~/.xano/, fora do repositório)
+.xano/
+
+# Configuração local do Claude Code (permissões e ajustes por máquina)
+.claude/settings.local.json
+
+# Sistema operacional e editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Dependências e arquivos temporários
+node_modules/
+*.log

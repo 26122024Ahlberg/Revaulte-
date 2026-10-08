@@ -204,7 +204,11 @@ A estrutura definitiva do frontend será criada separadamente e evoluirá increm
 
 ### Workspace Xano
 
-O workspace Xano do projeto ainda não foi configurado. Essa preparação será realizada quando necessária para o início da implementação do backend.
+O workspace Xano do projeto (“Ghost's Workspace”) já foi conectado ao projeto pelo Xano CLI e sincronizado com a pasta `xano/`, que contém os arquivos XanoScript (`.xs`) do backend.
+
+No momento, o workspace possui apenas a estrutura inicial fornecida pelo Xano: as tabelas `user` e `event_log`, os grupos de API de autenticação e de logs de eventos, funções auxiliares, um addon e exemplos de IA. As estruturas próprias do GhostPay serão acrescentadas incrementalmente pelas Changes.
+
+A pasta `xano/` é versionada no Git. As credenciais do Xano CLI ficam fora do repositório e não devem ser copiadas para ele.
 
 ### Imagens
 
