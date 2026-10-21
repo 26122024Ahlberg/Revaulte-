@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=League+Gothic&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <title>Catálogo | Revaulte</title>
+</head>
+
+<body>
+    <header class="topbar">
+        <a href="./catalogo.html" class="logo">Revaulte</a>
+        <nav aria-label="Navegação principal">
+            <ul>
+                <li><a href="./catalogo.html" class="current" aria-current="page">Catálogo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="catalog">
+        <h1 class="section-title">Catálogo de veículos</h1>
+
+        <div id="catalog-region" aria-live="polite">
+            <p id="catalog-loading" class="state-message">Carregando veículos…</p>
+
+            <div id="catalog-list" class="cards" hidden></div>
+
+            <p id="catalog-empty" class="state-message" hidden>
+                Não há veículos no catálogo no momento.
+            </p>
+
+            <div id="catalog-error" class="state-message" hidden>
+                <p>Não foi possível carregar o catálogo. Verifique sua conexão e tente novamente.</p>
+                <button type="button" id="catalog-retry" class="btn btn-red">Tentar novamente</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Revaulte — veículos novos e usados, originais e modificados.</p>
+    </footer>
+
+    <script src="./js/config.js"></script>
+    <script src="./js/catalogo.js"></script>
+</body>
+
+</html>

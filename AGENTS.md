@@ -1,4 +1,10 @@
-# AGENTS.md — GhostPay
+# AGENTS.md — Revaulte
+
+## Identidade do projeto
+
+- **Revaulte** é o nome oficial do marketplace e do site de veículos (marketplace especializado em clássicos, antigos, esportivos, raros e modificados/preparados). Use esse nome em todo texto visível ao público e ao descrever o produto na documentação.
+- **GhostPay** é apenas o nome do grupo acadêmico que desenvolve o projeto. Não o utilize como nome do marketplace ou do site.
+- Não renomeie o repositório, o workspace Xano, tabelas, endpoints ou outros identificadores técnicos já em funcionamento (por exemplo, o `canonical` `ghostpay-catalog`) apenas por causa da marca.
 
 ## Contexto obrigatório
 
@@ -13,7 +19,7 @@ Não presuma requisitos que não estejam definidos nesses documentos ou na Chang
 
 ## Processo de desenvolvimento
 
-O GhostPay deve ser desenvolvido incrementalmente utilizando OpenSpec.
+O Revaulte deve ser desenvolvido incrementalmente utilizando OpenSpec.
 
 Mudanças funcionais ou estruturais relevantes devem ser especificadas antes da implementação.
 
@@ -26,6 +32,8 @@ Evite implementar várias funcionalidades independentes em uma única Change.
 ## Arquitetura e tecnologias
 
 Respeite as tecnologias definidas para o projeto e para a disciplina.
+
+O frontend deve ser desenvolvido obrigatoriamente com o framework Reflex (Python), por determinação do professor da disciplina. Não crie novas páginas em HTML, CSS e JavaScript puro.
 
 O backend deve utilizar Xano/XanoScript.
 

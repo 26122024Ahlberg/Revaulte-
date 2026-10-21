@@ -1,10 +1,12 @@
-# GhostPay — Modelo de Domínio
+# Revaulte — Modelo de Domínio
 
 ## 1. Visão geral do domínio
 
-O domínio do GhostPay é composto pelos conceitos necessários para apresentar veículos disponíveis para venda, originais ou modificados/preparados, permitir o cadastro e autenticação de clientes, apresentar a configuração original e as modificações dos veículos, realizar simulações de financiamento, oferecer favoritos e simulações salvas aos clientes e permitir o gerenciamento dos anúncios por usuários administrativos.
+O domínio do Revaulte é composto pelos conceitos necessários para apresentar veículos disponíveis para venda, originais ou modificados/preparados, permitir o cadastro e autenticação de clientes, apresentar a configuração original e as modificações dos veículos, realizar simulações de financiamento, oferecer favoritos e simulações salvas aos clientes e permitir o gerenciamento dos anúncios por usuários administrativos.
 
 Cada anúncio representa um veículo real.
+
+Revaulte é o nome oficial do marketplace e do site de veículos. A Revaulte intermedia a descoberta e o contato entre comprador e anunciante; não é proprietária dos veículos anunciados. GhostPay é apenas o nome do grupo acadêmico que desenvolve o projeto e não faz parte do domínio (ver “Identidade nominal” em `docs/project-overview.md`).
 
 Este documento representa os conceitos e relações do sistema em nível de domínio. Ele não define a estrutura física do banco de dados.
 
@@ -14,7 +16,7 @@ Este documento representa os conceitos e relações do sistema em nível de dom�
 
 ### Descrição
 
-Representa uma pessoa que se cadastra no GhostPay para possuir uma conta na plataforma.
+Representa uma pessoa que se cadastra no Revaulte para possuir uma conta na plataforma.
 
 ### Responsabilidades
 
@@ -53,7 +55,7 @@ Representa uma pessoa que se cadastra no GhostPay para possuir uma conta na plat
 
 ### Descrição
 
-Representa o acesso autenticado de um usuário ao GhostPay.
+Representa o acesso autenticado de um usuário ao Revaulte.
 
 ### Responsabilidades
 
@@ -88,7 +90,7 @@ Representa o acesso autenticado de um usuário ao GhostPay.
 
 ### Descrição
 
-Representa um usuário autorizado a acessar a área administrativa do GhostPay.
+Representa um usuário autorizado a acessar a área administrativa do Revaulte.
 
 ### Responsabilidades
 
@@ -114,7 +116,7 @@ Representa um usuário autorizado a acessar a área administrativa do GhostPay.
 
 ### Descrição
 
-Representa um veículo real anunciado no GhostPay.
+Representa um veículo real anunciado no Revaulte.
 
 É um dos conceitos centrais do sistema e reúne as informações necessárias para que o visitante ou cliente conheça o veículo.
 
@@ -200,7 +202,7 @@ Representa uma imagem utilizada para apresentar visualmente um veículo no catá
 
 Representa as características com que o veículo foi originalmente produzido.
 
-É uma informação descritiva do veículo anunciado. O usuário a consulta; ele não a seleciona nem monta. O GhostPay não é um configurador de veículo novo de montadora.
+É uma informação descritiva do veículo anunciado. O usuário a consulta; ele não a seleciona nem monta. O Revaulte não é um configurador de veículo novo de montadora.
 
 ### Principais atributos conceituais
 
@@ -219,7 +221,7 @@ Representa as características com que o veículo foi originalmente produzido.
 ### Regras importantes
 
 - a Configuração Original deve ser mantida distinta das Modificações realizadas posteriormente;
-- opções selecionáveis pelo usuário não fazem parte do modelo atual. Caso a loja venha a oferecê-las, isso deverá ser especificado em uma Change própria, sem presumir esse comportamento.
+- opções selecionáveis pelo usuário não fazem parte do modelo atual. Caso venham a ser oferecidas, isso deverá ser especificado em uma Change própria, sem presumir esse comportamento.
 
 ---
 
@@ -229,7 +231,7 @@ Representa as características com que o veículo foi originalmente produzido.
 
 Representa uma alteração realizada no veículo posteriormente à sua configuração original.
 
-A apresentação de veículos modificados/preparados é um ponto importante do GhostPay.
+A apresentação de veículos modificados/preparados é um ponto importante do Revaulte.
 
 ### Responsabilidades
 
@@ -331,11 +333,11 @@ Representa a marcação de um Veículo por um Cliente para consulta posterior.
 
 ### Descrição
 
-Representa a intenção de um visitante ou cliente de entrar em contato com a loja a respeito de um veículo.
+Representa a intenção de um visitante ou cliente de entrar em contato com o anunciante a respeito de um veículo.
 
 ### Responsabilidades
 
-- permitir que o usuário prossiga para o contato com a loja;
+- permitir que o usuário prossiga para o contato com o anunciante;
 - manter o contexto do veículo de interesse quando necessário.
 
 ### Relações
@@ -350,11 +352,39 @@ Representa a intenção de um visitante ou cliente de entrar em contato com a lo
 
 ---
 
+## 11-A. Anunciante (planejado)
+
+### Descrição
+
+Representa quem anuncia um veículo na Revaulte: futuramente, particulares, lojas e vendedores profissionais.
+
+### Principais atributos conceituais
+
+- nome de exibição;
+- meio de contato autorizado (inicialmente WhatsApp);
+- autorização para exibir o contato publicamente.
+
+### Relações
+
+- um Anunciante pode anunciar vários Veículos;
+- um Veículo anunciado está associado a um Anunciante;
+- futuramente, um Anunciante estará associado a uma Conta.
+
+### Regras importantes
+
+- somente dados que o Anunciante autorizou podem ser exibidos publicamente;
+- dados pessoais do Anunciante (CPF, e-mail, endereço) não são exibidos publicamente;
+- nenhum dado de contato pode ser inventado.
+
+Este conceito ainda não existe no backend. Será especificado e implementado pela Change `contato-vendedor`, após autorização.
+
+---
+
 ## 12. Catálogo
 
 ### Descrição
 
-Representa o conjunto de veículos apresentados publicamente no GhostPay, em uma página própria com a listagem completa.
+Representa o conjunto de veículos apresentados publicamente no Revaulte, em uma página própria com a listagem completa.
 
 ### Responsabilidades
 
@@ -375,7 +405,7 @@ Representa o conjunto de veículos apresentados publicamente no GhostPay, em uma
 - veículos vendidos, quando apresentados, devem estar claramente identificados como “Vendido” e indisponíveis para negociação;
 - veículos modificados/preparados devem possuir uma identificação como “Modificado” ou “Preparado”;
 - os filtros planejados são marca, modelo, ano, faixa de preço e condição (novo/usado), além de ordenações relevantes;
-- uma seção de veículos em destaque na página inicial poderá existir futuramente e não faz parte do Catálogo neste momento.
+- a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com os três veículos Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque.
 
 ---
 
@@ -388,7 +418,7 @@ Visitante
 → consulta Veículo
 → consulta Configuração Original e Modificações
 → realiza Simulação de Financiamento
-→ entra em Contato com a loja
+→ entra em Contato com o Anunciante
 
 Cliente
 → possui Conta com perfil Cliente
@@ -417,7 +447,7 @@ Veículo
 
 ## 14. Limites atuais do modelo
 
-Este modelo representa o entendimento atual do domínio do GhostPay.
+Este modelo representa o entendimento atual do domínio do Revaulte.
 
 Detalhes que ainda não foram definidos, como:
 
@@ -425,10 +455,11 @@ Detalhes que ainda não foram definidos, como:
 - tratamento de potência e combustível quando diferem entre a configuração original e o estado atual do veículo;
 - transições permitidas entre os estados do veículo;
 - fórmula da simulação de financiamento, taxa e quem a configura;
-- funcionamento detalhado do contato com a loja;
+- funcionamento detalhado do contato com o anunciante e do chat interno;
+- quem pode ser Anunciante, como se cadastra e como os anúncios são moderados;
 - permissões específicas da área administrativa e criação do primeiro Administrador;
-- critérios para veículos em destaque na página inicial;
-- existência de opções selecionáveis oferecidas pela loja;
+- critério administrativo de destaque na página inicial (no MVP, os destaques são os três veículos Disponíveis mais recentes);
+- existência de opções selecionáveis oferecidas pelo anunciante;
 
 deverão ser definidos incrementalmente por meio das especificações e Changes do OpenSpec.
 

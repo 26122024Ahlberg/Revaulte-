@@ -9,7 +9,9 @@ Estado atual observado no repositório:
 - **Frontend**: só existe `frontend-rascunho/`, com `index.projeto.html` e `styles.projeto.css`. É uma página inicial estática (topo, hero com slider, faixa de diferenciais, seção “Veículos em destaque” com quatro cartões fixos e rodapé). O HTML referencia `styles.css`, `scripts.js` e `./img/*`, que não existem. Não há página de catálogo. O rascunho define a identidade visual: tema escuro, variáveis de cor em `:root`, fontes League Gothic e Poppins, e o componente `.card` (imagem, título, linha “ano · km”, preço).
 - **Backend**: `xano/` contém o workspace “Ghost's Workspace” sincronizado, somente com a estrutura inicial do Xano: tabelas `user` e `event_log`, grupos de API `Authentication` e `Event Logs`, funções `Quick Start/*`, um addon e exemplos de IA. Não existe tabela de veículos. A pasta `xano/` contém apenas arquivos `.xs` (19 arquivos), sem credenciais: as credenciais do Xano CLI ficam em `~/.xano/`, fora do repositório. Ela ainda não foi incluída em nenhum commit, mas não é ignorada pelo Git e deve ser versionada (ver decisão 10).
 - **Convenções locais do XanoScript**: nomes de tabelas e campos em inglês; enum com `values = [...]`; arquivo do grupo de API em `xano/api/<grupo>/<grupo>.xs`; endpoints em `xano/api/<grupo>/<caminho>_<VERBO>.xs`; endpoint público é o que não declara `auth`.
-- **Restrições**: HTML, CSS e JavaScript puro, sem framework; backend em Xano/XanoScript; sincronização pelo Xano CLI; o rascunho deve permanecer intacto; autorização e regras de visibilidade aplicadas no backend.
+- **Frontend em HTML/CSS/JS puro (referência)**: durante a implementação foi criada em `frontend/` uma versão da página de catálogo em HTML, CSS e JavaScript puro (`catalogo.html`, `css/styles.css`, `js/config.js`, `js/catalogo.js`, `img/placeholder.svg`), já integrada ao endpoint público e conferida no navegador quanto à marca Revaulte e à exibição de um veículo. Depois disso o professor determinou que o frontend seja obrigatoriamente desenvolvido em Reflex (Python). Essa versão deixa de ser o frontend definitivo e passa a ser referência de comportamento e de identidade visual (ver decisão 11).
+- **Ambiente local**: o Python disponível na máquina é 3.9.6, e o Reflex 0.10.0 (versão atual no PyPI) exige Python 3.11 ou superior.
+- **Restrições**: frontend obrigatoriamente em Reflex (Python), por determinação do professor da disciplina; backend em Xano/XanoScript; sincronização pelo Xano CLI; o rascunho deve permanecer intacto; autorização e regras de visibilidade aplicadas no backend Xano.
 
 ## Goals / Non-Goals
 
@@ -62,7 +64,7 @@ Alternativas consideradas:
 
 `cover_image_url` armazena a URL da imagem de capa do veículo, isto é, a imagem real daquele veículo exibida no cartão do catálogo. O campo é opcional.
 
-A imagem provisória é um arquivo local do frontend (`frontend/img/placeholder.svg`) e não é armazenada em `cover_image_url`. Ela é utilizada apenas em dois casos:
+A imagem provisória é um arquivo local do frontend (`frontend/assets/placeholder.svg`, servido como `/placeholder.svg`) e não é armazenada em `cover_image_url`. Ela é utilizada apenas em dois casos:
 
 - quando a capa está ausente (campo vazio, nulo ou com endereço que não seja `http`/`https`);
 - quando a capa falha ao carregar.
@@ -77,7 +79,7 @@ Alternativa considerada: campo do tipo `image` do Xano. Descartado nesta Change 
 
 Criar o grupo de API `Catalog` e o endpoint `GET vehicles`, sem `auth`, sem parâmetros de entrada.
 
-- O `canonical` do grupo deve ser único na instância Xano; usar um valor específico do projeto, como `ghostpay-catalog`.
+- O `canonical` do grupo deve ser único na instância Xano; o valor adotado é `ghostpay-catalog`. Ele leva o nome do grupo acadêmico (GhostPay) e foi criado antes da definição de que a loja se chama Revaulte; por ser um identificador técnico já em funcionamento, não é renomeado por causa da marca.
 - O endereço público segue o formato `<base da instância>/api:<canonical>/vehicles`.
 - A resposta é uma lista JSON; cada item contém somente `id`, `brand`, `model`, `version`, `year`, `condition`, `mileage`, `price`, `is_modified`, `status` e `cover_image_url`.
 
@@ -101,38 +103,58 @@ Justificativa: é necessária uma ordem estável para que a página não mude a 
 
 Alternativa considerada: veículos disponíveis antes dos vendidos. Descartado por ser uma regra de apresentação ainda não definida nos documentos.
 
-### 6. Estrutura definitiva do frontend em `frontend/`
+### 6. Frontend definitivo em Reflex, na pasta `frontend/`
+
+O frontend é um aplicativo Reflex com nome de app `revaulte`:
 
 ```
 frontend/
-├── catalogo.html
-├── css/
-│   └── styles.css
-├── js/
-│   ├── config.js      endereço base da API
-│   └── catalogo.js    carregamento e renderização
-└── img/
-    └── placeholder.svg
+├── rxconfig.py            rx.Config(app_name="revaulte")
+├── requirements.txt       reflex com versão fixada
+├── README.md              instalação e execução local
+├── assets/
+│   ├── styles.css         identidade visual (portada de frontend-html/css/styles.css)
+│   └── placeholder.svg    imagem provisória (copiada de frontend-html/img/)
+└── revaulte/
+    ├── __init__.py
+    ├── revaulte.py        rx.App, página /catalogo e redirecionamento de /
+    ├── config.py          endereço base da API do catálogo
+    ├── state.py           CatalogState: requisição ao Xano e preparação dos cartões
+    └── components.py      topo, rodapé, cartão, selos e mensagens de estado
 ```
 
-Justificativa: a visão geral determina que a estrutura definitiva seja criada separadamente do rascunho. `styles.css` é escrito do zero, reaproveitando do rascunho as variáveis de cor, a tipografia, os botões, o topo, o rodapé e o componente `.card`; os estilos do hero, do slider e da faixa de diferenciais não são levados, pois não pertencem ao catálogo. Nada em `frontend-rascunho/` é editado, movido ou importado por caminho.
+Pastas geradas pelo Reflex ou pelo ambiente Python (`.web/`, `.states/`, `.venv/`, `__pycache__/`) não são versionadas e entram no `.gitignore`.
 
-O topo da página de catálogo exibe a marca e o item “Catálogo” como página atual. Itens para páginas ainda inexistentes (Home, Financiamento, Contato) não são incluídos, para não criar links quebrados.
+- A página do catálogo fica na rota `/catalogo`. Por ser a única página desta Change, a rota `/` redireciona para `/catalogo`, para que `reflex run` abra diretamente o catálogo; a página inicial pertence a outra Change.
+- O título da página é “Catálogo | Revaulte”. O topo exibe a marca Revaulte e o item “Catálogo” como página atual; o rodapé usa Revaulte; o nome GhostPay não aparece na interface. Itens para páginas inexistentes (Home, Financiamento, Contato) não são incluídos.
+- Ambiente: Python 3.11 ou superior (proposto: Python 3.12 instalado pelo Homebrew), com ambiente virtual em `frontend/.venv` e dependências por `pip install -r requirements.txt`. A versão do Reflex é fixada em `requirements.txt` após a instalação. O uso de `uv`, recomendado pela documentação do Reflex, não é adotado para não introduzir outra ferramenta; pode ser revisto se o grupo preferir.
+- Execução local: `reflex run` dentro de `frontend/`. Hospedagem continua fora do escopo.
 
-### 7. Comunicação com o Xano por `fetch`, com endereço em arquivo de configuração
+Justificativa: o professor determinou o uso obrigatório de Reflex. Manter o nome `frontend/` preserva o local definitivo previsto na visão geral; separar estado, componentes e configuração deixa a comunicação com o Xano reutilizável pelas próximas páginas.
 
-`config.js` expõe o endereço base do grupo de API; `catalogo.js` faz uma requisição `GET` com `fetch` ao carregar a página.
+Alternativa considerada: criar o app Reflex em outra pasta e manter a versão HTML em `frontend/`. Descartado porque a pasta definitiva passaria a conter código que não é mais o frontend oficial.
 
-Justificativa: `fetch` é nativo e dispensa bibliotecas. O endereço do endpoint público não é credencial e pode ser versionado; mantê-lo em um único arquivo evita repeti-lo nas próximas páginas. Nenhum token ou chave é necessário nem deve ser incluído.
+### 7. Comunicação com o Xano feita pelo servidor do Reflex
+
+O Reflex executa o estado e os manipuladores de eventos em Python, no servidor do próprio app, e envia ao navegador apenas os valores do estado. Por isso:
+
+- A requisição `GET <base>/vehicles` é feita em um manipulador de eventos assíncrono de `CatalogState`, disparado pelo `on_load` da página e pelo botão “Tentar novamente”, usando um cliente HTTP assíncrono com tempo limite (proposto: `httpx`, já instalado como dependência do Reflex; confirmar na instalação).
+- O navegador não acessa o Xano diretamente. A configuração de CORS do grupo `Catalog` deixa de ser relevante para o frontend.
+- O endereço base fica em `revaulte/config.py`, lido da variável de ambiente `REVAULTE_CATALOG_API_URL` e, na ausência dela, de um valor padrão com o endereço público atual (`https://x8ki-letl-twmt.n7.xano.io/api:ghostpay-catalog`). O endereço não é credencial e pode ser versionado; nenhum token ou chave é necessário nem deve ser incluído.
+- A regra de visibilidade continua no Xano: o servidor do Reflex recebe somente veículos Disponíveis e Vendidos e não refiltra nem amplia a lista.
+- O estado guarda apenas os dados necessários aos cartões, derivados dos onze campos públicos, para que nada além deles chegue ao navegador.
+
+Justificativa: é o modelo de execução do Reflex; fazer a requisição no navegador exigiria JavaScript próprio, contrariando o uso do framework.
 
 ### 8. Renderização segura e estados da página
 
-- Os cartões são montados com `createElement` e `textContent`, nunca com `innerHTML` a partir de dados do backend, pois os textos virão futuramente de cadastro administrativo.
-- `cover_image_url` é usado como `src` da capa quando for um endereço `http` ou `https`. A imagem provisória local só entra quando a capa está ausente (ou o endereço não é `http`/`https`) ou quando o evento de erro da imagem indica falha no carregamento (ver decisão 2).
-- Preço formatado com `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })`; quilometragem com separador de milhar e sufixo “km”.
-- Uma região da página alterna entre quatro estados: carregando, lista, vazio e erro. O estado de erro tem um botão “Tentar novamente” que repete a requisição. Resposta com status HTTP de erro ou corpo que não seja uma lista é tratada como erro.
-- Selos: “Modificado” e “Vendido” são elementos de texto sobre a imagem do cartão. O cartão vendido recebe uma classe que reduz o destaque visual (imagem esmaecida e preço sem a cor de destaque) e não tem efeito de elevação ao passar o cursor. Como esta Change não possui página de detalhes nem contato, nenhum cartão é link ou possui ação de negociação.
-- A grade de cartões mantém os pontos de quebra do rascunho (4, 2 e 1 colunas).
+- Os cartões são renderizados com `rx.foreach` sobre a lista do estado e com componentes de texto do Reflex, que exibem os dados como texto. Não se usa `rx.html` nem qualquer inserção de HTML a partir de dados do backend.
+- O estado converte cada veículo da resposta em um item de exibição: título (marca, modelo e versão quando houver, sem espaços sobrando), linha de detalhes (ano · quilometragem · condição), preço formatado, indicadores de vendido e modificado e endereço da capa.
+- Preço formatado no padrão brasileiro em Python (por exemplo, `R$ 118.900,00`), sem depender da configuração de localidade do sistema; quilometragem com separador de milhar e sufixo “km”; condição traduzida para “Novo” ou “Usado”.
+- Capa: `cover_image_url` só é usado quando for um endereço `http` ou `https`; caso contrário o cartão já nasce com a imagem provisória `/placeholder.svg`. Quando a capa falha ao carregar no navegador, o evento de erro da imagem dispara um evento do estado que troca aquele cartão para a imagem provisória (ver decisão 2). Como `rx.el.img` e `rx.image` não aceitam `on_error` no Reflex 0.10.0 (confirmado na tarefa 6.3), a capa usa o componente `ImagemCapa` de `components.py`, uma extensão do elemento de imagem do Reflex que declara o gatilho `on_error`; não há biblioteca nova nem `rx.html`.
+- Uma região da página alterna entre quatro estados (carregando, lista, vazio e erro) a partir de uma variável do estado, com `rx.cond`/`rx.match`. O estado de erro tem o botão “Tentar novamente”. Falha de rede, tempo esgotado, status HTTP de erro ou corpo que não seja uma lista são tratados como erro, e a lista é esvaziada para que nenhum veículo seja exibido.
+- Selos “Modificado” e “Vendido” são textos sobre a imagem do cartão. O cartão vendido tem aparência esmaecida, sem destaque de preço e sem efeito de elevação; nenhum cartão é link ou possui ação de negociação.
+- A grade mantém os pontos de quebra 4, 2 e 1 colunas.
 
 ### 9. Dados de teste inseridos manualmente no workspace
 
@@ -148,10 +170,24 @@ O `.gitignore` da raiz do repositório exclui arquivos de credenciais e de ambie
 
 Justificativa: sem versionamento não há histórico nem revisão do backend, e `AGENTS.md` exige revisar o `git diff`. As credenciais do Xano CLI ficam em `~/.xano/credentials.yaml`, fora do repositório, e os arquivos sincronizados não contêm tokens nem chaves (o único campo de credencial presente, `bearer_token` em `xano/ai/tool/search_xano_docs.xs`, está vazio).
 
+### 11. Identidade visual e versão HTML como referência
+
+- A versão em HTML/CSS/JS puro é movida de `frontend/` para `frontend-html/` antes da criação do app Reflex, sem alterações de conteúdo, e passa a ser versionada como referência. Nada é apagado. `frontend-rascunho/` continua intacto.
+- A identidade visual é preservada portando `frontend-html/css/styles.css` para `frontend/assets/styles.css`, carregado com `rx.App(stylesheets=["/styles.css", <Google Fonts>])`. Os componentes usam os elementos HTML do Reflex (`rx.el.*`) com as mesmas classes (`topbar`, `logo`, `cards`, `card`, `card-sold`, `badge`, `state-message`, `footer` etc.), mantendo cores, fontes League Gothic e Poppins, tema escuro e pontos de quebra.
+- O tema padrão do Reflex (Radix) não deve sobrepor a identidade da Revaulte: configurar a aparência escura e conferir no navegador que fundo, fontes e cores correspondem à versão HTML.
+
+Justificativa: reaproveitar a folha de estilos já conferida reduz o risco de divergência visual e mantém a página comparável lado a lado com a referência.
+
+Alternativa considerada: reescrever todos os estilos como propriedades `style` dos componentes Reflex. Descartado nesta Change por duplicar trabalho sem ganho funcional; pode ser feito depois, se necessário.
+
 ## Risks / Trade-offs
 
-- [O `canonical` escolhido pode já existir na instância Xano] → usar um valor específico do projeto e ajustá-lo se o envio pelo CLI acusar conflito; o endereço fica somente em `config.js`.
-- [CORS pode bloquear a requisição quando a página é aberta por `file://` ou por um servidor local] → verificar a configuração de CORS do grupo de API no Xano e testar a página servida por um servidor HTTP local simples.
+- [O `canonical` escolhido pode já existir na instância Xano] → usar um valor específico do projeto e ajustá-lo se o envio pelo CLI acusar conflito; o endereço fica somente em `frontend/revaulte/config.py`.
+- [`rx.el.img`/`rx.image` não aceitam o gatilho `on_error` no Reflex 0.10.0, necessário ao cenário “Imagem de capa indisponível”] → confirmado na tarefa 6.3. Mitigado com o componente `ImagemCapa`, que estende o elemento de imagem do Reflex declarando o gatilho; testado no Safari, o evento disparou uma vez para cada capa inválida e nenhuma vez para a capa válida. Solução aprovada pelo usuário. Uma atualização do Reflex pode alterar essa extensão: reexecutar o teste da capa quebrada ao atualizar a versão fixada.
+- [O tema padrão do Reflex pode sobrepor fontes, cores ou espaçamentos de `styles.css`] → configurar a aparência escura e comparar a página Reflex com `frontend-html/` no navegador.
+- [Python 3.9.6 na máquina, abaixo do mínimo do Reflex (3.11)] → instalar Python 3.12 e usar ambiente virtual próprio em `frontend/.venv`; a instalação depende de aprovação do usuário.
+- [O Reflex baixa ferramentas de frontend (Node/Bun) na primeira execução e cria arquivos gerados] → ignorar `.web/` e `.states/` no Git e registrar no `README` do frontend os comandos de instalação e execução.
+- [Requisição ao Xano feita pelo servidor do Reflex: a aba de rede do navegador não mostra mais a chamada ao Xano] → a verificação de que dados de Rascunho não chegam ao navegador passa a inspecionar as mensagens do WebSocket do Reflex, além da resposta do endpoint.
 - [Listagem sem paginação cresce com o número de veículos] → aceitável para o volume esperado; paginação fica para a Change de filtros e ordenação, sem mudança de contrato além de novos parâmetros opcionais.
 - [Marca, modelo, versão e ano em `vehicle` podem ser movidos quando a Configuração Original for modelada] → a resposta do endpoint é um contrato independente do esquema; a mudança ficaria restrita ao backend.
 - [URLs de imagem de capa externas podem sair do ar] → a imagem provisória local cobre a falha; a gestão definitiva de imagens virá em Change própria.
@@ -163,10 +199,16 @@ Justificativa: sem versionamento não há histórico nem revisão do backend, e 
 1. Criar os arquivos `.xs` localmente e validá-los com o Xano Developer MCP.
 2. Enviar a tabela e, em seguida, o grupo de API e o endpoint ao workspace com o Xano CLI.
 3. Inserir os registros de teste e conferir a resposta do endpoint.
-4. Criar o frontend e apontar `config.js` para o endpoint.
+4. ~~Criar o frontend em HTML/CSS/JS e apontar `config.js` para o endpoint~~ — feito; a versão passa a ser referência.
+5. Preparar o ambiente Python 3.11+ e instalar o Reflex.
+6. Mover a versão HTML para `frontend-html/` e criar o app Reflex em `frontend/`, portando a folha de estilos e a imagem provisória.
+7. Implementar estado, componentes e página; verificar todos os cenários da spec na página Reflex.
 
-Reversão: a Change é apenas aditiva. Basta remover o grupo de API `Catalog`, a tabela `vehicle` e a pasta `frontend/`; nenhuma estrutura existente é alterada.
+O backend Xano já publicado não muda com a migração.
+
+Reversão: a Change é apenas aditiva. Basta remover o grupo de API `Catalog`, a tabela `vehicle` e as pastas `frontend/` e `frontend-html/`; nenhuma estrutura existente é alterada.
 
 ## Open Questions
 
 - Texto do selo: os documentos admitem “Modificado” ou “Preparado”. Adotado “Modificado”; a troca é apenas de rótulo.
+- Gerenciador de ambiente Python: decidido pelo usuário — `venv` + `pip` com Python 3.12 do Homebrew e `reflex==0.10.0` fixado.

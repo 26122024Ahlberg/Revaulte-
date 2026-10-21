@@ -1,11 +1,12 @@
 schema: spec-driven
 
 context: |
-  Project: GhostPay
-  Domain: Plataforma web para divulgação de veículos, permitindo navegação pelo catálogo, cadastro e autenticação de clientes, consulta de detalhes e configurações de veículos, simulação de financiamento e contato com a loja.
+  Project: Revaulte
+  Naming: Revaulte é o nome oficial do marketplace e do site de veículos, usado em todo texto visível ao público. GhostPay é apenas o nome do grupo acadêmico que desenvolve o projeto; permanece em identificadores técnicos já existentes (repositório, workspace Xano, canonical de API), que não devem ser renomeados por causa da marca.
+  Domain: Marketplace automotivo especializado em clássicos, antigos, esportivos, raros e modificados/preparados; a Revaulte intermedia a descoberta e o contato entre comprador e anunciante, sem ser proprietária do estoque. Permite navegação pelo catálogo, cadastro e autenticação de clientes, consulta de detalhes e configurações de veículos, simulação de financiamento e contato com o anunciante.
 
   Tech stack:
-  - Interface web.
+  - Interface web desenvolvida obrigatoriamente em Reflex (Python), por determinação do professor da disciplina.
   - Xano e XanoScript para o backend.
   - Xano CLI para sincronização com o workspace Xano.
   - XanoScript Language Server para suporte ao desenvolvimento.

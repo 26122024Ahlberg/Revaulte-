@@ -23,3 +23,10 @@ Thumbs.db
 # Dependências e arquivos temporários
 node_modules/
 *.log
+
+# Python e Reflex (ambiente virtual e arquivos gerados)
+.venv/
+__pycache__/
+*.py[cod]
+.web/
+.states/

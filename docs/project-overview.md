@@ -1,30 +1,44 @@
-# GhostPay — Visão Geral do Projeto
+# Revaulte — Visão Geral do Projeto
 
 ## 1. Visão geral
 
-O GhostPay é uma plataforma web voltada à divulgação de veículos para venda.
+O Revaulte é um marketplace automotivo especializado em carros clássicos, antigos, esportivos, raros e modificados/preparados. O modelo de negócio é semelhante ao de grandes portais de anúncios de veículos, mas com foco exclusivo nesse nicho.
+
+### Modelo de negócio
+
+- A Revaulte é a intermediadora da descoberta e do contato entre comprador e vendedor. Ela não é uma concessionária nem proprietária do estoque anunciado.
+- Futuramente, particulares, lojas e vendedores profissionais poderão anunciar seus veículos. Quem anuncia é chamado de **Anunciante** (ver `docs/domain-model.md`).
+- Nesta etapa do projeto, os anúncios são cadastrados pela equipe diretamente no backend; o cadastro de anunciantes, o contato com o anunciante e o chat interno são funcionalidades futuras, planejadas no OpenSpec (Changes `contato-vendedor` e `chat-interno`).
+- A negociação e a conclusão da venda ocorrem entre comprador e anunciante, fora do fluxo de compra do site.
+
+### Identidade nominal
+
+- **Revaulte** é o nome oficial do marketplace e do site de veículos. É o nome exibido ao público em títulos, cabeçalho, rodapé e demais textos da interface.
+- **GhostPay** é apenas o nome do grupo acadêmico que desenvolve o projeto. Ele não deve aparecer na interface pública.
+
+O nome GhostPay permanece em identificadores técnicos criados antes dessa definição, como o repositório, o workspace Xano (“Ghost's Workspace”) e o `canonical` do grupo de API do catálogo (`ghostpay-catalog`). Esses identificadores não são renomeados apenas por causa da marca.
 
 A plataforma permitirá que visitantes naveguem pelo catálogo de veículos disponíveis sem a necessidade de possuir uma conta. O site apresentará informações sobre os veículos e permitirá que o usuário consulte detalhes de um veículo específico.
 
-Cada anúncio representa um veículo real. O GhostPay poderá anunciar veículos novos e usados, tanto originais quanto modificados/preparados. A apresentação de veículos modificados é um ponto importante do projeto: a plataforma distingue a configuração original do veículo das modificações realizadas posteriormente.
+Cada anúncio representa um veículo real. Os anúncios poderão ser de veículos novos e usados, tanto originais quanto modificados/preparados. A apresentação de veículos modificados é um ponto importante do projeto: a plataforma distingue a configuração original do veículo das modificações realizadas posteriormente.
 
 Usuários também poderão criar uma conta e realizar login na plataforma. A conta oferece funcionalidades adicionais, como favoritar veículos e salvar simulações de financiamento.
 
-O GhostPay não realizará a conclusão da compra do veículo diretamente pelo site. A plataforma funcionará como meio de apresentação dos veículos, consulta de sua configuração original e de suas modificações, simulação de financiamento e contato entre o cliente interessado e a loja.
+O Revaulte não realizará a conclusão da compra do veículo diretamente pelo site. A plataforma funcionará como meio de apresentação dos veículos, consulta de sua configuração original e de suas modificações, simulação de financiamento e contato entre o comprador interessado e o anunciante.
 
-O GhostPay não é um configurador de veículo novo de montadora: o usuário consulta a configuração do veículo anunciado, sem montá-la.
+O Revaulte não é um configurador de veículo novo de montadora: o usuário consulta a configuração do veículo anunciado, sem montá-la.
 
-Também existirá uma área administrativa destinada ao gerenciamento dos veículos anunciados na plataforma.
+Também existirá uma área administrativa destinada ao gerenciamento e à moderação dos anúncios publicados na plataforma.
 
 ## 2. Problema
 
-A busca e negociação de veículos pode envolver informações distribuídas em diferentes canais, dificultando a consulta das opções disponíveis e o contato entre clientes interessados e a loja.
+A busca e negociação de veículos pode envolver informações distribuídas em diferentes canais, dificultando a consulta das opções disponíveis e o contato entre compradores interessados e vendedores.
 
-O GhostPay busca centralizar a apresentação dos veículos em uma plataforma web, permitindo que potenciais clientes consultem o catálogo, analisem informações dos veículos, conheçam a configuração original e as modificações de cada um, realizem simulações de financiamento e entrem em contato com a loja.
+O Revaulte busca centralizar a apresentação dos veículos em uma plataforma web, permitindo que potenciais clientes consultem o catálogo, analisem informações dos veículos, conheçam a configuração original e as modificações de cada um, realizem simulações de financiamento e entrem em contato com o anunciante.
 
 ## 3. Objetivos
 
-O objetivo principal do GhostPay é disponibilizar uma plataforma web simples para apresentação e divulgação dos veículos oferecidos pela loja.
+O objetivo principal do Revaulte é disponibilizar uma plataforma web simples para apresentação e divulgação dos veículos anunciados, conectando compradores e anunciantes.
 
 Entre os objetivos do projeto estão:
 
@@ -35,7 +49,7 @@ Entre os objetivos do projeto estão:
 - permitir o cadastro e autenticação de clientes;
 - oferecer ao cliente cadastrado a possibilidade de favoritar veículos e salvar simulações;
 - disponibilizar uma simulação de financiamento de caráter informativo;
-- facilitar o contato do cliente interessado com a loja;
+- facilitar o contato do comprador interessado com o anunciante;
 - disponibilizar uma área administrativa para gerenciamento dos veículos anunciados.
 
 ## 4. Público-alvo e usuários
@@ -69,7 +83,7 @@ A autenticação utiliza perfis de acesso, inicialmente Cliente e Administrador.
 
 ## 5. Escopo inicial
 
-O escopo inicial do GhostPay inclui:
+O escopo inicial do Revaulte inclui:
 
 - página inicial;
 - catálogo de veículos em página própria;
@@ -81,14 +95,14 @@ O escopo inicial do GhostPay inclui:
 - favoritos do cliente;
 - simulação de financiamento;
 - simulações salvas do cliente;
-- mecanismo de contato com a loja;
+- mecanismo de contato com o anunciante;
 - área administrativa;
 - gerenciamento dos veículos anunciados.
 
 Não fazem parte do escopo inicial:
 
 - a conclusão da compra e o pagamento integral do veículo;
-- opções selecionáveis pelo usuário para montar ou personalizar um veículo. Caso a loja venha a oferecer opções realmente selecionáveis, isso deverá ser especificado em uma Change própria.
+- opções selecionáveis pelo usuário para montar ou personalizar um veículo. Caso venham a existir opções realmente selecionáveis, isso deverá ser especificado em uma Change própria.
 
 ## 6. Principais funcionalidades
 
@@ -107,7 +121,7 @@ Veículos em rascunho não aparecem no catálogo público.
 
 Estão planejados filtros básicos por marca, modelo, ano, faixa de preço e condição (novo/usado), além de ordenações relevantes.
 
-A página inicial poderá futuramente possuir uma seção de veículos em destaque. Os critérios de destaque ainda não foram definidos.
+A página inicial possui uma seção de veículos em destaque. O critério adotado no MVP é exibir os três veículos no estado Disponível cadastrados mais recentemente; veículos vendidos não aparecem nos destaques. Um critério administrativo (por exemplo, marcar manualmente um veículo como destaque) poderá ser especificado em uma Change própria.
 
 ### Detalhes do veículo
 
@@ -155,9 +169,9 @@ Inicialmente a simulação considera:
 
 A fórmula e a taxa exatas serão definidas durante a especificação dessa funcionalidade.
 
-### Contato com a loja
+### Contato com o anunciante
 
-Após consultar um veículo e suas condições, o usuário poderá utilizar a plataforma para iniciar contato com a loja.
+Após consultar um veículo e suas condições, o usuário poderá utilizar a plataforma para iniciar contato com o anunciante, por um meio de contato autorizado por ele. Futuramente, comprador e anunciante também poderão conversar por um chat interno associado ao anúncio.
 
 A negociação e conclusão da venda ocorrerão fora do fluxo de compra do site.
 
@@ -185,7 +199,7 @@ O projeto será desenvolvido utilizando o ambiente definido para a disciplina.
 
 A arquitetura prevista inclui:
 
-- interface web em HTML, CSS e JavaScript puro, sem framework de frontend neste momento;
+- interface web desenvolvida obrigatoriamente com o framework Reflex (Python), conforme definição do professor da disciplina;
 - Xano e XanoScript para desenvolvimento do backend;
 - Xano CLI para sincronização entre os arquivos locais e o ambiente Xano;
 - XanoScript Language Server para suporte ao desenvolvimento;
@@ -200,13 +214,15 @@ A arquitetura prevista inclui:
 
 A pasta `frontend-rascunho/` contém o protótipo original da interface. Ela é uma referência visual e funcional inicial, não uma implementação definitiva, e deve permanecer intacta.
 
-A estrutura definitiva do frontend será criada separadamente e evoluirá incrementalmente durante as Changes. Os arquivos ausentes referenciados pelo protótipo não precisam ser reconstruídos.
+A estrutura definitiva do frontend será criada separadamente, em Reflex, e evoluirá incrementalmente durante as Changes. Os arquivos ausentes referenciados pelo protótipo não precisam ser reconstruídos.
+
+Uma primeira versão da página de catálogo foi feita em HTML, CSS e JavaScript puro antes da definição do Reflex. Ela é mantida apenas como referência de comportamento e identidade visual e não é o frontend oficial.
 
 ### Workspace Xano
 
 O workspace Xano do projeto (“Ghost's Workspace”) já foi conectado ao projeto pelo Xano CLI e sincronizado com a pasta `xano/`, que contém os arquivos XanoScript (`.xs`) do backend.
 
-No momento, o workspace possui apenas a estrutura inicial fornecida pelo Xano: as tabelas `user` e `event_log`, os grupos de API de autenticação e de logs de eventos, funções auxiliares, um addon e exemplos de IA. As estruturas próprias do GhostPay serão acrescentadas incrementalmente pelas Changes.
+No momento, o workspace possui apenas a estrutura inicial fornecida pelo Xano: as tabelas `user` e `event_log`, os grupos de API de autenticação e de logs de eventos, funções auxiliares, um addon e exemplos de IA. As estruturas próprias do Revaulte serão acrescentadas incrementalmente pelas Changes.
 
 A pasta `xano/` é versionada no Git. As credenciais do Xano CLI ficam fora do repositório e não devem ser copiadas para ele.
 
@@ -218,7 +234,7 @@ Imagens provisórias poderão ser utilizadas até que a gestão definitiva de im
 
 ## 9. Princípios de desenvolvimento
 
-O GhostPay deverá ser desenvolvido de maneira incremental.
+O Revaulte deverá ser desenvolvido de maneira incremental.
 
 Funcionalidades relevantes deverão passar pelo fluxo de especificação do OpenSpec antes da implementação.
 
@@ -261,7 +277,7 @@ A sequência prevista, sujeita a revisão a cada Change, é:
 4. cadastro e login;
 5. administração de veículos.
 
-Em seguida: favoritos, simulação de financiamento, simulações salvas, contato com a loja e seção de destaques na página inicial.
+Em seguida: favoritos, simulação de financiamento, simulações salvas, contato com o anunciante, chat interno e seção de destaques na página inicial.
 
 ## 12. Fonte de verdade e documentação
 
