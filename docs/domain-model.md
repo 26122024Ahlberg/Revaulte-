@@ -255,6 +255,8 @@ Quando aplicável e quando as informações estiverem disponíveis, as modifica�
 - modificações estéticas;
 - outras modificações relevantes.
 
+Essas são as áreas adotadas pela Change `detalhes-veiculo`: cada Modificação cadastrada pertence a exatamente uma delas e tem uma descrição, e a página de detalhes apresenta as modificações agrupadas por área. A situação de regularização ainda não é modelada nesta etapa.
+
 ### Relações
 
 - uma Modificação está relacionada a um Veículo;
@@ -307,7 +309,9 @@ Inicialmente a simulação considera:
 - a simulação não representa aprovação de crédito;
 - a simulação não conclui a compra do veículo;
 - salvar uma simulação exige um Cliente autenticado;
-- a fórmula e a taxa exatas deverão ser especificadas antes da implementação da funcionalidade.
+- a parcela é fixa, calculada pela Tabela Price: parcela = valor financiado × i ÷ (1 − (1 + i)^−n), com i a taxa mensal e n o número de parcelas; com taxa zero, valor financiado ÷ n;
+- a taxa é hipotética e ajustável pelo visitante, de 0% a 5% ao mês (inicial 1,50%, ilustrativa); a entrada vai de zero até menos que o preço (inicial 20%); o prazo inicial é de 48 parcelas;
+- a simulação não inclui impostos, tarifas e seguros e é exibida somente para veículos Disponíveis.
 
 ---
 
@@ -362,21 +366,23 @@ Representa quem anuncia um veículo na Revaulte: futuramente, particulares, loja
 
 - nome de exibição;
 - meio de contato autorizado (inicialmente WhatsApp);
-- autorização para exibir o contato publicamente.
+- autorização para exibir o contato publicamente;
+- data da autorização (registro do consentimento, não exibido publicamente).
 
 ### Relações
 
 - um Anunciante pode anunciar vários Veículos;
-- um Veículo anunciado está associado a um Anunciante;
-- futuramente, um Anunciante estará associado a uma Conta.
+- um Veículo anunciado pode estar associado a um Anunciante (enquanto não houver anunciante real cadastrado, o veículo fica sem anunciante e a página informa que o contato não está disponível);
+- futuramente, um Anunciante estará associado a uma Conta; após cadastro e login, os usuários poderão publicar e gerenciar os próprios veículos (conceito aprovado pelo usuário em 27/10/2026, a ser especificado em Change futura).
 
 ### Regras importantes
 
 - somente dados que o Anunciante autorizou podem ser exibidos publicamente;
 - dados pessoais do Anunciante (CPF, e-mail, endereço) não são exibidos publicamente;
-- nenhum dado de contato pode ser inventado.
+- nenhum dado de contato pode ser inventado;
+- o contato só é enviado ao site quando o Anunciante autorizou e o veículo está Disponível.
 
-Este conceito ainda não existe no backend. Será especificado e implementado pela Change `contato-vendedor`, após autorização.
+Especificado pela Change `contato-vendedor` (tabela `seller` e vínculo `vehicle.seller_id`). Em 07/11/2026 o código local está pronto e o envio ao Xano aguarda autorização do usuário.
 
 ---
 
@@ -404,7 +410,7 @@ Representa o conjunto de veículos apresentados publicamente no Revaulte, em uma
 - veículos em Rascunho não fazem parte do Catálogo;
 - veículos vendidos, quando apresentados, devem estar claramente identificados como “Vendido” e indisponíveis para negociação;
 - veículos modificados/preparados devem possuir uma identificação como “Modificado” ou “Preparado”;
-- os filtros planejados são marca, modelo, ano, faixa de preço e condição (novo/usado), além de ordenações relevantes;
+- o catálogo oferece pesquisa por marca, modelo e versão e filtros por condição (novo/usado) e por modificação (modificados/originais), aplicados sobre os veículos publicados; filtros por ano e faixa de preço e ordenações relevantes continuam planejados;
 - a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com os três veículos Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque.
 
 ---
@@ -454,7 +460,7 @@ Detalhes que ainda não foram definidos, como:
 - forma de registrar as modificações e sua situação de regularização (por modificação ou por veículo);
 - tratamento de potência e combustível quando diferem entre a configuração original e o estado atual do veículo;
 - transições permitidas entre os estados do veículo;
-- fórmula da simulação de financiamento, taxa e quem a configura;
+- taxa administrável da simulação e encargos (IOF, tarifas, seguros);
 - funcionamento detalhado do contato com o anunciante e do chat interno;
 - quem pode ser Anunciante, como se cadastra e como os anúncios são moderados;
 - permissões específicas da área administrativa e criação do primeiro Administrador;

@@ -4,7 +4,7 @@ Aplicativo web da Revaulte, desenvolvido em [Reflex](https://reflex.dev) (Python
 
 ## Requisitos
 
-- Python 3.11 ou superior (o projeto usa Python 3.12, instalado pelo Homebrew: `brew install python@3.12`).
+- Python 3.11 ou superior (o projeto usa Python 3.12, instalado pelo Homebrew no macOS: `brew install python@3.12`). No Windows, siga `../docs/colaboracao.md`.
 - Acesso à internet na primeira execução: o Reflex baixa automaticamente as ferramentas de frontend que usa (Bun e pacotes JavaScript) para a pasta `.web/`.
 
 ## Instalação
@@ -24,7 +24,7 @@ source .venv/bin/activate
 reflex run
 ```
 
-O app abre em `http://localhost:3000/` (a raiz redireciona para `/catalogo`). Se a porta estiver ocupada, o Reflex usa a próxima disponível e mostra o endereço no terminal.
+O app abre em `http://localhost:3000/`, na página inicial (`/`). As demais páginas são `/estoque`, `/usados`, `/modificados` e `/veiculo/<id>`; o endereço antigo `/catalogo` redireciona para `/estoque`. Se a porta estiver ocupada, o Reflex usa a próxima disponível e mostra o endereço no terminal.
 
 ## Imagens de terceiros
 
@@ -35,6 +35,9 @@ Fotos do carrossel da página inicial, todas obtidas no Pexels e marcadas como g
 | `assets/hero-esportivo.jpg` | https://www.pexels.com/photo/red-car-driving-on-road-along-fence-3466513/ | Abdulwahab Alawadhi |
 | `assets/hero-modificado.jpg` | https://www.pexels.com/photo/modified-audi-s4-9661333/ | Erik Mclean |
 | `assets/hero-classico.jpg` | https://www.pexels.com/photo/vintage-red-sports-car-by-scenic-roadside-38058755/ | Seppo Vänni |
+| `assets/banner-estoque.jpg` | https://www.pexels.com/photo/sleek-white-sports-car-in-dark-garage-setting-33268786/ | Quentin Martinez |
+| `assets/banner-usados.jpg` | https://www.pexels.com/photo/side-view-of-a-vintage-car-11503885/ | Jvxhn Visuals |
+| `assets/banner-modificados.jpg` | https://www.pexels.com/photo/side-view-of-a-sports-car-in-a-car-park-22039985/ | Erik Mclean |
 
 Licença do Pexels (https://www.pexels.com/license/): uso gratuito, inclusive em sites, sem atribuição obrigatória; não é permitido vender cópias inalteradas, usar as fotos como marca nem sugerir endosso de pessoas ou marcas retratadas. Os créditos acima são registrados por cortesia. As fotos foram reduzidas para até 1920 px de largura.
 

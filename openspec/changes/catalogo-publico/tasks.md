@@ -52,9 +52,9 @@
 
 ## 9. Verificação integrada
 
-- [ ] 9.1 Percorrer todos os cenários de `specs/catalogo-publico/spec.md` na página Reflex executada localmente com os dados de teste, registrando o resultado de cada cenário
+- [ ] 9.1 Percorrer todos os cenários de `specs/catalogo-publico/spec.md` na página Reflex executada localmente com os dados de teste, registrando o resultado de cada cenário — catálogo funcionando confirmado pelo usuário no Safari (desktop) em 27/10/2026; pendente o registro cenário a cenário
 - [ ] 9.2 Inspecionar no navegador as requisições e as mensagens do WebSocket do Reflex e confirmar que nenhum dado do veículo em Rascunho chega ao navegador, que o navegador não acessa o Xano diretamente e que nenhuma credencial é enviada
 - [ ] 9.3 Alterar o preço de um veículo no Xano, recarregar a página e confirmar que o novo valor é exibido
 - [ ] 9.4 Confirmar que a página não apresenta erros no console do navegador nem no terminal do `reflex run` e que os selos e mensagens são legíveis em tela estreita (até 560 px)
 - [ ] 9.5 Revisar o `git diff` e confirmar que, em relação ao commit da tarefa 1.4, há somente os arquivos previstos em `frontend/`, `frontend-html/`, `xano/table/vehicle.xs`, `xano/api/catalog/`, o `.gitignore` e os ajustes de documentação, sem credenciais, sem arquivos gerados pelo Reflex e sem alterações em `frontend-rascunho/`
-- [ ] 9.6 Executar `openspec validate catalogo-publico --strict` e confirmar que não há erros
+- [x] 9.6 Executar `openspec validate catalogo-publico --strict` e confirmar que não há erros — verificado em 21/10/2026 na auditoria do OpenSpec: 97 testes, `reflex compile` e `openspec validate --all --strict` passam; `git diff` sem alterações em `xano/` e `frontend-html/`

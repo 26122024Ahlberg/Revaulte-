@@ -25,18 +25,22 @@ Todo cartão de veículo do catálogo, das páginas de Usados e Modificados e do
 - **THEN** a página daquele veículo é aberta
 
 ### Requirement: Configuração original e descrição
-A página SHALL exibir cor, motorização, câmbio e descrição do veículo quando estiverem cadastrados, MUST NOT exibir rótulos vazios ou marcadores para dados ausentes e SHALL apresentá-los separados das modificações.
+A página SHALL exibir cor, motorização, câmbio e descrição do veículo quando estiverem cadastrados e SHALL apresentá-los separados das modificações. Para um dado ausente, a página SHALL exibir de forma discreta que ele não foi informado (“Não informado”; para a descrição, “Descrição não informada.”) e MUST NOT exibir valores presumidos ou fictícios.
 
 #### Scenario: Dados técnicos parciais
 - **WHEN** um veículo tem cor e câmbio cadastrados, mas não motorização
-- **THEN** a página exibe cor e câmbio e não exibe o item motorização
+- **THEN** a página exibe cor e câmbio e exibe “Não informado” no item motorização
+
+#### Scenario: Veículo sem descrição
+- **WHEN** um veículo não tem descrição cadastrada
+- **THEN** a página informa que a descrição não foi informada
 
 ### Requirement: Modificações do veículo
-Para um veículo indicado como modificado, a página SHALL exibir o selo “Modificado” e a lista de modificações cadastradas, cada uma com sua área e descrição. Quando não houver modificações cadastradas, SHALL informar que os detalhes das modificações não foram informados. A página MUST NOT afirmar ou sugerir que as modificações são legalizadas, homologadas ou regularizadas.
+Para um veículo indicado como modificado, a página SHALL exibir o selo “Modificado” e a lista de modificações cadastradas, agrupadas por área, cada uma com sua descrição. Quando não houver modificações cadastradas, SHALL informar que os detalhes das modificações não foram informados. A página MUST NOT afirmar ou sugerir que as modificações são legalizadas, homologadas ou regularizadas.
 
 #### Scenario: Veículo modificado com modificações cadastradas
 - **WHEN** um veículo modificado com modificações de motor e suspensão cadastradas é aberto
-- **THEN** a página lista essas modificações com suas áreas e descrições
+- **THEN** a página lista essas modificações agrupadas nas áreas motor e suspensão, com suas descrições
 
 #### Scenario: Veículo modificado sem detalhes
 - **WHEN** um veículo modificado sem modificações cadastradas é aberto

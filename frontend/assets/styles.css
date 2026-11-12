@@ -863,28 +863,154 @@ button {
     overflow-wrap: anywhere;
 }
 
-.detail-mods {
-    margin-top: 24px;
-    padding: 16px 18px;
-    background-color: var(--panel);
-    border-left: 3px solid var(--red);
-    border-radius: 4px;
-    font-size: 14px;
-    line-height: 1.6;
+/* Configuração original, dentro da ficha */
+.detail-original {
+    margin-top: 28px;
+}
+
+.detail-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
     color: var(--muted);
 }
 
-.detail-mods h2 {
-    margin-bottom: 4px;
+.detail-original .spec-list {
+    margin-top: 12px;
+}
+
+/* Dado ausente: discreto, sem parecer um valor */
+.value-missing {
     font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--muted);
+}
+
+/* Descrição e modificações, abaixo da ficha */
+.detail-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+    align-items: start;
+}
+
+.detail-sections.is-single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.detail-panel {
+    padding: 24px 26px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.detail-panel-title {
+    margin-bottom: 14px;
+    font-family: "League Gothic", sans-serif;
+    font-weight: 400;
+    font-size: 1.5em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--text);
+}
+
+.detail-description {
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+    color: #d4d4d8;
+}
+
+.detail-mods {
+    border-left: 3px solid var(--red);
+}
+
+.mod-groups {
+    display: grid;
+    gap: 18px;
+}
+
+.mod-area {
+    margin-bottom: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--red);
+}
+
+.mod-items {
+    display: grid;
+    gap: 6px;
+    padding: 0;
+    list-style: none;
+}
+
+.mod-items li {
+    position: relative;
+    padding-left: 16px;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+    color: #d4d4d8;
+}
+
+.mod-items li::before {
+    content: "";
+    position: absolute;
+    top: 0.7em;
+    left: 0;
+    width: 6px;
+    height: 2px;
+    background-color: var(--red);
 }
 
 .detail-actions {
     margin-top: 28px;
+}
+
+/* Anunciante e contato (Change contato-vendedor) */
+.seller-box {
+    display: grid;
+    gap: 14px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+}
+
+.seller-id {
+    display: grid;
+    gap: 2px;
+}
+
+.seller-label {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.seller-name {
+    font-size: 16px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.btn-whatsapp {
+    justify-self: start;
+}
+
+.seller-unavailable {
+    margin: 0;
+}
+
+@media (max-width: 560px) {
+    .btn-whatsapp {
+        justify-self: stretch;
+        text-align: center;
+    }
 }
 
 .detail-notice {
@@ -898,5 +1024,806 @@ button {
     .detail {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+
+    .detail-sections {
+        grid-template-columns: minmax(0, 1fr);
+        margin-top: 24px;
+    }
+}
+
+@media (max-width: 560px) {
+    .detail-panel {
+        padding: 20px;
+    }
+}
+
+/* ===========================================================================
+   Animações da interface (Change animacoes-interface)
+   Só opacity e transform, até 0,5 s; nada depende da animação para aparecer.
+   =========================================================================== */
+
+/* Entrada curta dos cartões, em cascata de no máximo 0,15 s por linha */
+@keyframes revaulte-rise {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.cards > .card-link {
+    animation: revaulte-rise 0.35s ease-out both;
+}
+
+.cards > .card-link:nth-child(4n + 2) {
+    animation-delay: 0.05s;
+}
+
+.cards > .card-link:nth-child(4n + 3) {
+    animation-delay: 0.1s;
+}
+
+.cards > .card-link:nth-child(4n + 4) {
+    animation-delay: 0.15s;
+}
+
+/* Entrada dos títulos de página e da página do veículo */
+.catalog > .section-title,
+.detail,
+.state-message {
+    animation: revaulte-rise 0.4s ease-out both;
+}
+
+/* Cartões: leve aproximação da foto ao passar o cursor ou focar */
+.card-img img {
+    transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.card-link:hover .card:not(.card-sold) .card-img img:not(.is-placeholder),
+.card-link:focus-visible .card:not(.card-sold) .card-img img:not(.is-placeholder) {
+    transform: scale(1.04);
+}
+
+.card-link:focus-visible {
+    outline-offset: 4px;
+}
+
+/* Botões: brilho vermelho discreto e resposta ao clique */
+.btn-red:hover {
+    box-shadow: 0 6px 18px rgba(214, 40, 40, 0.28);
+}
+
+.btn:active,
+.hero-arrow:active,
+.menu-toggle:active {
+    transform: translateY(1px);
+}
+
+/* Menu: o painel desce suavemente ao abrir */
+@keyframes revaulte-drop {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.menu-panel {
+    animation: revaulte-drop 0.2s ease-out both;
+}
+
+.menu-toggle {
+    transition: border-color 0.2s, color 0.2s;
+}
+
+/* Indicação de carregamento: anel girando ao lado do texto */
+.state-message.is-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+@keyframes revaulte-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line);
+    border-top-color: var(--red);
+    border-radius: 50%;
+    animation: revaulte-spin 0.8s linear infinite;
+}
+
+/* Movimento reduzido: sem entrada, deslocamento ou rotação (complementa a regra global) */
+@media (prefers-reduced-motion: reduce) {
+    .card:hover,
+    .card-link:hover .card,
+    .card-link:focus-visible .card,
+    .card-link .card-img img,
+    .btn:active,
+    .hero-arrow:active,
+    .menu-toggle:active {
+        transform: none !important;
+    }
+
+    .spinner {
+        border-color: var(--red);
+    }
+}
+
+/* ===========================================================================
+   Simulador de financiamento (Change simulador-financiamento)
+   =========================================================================== */
+.simulator {
+    margin-top: 48px;
+    padding-top: 36px;
+    border-top: 1px solid var(--line);
+}
+
+.sim-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.sim-form,
+.sim-result {
+    padding: 24px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.sim-field {
+    margin-bottom: 20px;
+    border: 0;
+}
+
+.sim-field:last-child {
+    margin-bottom: 0;
+}
+
+.sim-field label,
+.sim-field legend,
+.sim-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.sim-price {
+    font-size: 20px;
+}
+
+.sim-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px;
+    background-color: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+.sim-input:focus-within {
+    border-color: var(--red);
+}
+
+.sim-input input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    font: inherit;
+    font-size: 16px;
+}
+
+.sim-input input:focus {
+    outline: none;
+}
+
+.sim-affix {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.sim-terms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sim-term {
+    min-width: 56px;
+    padding: 10px 12px;
+    background-color: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.sim-term:hover {
+    border-color: var(--red);
+}
+
+.sim-term.is-active {
+    background-color: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+.sim-installment {
+    font-size: 18px;
+}
+
+.sim-installment strong {
+    font-size: 30px;
+    color: var(--red);
+}
+
+.sim-error {
+    padding: 14px 16px;
+    border-left: 3px solid var(--red);
+    background-color: rgba(214, 40, 40, 0.08);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.sim-notice {
+    margin-top: 20px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--muted);
+}
+
+@media (max-width: 860px) {
+    .sim-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 560px) {
+    .sim-form,
+    .sim-result {
+        padding: 18px;
+    }
+}
+
+/* ===========================================================================
+   Pesquisa e filtros do estoque (Change pesquisa-filtros-catalogo)
+   =========================================================================== */
+.filters {
+    margin-bottom: 24px;
+    padding: 18px 20px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.filter-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.filter-field {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.filter-field.filter-search {
+    flex: 2 1 280px;
+}
+
+.filter-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    padding: 11px 12px;
+    background-color: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font: inherit;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.filter-field select {
+    appearance: none;
+    padding-right: 34px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.filter-field input:hover,
+.filter-field select:hover,
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: var(--red);
+}
+
+.filter-field input::placeholder {
+    color: var(--muted);
+}
+
+.filter-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 14px;
+    min-height: 20px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.link-clear {
+    background: none;
+    border: 0;
+    color: var(--red);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.link-clear:hover {
+    color: var(--text);
+}
+
+@media (max-width: 560px) {
+    .filters {
+        padding: 16px;
+    }
+
+    .filter-field,
+    .filter-field.filter-search {
+        flex-basis: 100%;
+    }
+}
+
+/* ===========================================================================
+   Páginas internas premium (Change visual-paginas-internas)
+   Tudo limitado a .inner-page: a Home e o carrossel não mudam.
+   =========================================================================== */
+.inner-page {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background:
+        radial-gradient(1100px 520px at 88% 6%, rgba(214, 40, 40, 0.2), transparent 62%),
+        radial-gradient(900px 700px at 6% 58%, rgba(214, 40, 40, 0.1), transparent 66%),
+        radial-gradient(1100px 520px at 60% 100%, rgba(214, 40, 40, 0.16), transparent 66%),
+        radial-gradient(700px 500px at 0% 18%, rgba(255, 255, 255, 0.04), transparent 70%),
+        linear-gradient(180deg, #131316 0%, #0b0b0c 50%, #100d0e 100%);
+}
+
+/* Névoa vermelha atrás da área dos cartões: mais atmosfera, sem competir com o conteúdo */
+.inner-page > .catalog::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 40px;
+    left: 2vw;
+    right: 2vw;
+    height: min(75%, 900px);
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 45% at 30% 35%, rgba(214, 40, 40, 0.16), transparent 70%),
+        radial-gradient(ellipse 50% 40% at 75% 60%, rgba(168, 31, 31, 0.14), transparent 70%);
+    filter: blur(40px);
+    animation: revaulte-smoke 14s ease-in-out infinite alternate;
+}
+
+@keyframes revaulte-smoke {
+    from {
+        opacity: 0.75;
+        transform: translateX(-2%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(2%);
+    }
+}
+
+.inner-page > .catalog {
+    position: relative;
+    z-index: 1;
+}
+
+/* Banner horizontal das páginas de estoque */
+.page-banner {
+    position: relative;
+    min-height: clamp(250px, 38vh, 400px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background:
+        radial-gradient(600px 300px at 80% 50%, rgba(214, 40, 40, 0.16), transparent 70%),
+        #0d0d0f;
+    border-bottom: 1px solid var(--line);
+}
+
+/* A foto ocupa a parte direita e esmaece para o preto à esquerda, onde fica o texto:
+   o carro nunca fica embaixo do título. */
+.page-banner-image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 72%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 60%;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.55) 8%, #000 20%);
+    mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.55) 8%, #000 20%);
+    animation: revaulte-banner-zoom 1.2s ease-out both;
+}
+
+/* Enquadramento de cada foto (ponto vertical que mantém o carro inteiro) */
+.page-banner.is-estoque .page-banner-image {
+    object-position: 50% 62%;
+}
+
+.page-banner.is-usados .page-banner-image {
+    object-position: 50% 58%;
+}
+
+.page-banner.is-modificados .page-banner-image {
+    object-position: 50% 52%;
+    /* Parede clara ao fundo: escurecer para manter a atmosfera noturna */
+    filter: brightness(0.7) contrast(1.1);
+}
+
+@keyframes revaulte-banner-zoom {
+    from {
+        opacity: 0;
+        transform: scale(1.06);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.page-banner-shade {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(13, 13, 15, 0.9) 0%, rgba(13, 13, 15, 0.5) 38%, rgba(13, 13, 15, 0.12) 70%, rgba(13, 13, 15, 0.25) 100%),
+        linear-gradient(0deg, #131316 0%, rgba(19, 19, 22, 0) 40%);
+}
+
+.page-banner-content {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    padding: 48px 6vw 36px;
+}
+
+.page-banner-content > * {
+    animation: revaulte-rise 0.4s ease-out both;
+}
+
+.page-banner-content > :nth-child(2) {
+    animation-delay: 0.08s;
+}
+
+.page-banner-content > :nth-child(3) {
+    animation-delay: 0.16s;
+}
+
+.page-banner-title {
+    font-family: "League Gothic", sans-serif;
+    font-weight: 400;
+    font-size: clamp(2.6rem, 6vw, 4.2rem);
+    line-height: 1;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-banner-title::after {
+    content: "";
+    display: block;
+    width: 56px;
+    height: 3px;
+    margin-top: 14px;
+    background-color: var(--red);
+}
+
+.page-banner-text {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #c9c9ce;
+}
+
+/* Entrada escalonada das seções */
+.inner-page .filters {
+    animation: revaulte-rise 0.4s ease-out 0.1s both;
+}
+
+.inner-page #catalog-region {
+    animation: revaulte-rise 0.4s ease-out 0.18s both;
+}
+
+/* Barra de filtros com efeito de vidro escuro */
+.inner-page .filters {
+    background: linear-gradient(180deg, rgba(28, 28, 32, 0.85), rgba(20, 20, 23, 0.85));
+    border-color: #2c2c31;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Cartões das páginas internas */
+.inner-page .card {
+    background: linear-gradient(180deg, #19191c 0%, #121214 100%);
+    border-color: #2a2a2f;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.inner-page .card-img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(0deg, rgba(18, 18, 20, 0.85) 0%, rgba(18, 18, 20, 0) 45%);
+}
+
+.inner-page .card-img .badges {
+    z-index: 1;
+}
+
+.inner-page .card-info {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.inner-page .card-link:hover .card:not(.card-sold),
+.inner-page .card-link:focus-visible .card:not(.card-sold) {
+    border-color: rgba(214, 40, 40, 0.8);
+    transform: translateY(-6px);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(214, 40, 40, 0.35),
+        0 12px 36px rgba(214, 40, 40, 0.18);
+}
+
+.inner-page .card-sold {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Página do veículo: a foto do anúncio desfocada ao fundo */
+.vehicle-backdrop {
+    position: absolute;
+    top: -40px;
+    left: -5%;
+    width: 110%;
+    height: 620px;
+    object-fit: cover;
+    filter: blur(48px) saturate(1.2);
+    opacity: 0.28;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.6) 55%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.6) 55%, transparent 100%);
+    animation: revaulte-fade 0.8s ease-out both;
+}
+
+@keyframes revaulte-fade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 0.28;
+    }
+}
+
+.inner-vehicle .detail-img {
+    border-color: #2c2c31;
+    box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.inner-vehicle .detail-info {
+    padding: 28px;
+    background: linear-gradient(180deg, rgba(26, 26, 30, 0.88), rgba(18, 18, 21, 0.88));
+    border: 1px solid #2a2a2f;
+    border-top: 2px solid var(--red);
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    animation: revaulte-rise 0.4s ease-out 0.1s both;
+}
+
+.inner-vehicle .detail-price {
+    font-size: 30px;
+    text-shadow: 0 0 24px rgba(214, 40, 40, 0.35);
+}
+
+/* Ficha técnica em blocos */
+.inner-vehicle .detail-info .spec-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    border-top: 0;
+}
+
+.inner-vehicle .detail-info .spec-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 14px;
+    background-color: rgba(11, 11, 12, 0.6);
+    border: 1px solid #26262b;
+    border-radius: 6px;
+}
+
+.inner-vehicle .detail-info .spec-item dt {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.inner-vehicle .detail-info .spec-item dd {
+    text-align: left;
+    font-size: 15px;
+}
+
+/* Descrição e modificações no mesmo acabamento da ficha */
+.inner-vehicle .detail-panel {
+    background: linear-gradient(180deg, rgba(26, 26, 30, 0.9), rgba(17, 17, 20, 0.9));
+    border-color: #2a2a2f;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+}
+
+.inner-vehicle .detail-mods {
+    border-left: 3px solid var(--red);
+}
+
+.inner-vehicle .detail-sections {
+    animation: revaulte-rise 0.4s ease-out 0.15s both;
+}
+
+/* Simulador destacado */
+.inner-vehicle .simulator {
+    border-top-color: #26262b;
+    animation: revaulte-rise 0.4s ease-out 0.2s both;
+}
+
+.inner-vehicle .sim-form,
+.inner-vehicle .sim-result {
+    background: linear-gradient(180deg, rgba(26, 26, 30, 0.9), rgba(17, 17, 20, 0.9));
+    border-color: #2a2a2f;
+    border-radius: 8px;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+}
+
+.inner-vehicle .sim-result {
+    position: relative;
+    overflow: hidden;
+    border-top: 2px solid var(--red);
+}
+
+.inner-vehicle .sim-result::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(214, 40, 40, 0.18), transparent 70%);
+}
+
+.inner-vehicle .sim-installment strong {
+    text-shadow: 0 0 24px rgba(214, 40, 40, 0.35);
+}
+
+/* Telas estreitas: foto na largura toda, texto embaixo sobre um escurecimento mais forte */
+@media (max-width: 760px) {
+    .page-banner {
+        align-items: flex-end;
+        min-height: 260px;
+    }
+
+    .page-banner-image {
+        width: 100%;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .page-banner-shade {
+        background:
+            linear-gradient(0deg, rgba(13, 13, 15, 0.96) 0%, rgba(13, 13, 15, 0.7) 45%, rgba(13, 13, 15, 0.25) 100%);
+    }
+}
+
+@media (max-width: 560px) {
+    .page-banner {
+        min-height: 240px;
+    }
+
+    .page-banner-content {
+        padding: 36px 6vw 24px;
+    }
+
+    .inner-page > .catalog::before {
+        filter: blur(28px);
+    }
+
+    .inner-vehicle .detail-info {
+        padding: 20px;
+    }
+
+    .inner-vehicle .detail-info .spec-list {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Desfoque pesado custa caro em celulares: versão mais leve */
+    .vehicle-backdrop {
+        filter: blur(28px);
+        height: 420px;
+    }
+
+    .inner-page .filters {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inner-page .card-link:hover .card,
+    .inner-page .card-link:focus-visible .card,
+    .page-banner-image {
+        transform: none !important;
+    }
+
+    .vehicle-backdrop {
+        opacity: 0.28;
     }
 }

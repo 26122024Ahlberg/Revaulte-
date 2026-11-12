@@ -25,13 +25,17 @@ Rota `/veiculo/[id]` do Reflex. O identificador é validado no estado (inteiro p
 
 ### 3. Item de exibição do detalhe
 
-Um `DetalheVeiculo` (dataclass) reutiliza as funções de formatação do catálogo (`formatar_titulo`, `formatar_preco`, `formatar_quilometragem`, `endereco_capa`) e acrescenta `cor`, `motorizacao`, `cambio`, `descricao` e `modificacoes: list[Modificacao(area, descricao)]`, com as áreas traduzidas para português. Somente esses campos chegam ao navegador.
+Um `DetalheVeiculo` (dataclass) reutiliza as funções de formatação do catálogo (`formatar_titulo`, `formatar_preco`, `formatar_quilometragem`, `endereco_capa`) e acrescenta `cor`, `motorizacao`, `cambio`, `descricao` e `modificacoes: list[GrupoModificacoes(area, itens)]`: as modificações são agrupadas por área, na ordem das áreas do domínio e na ordem de cadastro dentro de cada área, com as áreas traduzidas para português; registros sem descrição são ignorados e área desconhecida vai para “Outras modificações”. Somente esses campos chegam ao navegador.
+
+Na página (etapa 3, 07/11/2026), cor, motorização e câmbio ficam no bloco “Configuração original” da ficha, com “Não informado” discreto quando vazios; descrição e “Modificações e preparação” ficam em painéis abaixo da ficha, separados da configuração original. O painel de modificações só existe para veículo modificado. A spec foi ajustada para exibir “Não informado” em vez de omitir o item, por decisão do usuário em 07/11/2026.
 
 ### 4. Cartões como links
 
 `cartao_veiculo` passa a envolver o cartão em `rx.el.a(href="/veiculo/<id>")` (exige `id` no cartão, previsto em `navegacao-principal`). O cartão vendido continua clicável, pois a página informa a indisponibilidade. Estilo de foco visível em `styles.css`.
 
 ### 5. Interesse demonstrativo
+
+Substituído em 07/11/2026, por decisão do usuário, pelo bloco “Anunciado por” da Change `contato-vendedor` (ver a decisão 3a daquela Change); o delta MODIFIED deste requisito acompanha o arquivamento.
 
 Botão “Tenho interesse” que alterna uma variável do estado e exibe uma mensagem fixa: “O contato com o anunciante ainda não está disponível nesta versão do site.” Nenhuma requisição, nenhum dado de contato.
 
@@ -41,6 +45,16 @@ Botão “Tenho interesse” que alterna uma variável do estado e exibe uma men
 - Tabela `vehicle_modification`: `id`, `created_at`, `vehicle_id` (referência a `vehicle`), `area` (enum `engine`, `forced_induction`, `power`, `fuel`, `transmission`, `suspension`, `wheels_tires`, `brakes`, `interior`, `exterior`, `other`, seguindo as áreas do domínio) e `description` (text). Sem campo de regularização.
 - Endpoint `GET vehicles/{vehicle_id}` no grupo `Catalog`, sem `auth`: consulta única com `id` igual ao informado **e** `status` em `available`/`sold` (mesma lista de permitidos), campos de saída explícitos, modificações do veículo com `area` e `description`; ausência resulta em erro 404 sem distinguir Rascunho de inexistente.
 - Sintaxe de parâmetro de rota, consulta única, relação e erro 404 a confirmar no Xano Developer MCP e validar com `xano_validate_xanoscript` antes do envio pelo Xano CLI.
+
+Construções confirmadas no Xano Developer MCP em 27/10/2026 (documentação XanoScript 2.7.1):
+
+- parâmetro de rota: `query "vehicles/{vehicle_id}" verb=GET` com `input { int vehicle_id }`;
+- consulta única: `db.query vehicle { where = ... return = {type: "single"} output = [...] }`, que devolve o registro ou nulo; o filtro de status fica no próprio `where`, e por isso Rascunho e inexistente chegam ao mesmo nulo;
+- resposta 404: `precondition ($vehicle != null) { error_type = "notfound" }`;
+- referência entre tabelas: `int vehicle_id { table = "vehicle" }`;
+- montagem da resposta: `$vehicle|set:"modifications":$modifications`.
+
+O identificador não recebe filtro `min:1`: zero ou negativo também resulta em 404, igual a inexistente. Um valor não numérico é recusado pelo Xano como erro de entrada; o frontend já trata esse caso como “não encontrado” antes de fazer a requisição.
 
 Alternativa: guardar as modificações em um campo de texto livre em `vehicle`. Descartada: o domínio define Modificação como entidade com área, e a lista estruturada é o diferencial da Revaulte.
 
@@ -53,4 +67,11 @@ Alternativa: guardar as modificações em um campo de texto livre em `vehicle`. 
 
 ## Migration Plan
 
-Etapa B: validar os `.xs`, enviar a tabela alterada, a nova tabela e o endpoint pelo Xano CLI, inserir dados de teste e só então trocar a função de busca. Reversão: voltar a função para a etapa A; as alterações no Xano são aditivas e podem ser removidas sem afetar `GET /vehicles`.
+Etapa B (aprovada pelo usuário em 27/10/2026, com o envio condicionado a nova autorização após a prévia):
+
+1. Cópia de segurança do workspace com registros (`xano workspace pull --records`) em pasta permanente fora do repositório (não em pasta temporária, que o sistema limpa; desde 04/11/2026, `~/Downloads/revaulte-backups/`), e cópia da resposta atual de `GET /vehicles` para comparação.
+2. Comparação da cópia com `xano/`: a única diferença de esquema é que, no Xano, `is_modified` está sem o padrão `false` previsto na decisão 1 de `catalogo-publico`. O envio de `vehicle.xs` aplica esse padrão; os registros existentes não mudam.
+3. Validação de todos os `.xs` com `xano_validate_xanoscript`.
+4. Prévia com `xano workspace push --dry-run`, limitada por `-i` a `table/vehicle.xs`, `table/vehicle_modification.xs` e `api/catalog/vehicles_vehicle_id_GET.xs`.
+5. Envio parcial com os mesmos filtros, sem `--sync`, `--delete`, `--records` ou `--truncate`: o envio parcial só acrescenta ou atualiza e não remove colunas, tabelas, endpoints nem registros.
+6. Verificação por requisições sem token e só então troca da função de busca. Reversão: voltar a função para a etapa A; as alterações no Xano são aditivas e podem ser removidas sem afetar `GET /vehicles`.

@@ -18,7 +18,7 @@ Requisitos: ver `specs/pesquisa-catalogo/spec.md`. Após `navegacao-principal`, 
 
 ### 2. Controles do Reflex
 
-Campo de pesquisa com `rx.input` (ou `rx.el.input`) com atraso de digitação (`rx.debounce_input` ou `debounce_timeout`, confirmar no Reflex 0.10) para não enviar um evento por tecla; filtros com `rx.el.select` nativo, rotulados com `label` para acessibilidade. Estilos com as variáveis de cor da Revaulte em `styles.css`.
+Campo de pesquisa `rx.el.input` com atraso de digitação por `rx.debounce_input` (300 ms, confirmado no Reflex 0.10) para não enviar um evento por tecla; filtros com `rx.el.select` nativo, rotulados com `label` para acessibilidade. A barra é um `div` com `role="search"` (sem `form`, para não haver envio), fica fora da região `aria-live` e mostra a contagem de veículos exibidos. Estilos com as variáveis de cor da Revaulte em `styles.css`.
 
 ### 3. Estados da página
 

@@ -31,10 +31,22 @@ table vehicle {
 
     // URL of the vehicle's cover image.
     text cover_image_url? filters=trim
+
+    // Original configuration, shown on the vehicle detail page (optional).
+    text color? filters=trim
+    text engine? filters=trim
+    text transmission? filters=trim
+    text description? filters=trim
+
+    // Anunciante do veículo (opcional; nulo enquanto não houver anunciante real).
+    int seller_id? {
+      table = "seller"
+    }
   }
 
   index = [
     {type: "primary", field: [{name: "id"}]}
+    {type: "btree", field: [{name: "seller_id"}]}
     {type: "btree", field: [{name: "created_at", op: "desc"}]}
   ]
   guid = "LukcvdKFTG57QVJaPJZLPHFxbkQ"

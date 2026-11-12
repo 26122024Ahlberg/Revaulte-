@@ -1,4 +1,4 @@
-# Testes da página individual do veículo (Change detalhes-veiculo, etapa A).
+# Testes da página individual do veículo (Change detalhes-veiculo).
 # Execução, dentro de frontend/: python -m unittest discover -s tests -v
 import asyncio
 import re
@@ -16,7 +16,9 @@ from revaulte.state import (
     CatalogState,
     DetalheState,
     DetalheVeiculo,
+    GrupoModificacoes,
     _id_da_rota,
+    agrupar_modificacoes,
     buscar_veiculo,
     ler_id_veiculo,
     preparar_detalhe,
@@ -85,25 +87,83 @@ class TestPreparacao(unittest.TestCase):
         self.assertEqual(d.capa, IMAGEM_PROVISORIA)
 
 
+class TestDadosTecnicos(unittest.TestCase):
+    def test_campos_cadastrados(self):
+        d = preparar_detalhe(veiculo(
+            color="  Vermelho ", engine="V8  302", transmission="Manual de 4 marchas",
+            description="  Primeiro parágrafo.\n\n\n\nSegundo   parágrafo.  ",
+        ))
+        self.assertEqual((d.cor, d.motorizacao, d.cambio), ("Vermelho", "V8 302", "Manual de 4 marchas"))
+        self.assertEqual(d.descricao, "Primeiro parágrafo.\n\nSegundo parágrafo.")
+
+    def test_dados_parciais_e_ausentes_ficam_vazios(self):
+        # O Xano devolve "" para campo não preenchido; nada é inventado.
+        d = preparar_detalhe(veiculo(color="Prata", engine="", transmission=None))
+        self.assertEqual((d.cor, d.motorizacao, d.cambio, d.descricao), ("Prata", "", "", ""))
+        self.assertEqual(d.modificacoes, [])
+
+    def test_agrupamento_por_area(self):
+        grupos = agrupar_modificacoes([
+            {"area": "suspension", "description": "Coilover"},
+            {"area": "engine", "description": "Comando bravo"},
+            {"area": "suspension", "description": "Barra estabilizadora"},
+            {"area": "inexistente", "description": "Item sem área conhecida"},
+            {"area": "brakes", "description": "   "},
+        ])
+        self.assertEqual(grupos, [
+            GrupoModificacoes("Preparação do motor", ["Comando bravo"]),
+            GrupoModificacoes("Suspensão", ["Coilover", "Barra estabilizadora"]),
+            GrupoModificacoes("Outras modificações", ["Item sem área conhecida"]),
+        ])
+
+    def test_modificacoes_ausentes_ou_invalidas(self):
+        self.assertEqual(agrupar_modificacoes(None), [])
+        self.assertEqual(agrupar_modificacoes([]), [])
+        for invalido in ("texto", {"area": "engine"}, [1]):
+            with self.subTest(invalido=invalido):
+                with self.assertRaises(ValueError):
+                    agrupar_modificacoes(invalido)
+
+
+def detalhe(**extra) -> dict:
+    """Resposta de GET /vehicles/{id}: dados de catálogo, técnicos e modificações."""
+    base = veiculo(color="", engine="", transmission="", description="", modifications=[])
+    base.update(extra)
+    return base
+
+
 class TestBusca(unittest.TestCase):
-    def test_encontrado(self):
-        lista = [veiculo(id=3, brand="Chevrolet", model="Opala"), veiculo()]
-        situacao, d = buscar(7, lambda r: httpx.Response(200, json=lista))
+    def test_consulta_o_endpoint_de_detalhe(self):
+        pedidos = []
+
+        def responder(requisicao):
+            pedidos.append(requisicao.url.path)
+            return httpx.Response(200, json=detalhe(
+                engine="V8 302", modifications=[{"area": "engine", "description": "Carburador quadrijet"}],
+            ))
+
+        situacao, d = buscar(7, responder)
         self.assertEqual(situacao, "encontrado")
-        self.assertEqual(d.modelo, "Maverick")
+        self.assertTrue(pedidos[0].endswith("/vehicles/7"))
+        self.assertEqual(len(pedidos), 1)
+        self.assertEqual(d.motorizacao, "V8 302")
+        self.assertEqual(d.modificacoes, [GrupoModificacoes("Preparação do motor", ["Carburador quadrijet"])])
 
     def test_vendido(self):
-        situacao, d = buscar(7, lambda r: httpx.Response(200, json=[veiculo(status="sold")]))
+        situacao, d = buscar(7, lambda r: httpx.Response(200, json=detalhe(status="sold")))
         self.assertEqual(situacao, "encontrado")
         self.assertTrue(d.vendido)
 
-    def test_inexistente(self):
-        situacao, d = buscar(99, lambda r: httpx.Response(200, json=[veiculo()]))
+    def test_404_e_nao_encontrado(self):
+        # Rascunho e inexistente chegam do Xano como o mesmo 404.
+        resposta = {"code": "ERROR_CODE_NOT_FOUND", "message": "Vehicle not found"}
+        situacao, d = buscar(99, lambda r: httpx.Response(404, json=resposta))
         self.assertEqual((situacao, d), ("nao_encontrado", None))
 
     def test_falha_http(self):
-        situacao, _ = buscar(7, lambda r: httpx.Response(500))
-        self.assertEqual(situacao, "erro")
+        for status in (400, 429, 500):
+            with self.subTest(status=status):
+                self.assertEqual(buscar(7, lambda r: httpx.Response(status))[0], "erro")
 
     def test_tempo_esgotado(self):
         def responder(requisicao):
@@ -112,18 +172,24 @@ class TestBusca(unittest.TestCase):
         self.assertEqual(buscar(7, responder)[0], "erro")
 
     def test_resposta_invalida(self):
-        self.assertEqual(buscar(7, lambda r: httpx.Response(200, json={"x": 1}))[0], "erro")
+        self.assertEqual(buscar(7, lambda r: httpx.Response(200, json=[detalhe()]))[0], "erro")
         self.assertEqual(buscar(7, lambda r: httpx.Response(200, text="<html>"))[0], "erro")
 
+    def test_outro_veiculo_na_resposta(self):
+        self.assertEqual(buscar(7, lambda r: httpx.Response(200, json=detalhe(id=8)))[0], "erro")
+        self.assertEqual(buscar(1, lambda r: httpx.Response(200, json=detalhe(id=True)))[0], "erro")
+
     def test_registro_do_veiculo_invalido(self):
-        situacao, _ = buscar(7, lambda r: httpx.Response(200, json=[veiculo(condition="x")]))
+        situacao, _ = buscar(7, lambda r: httpx.Response(200, json=detalhe(condition="x")))
+        self.assertEqual(situacao, "erro")
+        situacao, _ = buscar(7, lambda r: httpx.Response(200, json=detalhe(modifications="x")))
         self.assertEqual(situacao, "erro")
 
 
 class TestEstado(unittest.TestCase):
     def estado(self, params, caminho):
         e = SimpleNamespace(
-            situacao="", veiculo=DetalheVeiculo(id=1), id_pedido=None, interesse_aberto=True,
+            situacao="", veiculo=DetalheVeiculo(id=1), id_pedido=None,
             router=SimpleNamespace(page=SimpleNamespace(params=params, raw_path=caminho)),
         )
         resultado = DetalheState.event_handlers["abrir"].fn(e)
@@ -133,7 +199,6 @@ class TestEstado(unittest.TestCase):
         e, resultado = self.estado({"veiculo_id": "abc"}, "/veiculo/abc")
         self.assertEqual(e.situacao, "nao_encontrado")
         self.assertIsNone(resultado)
-        self.assertFalse(e.interesse_aberto)
         self.assertEqual(e.veiculo, DetalheVeiculo())
 
     def test_abrir_id_valido(self):
@@ -150,6 +215,15 @@ class TestEstado(unittest.TestCase):
 
 
 class TestComponentes(unittest.TestCase):
+    def test_modificacoes_somente_para_veiculo_modificado(self):
+        gerado = codigo(pagina_veiculo())
+        # A seção de modificações depende do selo "modificado" do veículo.
+        self.assertIn(
+            '["modificado"]?(jsx(Fragment,{},jsx("section",{className:"detail-panel detail-mods"}', gerado
+        )
+        self.assertIn('className:"mod-area"', gerado)
+
+
     def test_rota_registrada(self):
         self.assertIn("veiculo/[veiculo_id]", app._unevaluated_pages)
 
@@ -162,9 +236,11 @@ class TestComponentes(unittest.TestCase):
         gerado = codigo(pagina_veiculo())
         for texto in (
             "← Voltar ao estoque", "Veículo não encontrado", "Tentar novamente",
-            "Tenho interesse", "Marca", "Modelo", "Versão", "Ano", "Quilometragem",
+            "Anunciado por", "Conversar no WhatsApp", "Contato não disponível", "Marca", "Modelo", "Versão", "Ano", "Quilometragem",
             "Condição", "Os detalhes das modificações não foram informados",
             "indisponível para negociação", "Modificado", "Vendido",
+            "Configuração original", "Cor", "Motorização", "Câmbio", "Não informado",
+            "Descrição", "Descrição não informada.", "Modificações e preparação",
         ):
             with self.subTest(texto=texto):
                 self.assertIn(texto, gerado)
@@ -172,7 +248,10 @@ class TestComponentes(unittest.TestCase):
 
     def test_sem_contato_nem_promessas(self):
         textos = " ".join(re.findall(r'"([^"]*)"', codigo(regiao_detalhe()))).lower()
-        for termo in ("telefone", "whatsapp", "e-mail", "@", "legalizad", "homologad", "regularizad"):
+        # O WhatsApp agora existe (contato-vendedor), mas só pelo link montado no estado:
+        # nenhum número fixo no código da página.
+        self.assertNotRegex(codigo(regiao_detalhe()), r"wa\.me/[0-9]")
+        for termo in ("telefone", "e-mail", "@", "legalizad", "homologad", "regularizad"):
             with self.subTest(termo=termo):
                 self.assertNotIn(termo, textos)
 

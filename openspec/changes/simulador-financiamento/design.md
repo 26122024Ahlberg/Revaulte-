@@ -18,7 +18,7 @@ Função pura `calcular_financiamento(preco, entrada, parcelas, taxa_mensal)` em
 
 Alternativa: sistema SAC (parcelas decrescentes). Descartada: a parcela fixa é a forma mais comum em financiamento de veículos e mais simples de apresentar.
 
-### 2. Valores iniciais e limites (propostos, a confirmar pelo usuário)
+### 2. Valores iniciais e limites (propostos e adotados na implementação; o usuário pode ajustá-los)
 
 - Entrada inicial: 20% do preço, arredondada a reais.
 - Prazo inicial: 48 parcelas; opções 12, 24, 36, 48 e 60 (do domínio).
@@ -26,7 +26,7 @@ Alternativa: sistema SAC (parcelas decrescentes). Descartada: a parcela fixa é 
 
 ### 3. Estado e componentes
 
-`SimuladorState` guarda os textos digitados (entrada e taxa) e o prazo; um `@rx.var` calcula o resultado ou a mensagem de erro, para que a validação use exatamente o que o visitante digitou. A leitura aceita vírgula decimal e pontos de milhar (“20.000,50”). O estado é reiniciado ao abrir outro veículo. Prazo como botões de opção (acessíveis por teclado), entrada e taxa como campos de texto com rótulos visíveis. Resultado em região `aria-live="polite"`.
+O `DetalheState` da página do veículo guarda os textos digitados (entrada e taxa) e o prazo — no mesmo estado que já tem o preço, em vez de um `SimuladorState` separado que precisaria copiá-lo; um `@rx.var` calcula o resultado ou a mensagem de erro, para que a validação use exatamente o que o visitante digitou. A leitura aceita vírgula decimal e pontos de milhar (“20.000,50”). O estado é reiniciado ao abrir outro veículo. Prazo como botões de opção (acessíveis por teclado), entrada e taxa como campos de texto com rótulos visíveis. Resultado em região `aria-live="polite"`. Os campos usam `rx.debounce_input` (300 ms), do próprio Reflex, para não enviar um evento a cada tecla.
 
 ### 4. Aviso
 
@@ -36,4 +36,4 @@ Texto fixo: “Simulação hipotética, com taxa ilustrativa. Não inclui impost
 
 - [Visitante entender a taxa como oferta] → rótulo “taxa ilustrativa” e aviso sempre visível junto ao resultado.
 - [Diferença de centavos em relação a calculadoras bancárias] → aceitável; o caso de teste da spec fixa o arredondamento adotado.
-- [Recalcular a cada tecla gera eventos ao servidor] → volume pequeno; usar atualização ao sair do campo se houver atraso perceptível.
+- [Recalcular a cada tecla gera eventos ao servidor] → `debounce_input` de 300 ms.

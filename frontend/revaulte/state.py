@@ -1,7 +1,9 @@
 # Estado do catálogo: requisição ao Xano e preparação dos cartões (tarefas 8.2 a 8.5).
 import dataclasses
+import re
+import unicodedata
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import httpx
 import reflex as rx
@@ -132,6 +134,43 @@ def aplicar_recorte(cartoes: list[CartaoVeiculo], recorte: str) -> list[CartaoVe
     return list(cartoes)
 
 
+# ---------------------------------------------------------------------------
+# Pesquisa e filtros do estoque (Change pesquisa-filtros-catalogo).
+# Aplicados sobre a lista já recebida; nenhuma nova consulta ao backend.
+# ---------------------------------------------------------------------------
+
+FILTROS_CONDICAO = ("todos", "novo", "usado")
+FILTROS_MODIFICACAO = ("todos", "modificados", "originais")
+
+
+def normalizar_texto(texto: object) -> str:
+    """Minúsculas, sem acentos e com espaços simples: "  Citroën  C4 " -> "citroen c4"."""
+    if not isinstance(texto, str):
+        return ""
+    decomposto = unicodedata.normalize("NFKD", texto)
+    sem_acento = "".join(c for c in decomposto if not unicodedata.combining(c))
+    return " ".join(sem_acento.casefold().split())
+
+
+def filtrar_cartoes(
+    cartoes: list[CartaoVeiculo], busca: str, condicao: str, modificacao: str
+) -> list[CartaoVeiculo]:
+    """Cartões que atendem à pesquisa e aos dois filtros ao mesmo tempo."""
+    termo = normalizar_texto(busca)
+    resultado = []
+    for c in cartoes:
+        if termo and termo not in normalizar_texto(c.titulo):
+            continue
+        if condicao == "novo" and c.usado or condicao == "usado" and not c.usado:
+            continue
+        if modificacao == "modificados" and not c.modificado:
+            continue
+        if modificacao == "originais" and c.modificado:
+            continue
+        resultado.append(c)
+    return resultado
+
+
 class CatalogState(rx.State):
     """Lista de cartões do catálogo e situação do carregamento."""
 
@@ -140,10 +179,48 @@ class CatalogState(rx.State):
     # Lista completa recebida do Xano; a página exibe somente o recorte atual.
     cartoes: list[CartaoVeiculo] = []
     recorte: str = "todos"
+    # Pesquisa e filtros escolhidos pelo visitante.
+    busca: str = ""
+    filtro_condicao: str = "todos"
+    filtro_modificacao: str = "todos"
 
     @rx.var
     def cartoes_exibidos(self) -> list[CartaoVeiculo]:
-        return aplicar_recorte(self.cartoes, self.recorte)
+        return filtrar_cartoes(
+            aplicar_recorte(self.cartoes, self.recorte),
+            self.busca,
+            self.filtro_condicao,
+            self.filtro_modificacao,
+        )
+
+    @rx.var
+    def filtros_ativos(self) -> bool:
+        return bool(normalizar_texto(self.busca)) or (
+            self.filtro_condicao != "todos" or self.filtro_modificacao != "todos"
+        )
+
+    @rx.var
+    def total_exibido(self) -> str:
+        total = len(self.cartoes_exibidos)
+        return "1 veículo" if total == 1 else f"{total} veículos"
+
+    @rx.event
+    def definir_busca(self, texto: str):
+        self.busca = texto if isinstance(texto, str) else ""
+
+    @rx.event
+    def definir_condicao(self, valor: str):
+        self.filtro_condicao = valor if valor in FILTROS_CONDICAO else "todos"
+
+    @rx.event
+    def definir_modificacao(self, valor: str):
+        self.filtro_modificacao = valor if valor in FILTROS_MODIFICACAO else "todos"
+
+    @rx.event
+    def limpar_filtros(self):
+        self.busca = ""
+        self.filtro_condicao = "todos"
+        self.filtro_modificacao = "todos"
 
     @rx.event
     def abrir_pagina(self, recorte: str):
@@ -153,6 +230,10 @@ class CatalogState(rx.State):
         apareçam com o novo recorte enquanto a carga não começa.
         """
         self.recorte = recorte if recorte in RECORTES else "todos"
+        # Um filtro de outra página não pode esconder veículos nesta.
+        self.busca = ""
+        self.filtro_condicao = "todos"
+        self.filtro_modificacao = "todos"
         self.situacao = "carregando"
         self.cartoes = []
         return CatalogState.carregar_catalogo
@@ -202,10 +283,33 @@ class CatalogState(rx.State):
 
 
 # ---------------------------------------------------------------------------
-# Página individual do veículo (Change detalhes-veiculo, etapa A).
-# Usa a listagem pública GET /vehicles, que já contém somente Disponíveis e Vendidos;
-# veículos em Rascunho nunca chegam aqui. Na etapa B, só buscar_veiculo muda.
+# Página individual do veículo (Change detalhes-veiculo).
+# Usa o endpoint público GET /vehicles/{vehicle_id}, que só devolve Disponíveis e
+# Vendidos e responde 404 para Rascunho e inexistente: Rascunho nunca chega aqui.
 # ---------------------------------------------------------------------------
+
+# Áreas de modificação do backend, na ordem e com os nomes de docs/domain-model.md (seção 8).
+ROTULOS_AREA = {
+    "engine": "Preparação do motor",
+    "forced_induction": "Turbo/sobrealimentação",
+    "power": "Potência",
+    "fuel": "Combustível",
+    "transmission": "Alterações de câmbio",
+    "suspension": "Suspensão",
+    "wheels_tires": "Rodas e pneus",
+    "brakes": "Freios",
+    "interior": "Interior",
+    "exterior": "Modificações estéticas",
+    "other": "Outras modificações",
+}
+
+
+@dataclasses.dataclass
+class GrupoModificacoes:
+    """Modificações cadastradas de uma área, já com o rótulo em português."""
+
+    area: str = ""
+    itens: list[str] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
@@ -221,18 +325,98 @@ class DetalheVeiculo:
     quilometragem: str = ""
     condicao: str = ""
     preco: str = ""
+    preco_numero: str = "0"  # preço como texto decimal ("189900.00"), usado pelo simulador
     modificado: bool = False
     vendido: bool = False
     capa: str = IMAGEM_PROVISORIA
+    # Configuração original e descrição; vazio quando não cadastrado.
+    cor: str = ""
+    motorizacao: str = ""
+    cambio: str = ""
+    descricao: str = ""
+    # Modificações cadastradas, agrupadas por área; vazio quando não há registros.
+    modificacoes: list[GrupoModificacoes] = dataclasses.field(default_factory=list)
+    # Anunciante (Change contato-vendedor): nome de exibição e link do WhatsApp.
+    # Vazios quando não há anunciante, autorização ou número válido, ou o veículo foi vendido.
+    anunciante: str = ""
+    link_whatsapp: str = ""
 
 
 def _texto(valor: object) -> str:
     return " ".join(valor.split()) if isinstance(valor, str) else ""
 
 
+def _texto_longo(valor: object) -> str:
+    """Texto com parágrafos: mantém as quebras de linha, sem espaços nem linhas vazias sobrando."""
+    if not isinstance(valor, str):
+        return ""
+    linhas = [" ".join(linha.split()) for linha in valor.strip().splitlines()]
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(linhas)).strip()
+
+
+def agrupar_modificacoes(registros: object) -> list[GrupoModificacoes]:
+    """Agrupa as modificações por área, na ordem do domínio e na ordem de cadastro.
+
+    Registros sem descrição são ignorados (nada é exibido sem conteúdo cadastrado);
+    uma área desconhecida vai para "Outras modificações". Ausência equivale a lista vazia.
+    """
+    if registros is None:
+        return []
+    if not isinstance(registros, list) or not all(isinstance(r, dict) for r in registros):
+        raise ValueError(f"Modificações inválidas: {registros!r}")
+    por_area: dict[str, list[str]] = {}
+    for registro in registros:
+        descricao = _texto_longo(registro.get("description"))
+        if not descricao:
+            continue
+        area = registro.get("area")
+        chave = area if isinstance(area, str) and area in ROTULOS_AREA else "other"
+        por_area.setdefault(chave, []).append(descricao)
+    return [
+        GrupoModificacoes(area=rotulo, itens=por_area[chave])
+        for chave, rotulo in ROTULOS_AREA.items()
+        if chave in por_area
+    ]
+
+
+# WhatsApp: somente dígitos, com DDI e DDD (por exemplo, 55 + DDD + número = 12 ou 13 dígitos).
+_NUMERO_WHATSAPP = re.compile(r"[0-9]{12,13}")  # só ASCII: \d aceitaria outros numerais
+
+
+def mensagem_whatsapp(titulo: str, ano: str) -> str:
+    """Mensagem inicial que identifica o veículo; sem endereço enquanto não houver domínio público."""
+    return f"Olá! Tenho interesse no {titulo} {ano} anunciado na Revaulte."
+
+
+def link_whatsapp(numero: object, titulo: str, ano: str) -> str:
+    """Link wa.me com a mensagem codificada, ou vazio se o número não for válido."""
+    if not isinstance(numero, str) or not _NUMERO_WHATSAPP.fullmatch(numero):
+        return ""
+    return f"https://wa.me/{numero}?text={quote(mensagem_whatsapp(titulo, ano), safe='')}"
+
+
+def preparar_anunciante(seller: object, titulo: str, ano: str, vendido: bool) -> tuple[str, str]:
+    """(nome, link do WhatsApp) do anunciante; ("", "") quando não há o que exibir.
+
+    O backend só envia o número com autorização e só para veículo Disponível; a página
+    confere de novo: vendido nunca recebe contato e sem nome não há anunciante a exibir.
+    """
+    if seller is None or vendido:
+        return "", ""
+    if not isinstance(seller, dict):
+        raise ValueError(f"Anunciante inválido: {seller!r}")
+    nome = _texto(seller.get("display_name"))
+    if not nome:
+        return "", ""
+    return nome, link_whatsapp(seller.get("whatsapp"), titulo, ano)
+
+
 def preparar_detalhe(veiculo: dict) -> DetalheVeiculo:
     """Converte um veículo da API nos dados da página; reutiliza a validação do cartão."""
     cartao = preparar_cartao(veiculo)
+    anunciante, link = preparar_anunciante(
+        veiculo.get("seller"), cartao.titulo, cartao.ano, cartao.vendido
+    )
     return DetalheVeiculo(
         id=cartao.id,
         titulo=cartao.titulo,
@@ -243,10 +427,141 @@ def preparar_detalhe(veiculo: dict) -> DetalheVeiculo:
         quilometragem=cartao.quilometragem,
         condicao=cartao.condicao,
         preco=cartao.preco,
+        preco_numero=str(_numero(veiculo.get("price"), "price").quantize(Decimal("0.01"))),
         modificado=cartao.modificado,
         vendido=cartao.vendido,
         capa=cartao.capa,
+        cor=_texto(veiculo.get("color")),
+        motorizacao=_texto(veiculo.get("engine")),
+        cambio=_texto(veiculo.get("transmission")),
+        descricao=_texto_longo(veiculo.get("description")),
+        modificacoes=agrupar_modificacoes(veiculo.get("modifications")),
+        anunciante=anunciante,
+        link_whatsapp=link,
     )
+
+
+# ---------------------------------------------------------------------------
+# Simulador de financiamento (Change simulador-financiamento).
+# Estimativa hipotética pela Tabela Price; nada é enviado a terceiros.
+# ---------------------------------------------------------------------------
+
+OPCOES_PARCELAS = (12, 24, 36, 48, 60)
+PARCELAS_INICIAIS = 48
+ENTRADA_INICIAL = Decimal("0.20")  # 20% do preço
+TAXA_INICIAL = "1,50"  # % ao mês, ilustrativa
+TAXA_MAXIMA = Decimal("5")
+CENTAVO = Decimal("0.01")
+
+_MILHAR_SEM_DECIMAL = re.compile(r"\d{1,3}(\.\d{3})+")
+_NUMERO = re.compile(r"-?\d+(\.\d+)?")
+
+
+def ler_valor_br(texto: object) -> Decimal | None:
+    """Lê um número digitado no formato brasileiro ("20.000,50", "1,5", "R$ 20000").
+
+    Retorna None quando o texto não é um número.
+    """
+    if not isinstance(texto, str):
+        return None
+    t = texto.replace("R$", "").replace(" ", "").replace("\u00a0", "").replace("%", "")
+    if "," in t:
+        t = t.replace(".", "").replace(",", ".")
+    elif _MILHAR_SEM_DECIMAL.fullmatch(t.lstrip("-")):
+        t = t.replace(".", "")  # "20.000" é vinte mil
+    if not _NUMERO.fullmatch(t):
+        return None
+    return Decimal(t)
+
+
+def _casas_decimais(numero: Decimal) -> int:
+    expoente = numero.as_tuple().exponent
+    return -expoente if isinstance(expoente, int) and expoente < 0 else 0
+
+
+def texto_valor_br(valor: Decimal) -> str:
+    """Valor para um campo de texto: 37980 -> "37.980,00"."""
+    return _milhar(f"{valor.quantize(CENTAVO, rounding=ROUND_HALF_UP):,.2f}")
+
+
+def _reais(valor: Decimal) -> str:
+    return "R$ " + texto_valor_br(valor)
+
+
+def calcular_financiamento(
+    preco: Decimal, entrada: Decimal, parcelas: int, taxa_percentual: Decimal
+) -> dict[str, Decimal]:
+    """Tabela Price: parcela = F·i / (1 − (1 + i)^−n); com taxa zero, F / n.
+
+    A parcela é arredondada ao centavo, e o total pago e os juros partem dela,
+    para que os números exibidos fechem entre si.
+    """
+    financiado = preco - entrada
+    i = taxa_percentual / 100
+    if i == 0:
+        parcela = financiado / parcelas
+    else:
+        parcela = financiado * i / (1 - (1 + i) ** -parcelas)
+    parcela = parcela.quantize(CENTAVO, rounding=ROUND_HALF_UP)
+    total = entrada + parcela * parcelas
+    return {"financiado": financiado, "parcela": parcela, "total": total, "juros": total - preco}
+
+
+@dataclasses.dataclass
+class Simulacao:
+    """Resultado exibido pelo simulador: valores formatados ou a mensagem de erro."""
+
+    erro: str = ""
+    entrada: str = ""
+    financiado: str = ""
+    parcela: str = ""
+    total: str = ""
+    juros: str = ""
+
+
+def simular(preco_texto: str, entrada_texto: str, parcelas: int, taxa_texto: str) -> Simulacao:
+    """Valida o que o visitante digitou e calcula a estimativa."""
+    try:
+        preco = Decimal(preco_texto)
+    except (InvalidOperation, TypeError):
+        return Simulacao(erro="Valor do veículo indisponível para simulação.")
+    if not preco.is_finite() or preco <= 0:
+        return Simulacao(erro="Valor do veículo indisponível para simulação.")
+
+    entrada = ler_valor_br(entrada_texto)
+    if entrada is None:
+        return Simulacao(erro="Informe a entrada em reais, por exemplo 20.000,00.")
+    if entrada < 0:
+        return Simulacao(erro="A entrada não pode ser negativa.")
+    if _casas_decimais(entrada) > 2:
+        return Simulacao(erro="Use no máximo duas casas decimais na entrada.")
+    if entrada >= preco:
+        return Simulacao(erro="A entrada deve ser menor que o valor do veículo.")
+
+    if parcelas not in OPCOES_PARCELAS:
+        return Simulacao(erro="Escolha um prazo entre 12 e 60 parcelas.")
+
+    taxa = ler_valor_br(taxa_texto)
+    if taxa is None or taxa < 0 or taxa > TAXA_MAXIMA or _casas_decimais(taxa) > 2:
+        return Simulacao(erro="Informe uma taxa entre 0% e 5% ao mês, com até duas casas decimais.")
+
+    r = calcular_financiamento(preco, entrada, parcelas, taxa)
+    return Simulacao(
+        entrada=_reais(entrada),
+        financiado=_reais(r["financiado"]),
+        parcela=_reais(r["parcela"]),
+        total=_reais(r["total"]),
+        juros=_reais(r["juros"]),
+    )
+
+
+def entrada_inicial(preco_texto: str) -> str:
+    """20% do preço, arredondado a reais, no formato do campo."""
+    try:
+        preco = Decimal(preco_texto)
+    except (InvalidOperation, TypeError):
+        return ""
+    return texto_valor_br((preco * ENTRADA_INICIAL).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
 
 # Limite de dígitos aceitos no identificador da rota (evita números absurdos).
@@ -267,24 +582,28 @@ def ler_id_veiculo(texto: object) -> int | None:
 async def buscar_veiculo(id_veiculo: int) -> tuple[str, DetalheVeiculo | None]:
     """Busca um veículo publicado pelo identificador.
 
-    Retorna ("encontrado", detalhe), ("nao_encontrado", None) ou ("erro", None).
+    Retorna ("encontrado", detalhe), ("nao_encontrado", None) para a resposta 404
+    (Rascunho ou inexistente) ou ("erro", None) para qualquer outra falha.
     """
     try:
         async with httpx.AsyncClient(timeout=TEMPO_LIMITE_SEGUNDOS) as cliente:
             resposta = await cliente.get(
-                f"{catalog_api_url()}/vehicles", headers={"Accept": "application/json"}
+                f"{catalog_api_url()}/vehicles/{id_veiculo}",
+                headers={"Accept": "application/json"},
             )
+        if resposta.status_code == 404:
+            return "nao_encontrado", None
         resposta.raise_for_status()
         dados = resposta.json()
-        if not isinstance(dados, list) or not all(isinstance(v, dict) for v in dados):
-            raise ValueError("Resposta inesperada do catálogo")
-        for veiculo in dados:
-            if veiculo.get("id") == id_veiculo and not isinstance(veiculo.get("id"), bool):
-                return "encontrado", preparar_detalhe(veiculo)
+        if not isinstance(dados, dict):
+            raise ValueError("Resposta inesperada do detalhe")
+        id_recebido = dados.get("id")
+        if isinstance(id_recebido, bool) or id_recebido != id_veiculo:
+            raise ValueError(f"Veículo {id_recebido!r} recebido no lugar de {id_veiculo}")
+        return "encontrado", preparar_detalhe(dados)
     except (httpx.HTTPError, ValueError) as erro:
         print(f"Falha ao carregar o veículo {id_veiculo}: {erro!r}")
         return "erro", None
-    return "nao_encontrado", None
 
 
 def _id_da_rota(params: object, caminho: object) -> str:
@@ -306,13 +625,37 @@ class DetalheState(rx.State):
     veiculo: DetalheVeiculo = DetalheVeiculo()
     # Identificador pedido pela rota; None quando inválido.
     id_pedido: int | None = None
-    interesse_aberto: bool = False
+    # Simulador: textos como o visitante digitou e o prazo escolhido.
+    entrada_texto: str = ""
+    taxa_texto: str = TAXA_INICIAL
+    parcelas: int = PARCELAS_INICIAIS
+
+    def _reiniciar_simulador(self):
+        self.entrada_texto = entrada_inicial(self.veiculo.preco_numero)
+        self.taxa_texto = TAXA_INICIAL
+        self.parcelas = PARCELAS_INICIAIS
+
+    @rx.var
+    def simulacao(self) -> Simulacao:
+        return simular(self.veiculo.preco_numero, self.entrada_texto, self.parcelas, self.taxa_texto)
+
+    @rx.event
+    def definir_entrada(self, texto: str):
+        self.entrada_texto = texto if isinstance(texto, str) else ""
+
+    @rx.event
+    def definir_taxa(self, texto: str):
+        self.taxa_texto = texto if isinstance(texto, str) else ""
+
+    @rx.event
+    def definir_parcelas(self, parcelas: int):
+        if isinstance(parcelas, int) and parcelas in OPCOES_PARCELAS:
+            self.parcelas = parcelas
 
     @rx.event
     def abrir(self):
         """on_load da página: lê o identificador da rota e carrega o veículo."""
         self.veiculo = DetalheVeiculo()
-        self.interesse_aberto = False
         self.id_pedido = ler_id_veiculo(
             _id_da_rota(self.router.page.params, self.router.page.raw_path)
         )
@@ -335,16 +678,13 @@ class DetalheState(rx.State):
         if self.id_pedido != id_veiculo:
             return  # o visitante já abriu outro veículo
         self.veiculo = detalhe if detalhe is not None else DetalheVeiculo()
+        self._reiniciar_simulador()
         self.situacao = situacao
 
     @rx.event
     def usar_imagem_provisoria(self, capa: str):
         if self.veiculo.capa == capa:
             self.veiculo = dataclasses.replace(self.veiculo, capa=IMAGEM_PROVISORIA)
-
-    @rx.event
-    def mostrar_interesse(self):
-        self.interesse_aberto = True
 
 
 # Quantidade de slides do carrossel da página inicial (ver SLIDES_CARROSSEL em components.py).

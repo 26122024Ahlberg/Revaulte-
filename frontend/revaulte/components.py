@@ -7,7 +7,9 @@ from .state import (
     CartaoVeiculo,
     CatalogState,
     DetalheState,
+    GrupoModificacoes,
     MenuState,
+    OPCOES_PARCELAS,
 )
 
 # Rotas públicas do site.
@@ -206,9 +208,112 @@ def grade_cartoes(cartoes: rx.Var[list[CartaoVeiculo]]) -> rx.Component:
     return rx.el.div(rx.foreach(cartoes, cartao_veiculo), class_name="cards")
 
 
+def indicador_carregamento(texto: str) -> rx.Component:
+    """Estado de carregamento: anel animado (decorativo) e texto lido pelos leitores de tela."""
+    return rx.el.p(
+        rx.el.span(class_name="spinner", custom_attrs={"aria-hidden": "true"}),
+        rx.el.span(texto),
+        class_name="state-message is-loading",
+    )
+
+
+# Filtros oferecidos em cada página de estoque; o recorte fixo da página já cobre o outro.
+FILTROS_POR_PAGINA = {
+    ROTA_ESTOQUE: ("condicao", "modificacao"),
+    ROTA_USADOS: ("modificacao",),
+    ROTA_MODIFICADOS: ("condicao",),
+}
+
+
+def filtro_select(id_campo: str, rotulo: str, valor, ao_mudar, opcoes) -> rx.Component:
+    return rx.el.div(
+        rx.el.label(rotulo, html_for=id_campo),
+        rx.el.select(
+            *(rx.el.option(texto, value=chave) for chave, texto in opcoes),
+            id=id_campo,
+            value=valor,
+            on_change=ao_mudar,
+        ),
+        class_name="filter-field",
+    )
+
+
+def barra_filtros(filtros: tuple[str, ...]) -> rx.Component:
+    """Pesquisa por marca, modelo e versão e os filtros da página."""
+    campos = [
+        rx.el.div(
+            rx.el.label("Pesquisar", html_for="busca-estoque"),
+            rx.debounce_input(
+                rx.el.input(
+                    id="busca-estoque",
+                    type="search",
+                    placeholder="Marca, modelo ou versão",
+                    auto_complete="off",
+                    value=CatalogState.busca,
+                    on_change=CatalogState.definir_busca,
+                ),
+                debounce_timeout=300,
+            ),
+            class_name="filter-field filter-search",
+        )
+    ]
+    if "condicao" in filtros:
+        campos.append(
+            filtro_select(
+                "filtro-condicao", "Condição", CatalogState.filtro_condicao,
+                CatalogState.definir_condicao,
+                (("todos", "Todos"), ("novo", "Novo"), ("usado", "Usado")),
+            )
+        )
+    if "modificacao" in filtros:
+        campos.append(
+            filtro_select(
+                "filtro-modificacao", "Modificação", CatalogState.filtro_modificacao,
+                CatalogState.definir_modificacao,
+                (("todos", "Todos"), ("modificados", "Modificados"), ("originais", "Originais")),
+            )
+        )
+    return rx.el.div(
+        rx.el.div(*campos, class_name="filter-fields"),
+        rx.el.div(
+            rx.el.p(
+                CatalogState.total_exibido,
+                class_name="filter-count",
+                custom_attrs={"aria-live": "polite"},
+            ),
+            rx.cond(
+                CatalogState.filtros_ativos,
+                rx.el.button(
+                    "Limpar filtros",
+                    type="button",
+                    class_name="link-clear",
+                    on_click=CatalogState.limpar_filtros,
+                ),
+            ),
+            class_name="filter-footer",
+        ),
+        class_name="filters",
+        role="search",
+        custom_attrs={"aria-label": "Pesquisar no estoque"},
+    )
+
+
+def sem_resultado() -> rx.Component:
+    return rx.el.div(
+        rx.el.p("Nenhum veículo corresponde aos critérios de pesquisa."),
+        rx.el.button(
+            "Limpar filtros",
+            type="button",
+            class_name="btn btn-red",
+            on_click=CatalogState.limpar_filtros,
+        ),
+        class_name="state-message",
+    )
+
+
 def regiao_estoque(mensagem_vazio: str) -> rx.Component:
     """Região das páginas de estoque: exibe somente um dos estados carregando, lista,
-    vazio ou erro. A lista mostra apenas o recorte da página atual."""
+    vazio ou erro. A lista mostra o recorte da página com a pesquisa e os filtros."""
     vazio = rx.el.p(mensagem_vazio, class_name="state-message")
     return rx.el.div(
         rx.match(
@@ -218,7 +323,7 @@ def regiao_estoque(mensagem_vazio: str) -> rx.Component:
                 rx.cond(
                     CatalogState.cartoes_exibidos.length() > 0,
                     grade_cartoes(CatalogState.cartoes_exibidos),
-                    vazio,
+                    rx.cond(CatalogState.filtros_ativos, sem_resultado(), vazio),
                 ),
             ),
             ("vazio", vazio),
@@ -237,10 +342,48 @@ def regiao_estoque(mensagem_vazio: str) -> rx.Component:
                     class_name="state-message",
                 ),
             ),
-            rx.el.p("Carregando veículos…", class_name="state-message"),
+            indicador_carregamento("Carregando veículos…"),
         ),
         id="catalog-region",
         custom_attrs={"aria-live": "polite"},
+    )
+
+
+# Banner de cada página de estoque: fotos próprias, diferentes das da Home (Pexels,
+# licença registrada em frontend/README.md). A chave define o ajuste de enquadramento
+# no CSS (classe "page-banner is-<chave>").
+BANNERS_ESTOQUE = {
+    ROTA_ESTOQUE: (
+        "/banner-estoque.jpg",
+        "Todos os veículos anunciados na Revaulte: clássicos, esportivos, raros e preparados.",
+        "estoque",
+    ),
+    ROTA_USADOS: (
+        "/banner-usados.jpg",
+        "Veículos com história, com ano, quilometragem e condição informados em cada anúncio.",
+        "usados",
+    ),
+    ROTA_MODIFICADOS: (
+        "/banner-modificados.jpg",
+        "Carros modificados e preparados, identificados em cada anúncio.",
+        "modificados",
+    ),
+}
+
+
+def banner_interno(atual: str, titulo: str) -> rx.Component:
+    """Banner horizontal das páginas de estoque; a foto é decorativa (alt vazio)."""
+    imagem, texto, chave = BANNERS_ESTOQUE.get(atual, BANNERS_ESTOQUE[ROTA_ESTOQUE])
+    return rx.el.section(
+        rx.el.img(src=imagem, alt="", class_name="page-banner-image", custom_attrs={"aria-hidden": "true"}),
+        rx.el.div(class_name="page-banner-shade", custom_attrs={"aria-hidden": "true"}),
+        rx.el.div(
+            rx.el.p("Marketplace Revaulte", class_name="hero-kicker"),
+            rx.el.h1(titulo, class_name="page-banner-title"),
+            rx.el.p(texto, class_name="page-banner-text"),
+            class_name="page-banner-content",
+        ),
+        class_name=f"page-banner is-{chave}",
     )
 
 
@@ -248,10 +391,18 @@ def pagina_estoque(atual: str, titulo: str, mensagem_vazio: str) -> rx.Component
     """Página de estoque (/estoque, /usados ou /modificados)."""
     return pagina(
         atual,
-        rx.el.main(
-            rx.el.h1(titulo, class_name="section-title"),
-            regiao_estoque(mensagem_vazio),
-            class_name="catalog",
+        rx.el.div(
+            banner_interno(atual, titulo),
+            rx.el.main(
+                # Pesquisa e filtros só depois que a lista foi carregada com sucesso.
+                rx.cond(
+                    CatalogState.situacao == "lista",
+                    barra_filtros(FILTROS_POR_PAGINA.get(atual, ("condicao", "modificacao"))),
+                ),
+                regiao_estoque(mensagem_vazio),
+                class_name="catalog",
+            ),
+            class_name="inner-page",
         ),
     )
 
@@ -441,10 +592,15 @@ def pagina_nao_encontrada() -> rx.Component:
 
 
 # ---------------------------------------------------------------------------
-# Página individual do veículo (/veiculo/<id>), Change detalhes-veiculo etapa A.
+# Página individual do veículo (/veiculo/<id>), Change detalhes-veiculo.
 # ---------------------------------------------------------------------------
 
-MENSAGEM_INTERESSE = "O contato com o anunciante ainda não está disponível nesta versão do site."
+MENSAGEM_SEM_CONTATO = "Contato não disponível"
+TEXTO_NAO_INFORMADO = "Não informado"
+MENSAGEM_SEM_DESCRICAO = "Descrição não informada."
+MENSAGEM_SEM_MODIFICACOES = (
+    "Veículo modificado/preparado. Os detalhes das modificações não foram informados."
+)
 
 
 def voltar_ao_estoque(classe: str = "link-back") -> rx.Component:
@@ -453,6 +609,77 @@ def voltar_ao_estoque(classe: str = "link-back") -> rx.Component:
 
 def item_ficha(rotulo: str, valor: rx.Var[str]) -> rx.Component:
     return rx.el.div(rx.el.dt(rotulo), rx.el.dd(valor), class_name="spec-item")
+
+
+def item_tecnico(rotulo: str, valor: rx.Var[str]) -> rx.Component:
+    """Item da configuração original: o valor cadastrado ou “Não informado”, discreto."""
+    return rx.el.div(
+        rx.el.dt(rotulo),
+        rx.el.dd(
+            rx.cond(valor != "", valor, rx.el.span(TEXTO_NAO_INFORMADO, class_name="value-missing"))
+        ),
+        class_name="spec-item",
+    )
+
+
+def configuracao_original() -> rx.Component:
+    veiculo = DetalheState.veiculo
+    return rx.el.section(
+        rx.el.h2("Configuração original", class_name="detail-subtitle"),
+        rx.el.dl(
+            item_tecnico("Cor", veiculo.cor),
+            item_tecnico("Motorização", veiculo.motorizacao),
+            item_tecnico("Câmbio", veiculo.cambio),
+            class_name="spec-list",
+        ),
+        class_name="detail-original",
+    )
+
+
+def secao_descricao() -> rx.Component:
+    descricao = DetalheState.veiculo.descricao
+    return rx.el.section(
+        rx.el.h2("Descrição", class_name="detail-panel-title"),
+        rx.cond(
+            descricao != "",
+            rx.el.p(descricao, class_name="detail-description"),
+            rx.el.p(MENSAGEM_SEM_DESCRICAO, class_name="value-missing"),
+        ),
+        class_name="detail-panel",
+    )
+
+
+def grupo_modificacoes(grupo: rx.Var[GrupoModificacoes]) -> rx.Component:
+    return rx.el.div(
+        rx.el.h3(grupo.area, class_name="mod-area"),
+        rx.el.ul(rx.foreach(grupo.itens, lambda item: rx.el.li(item)), class_name="mod-items"),
+        class_name="mod-group",
+    )
+
+
+def secao_modificacoes() -> rx.Component:
+    """Modificações cadastradas, por área; só existe para veículo indicado como modificado."""
+    modificacoes = DetalheState.veiculo.modificacoes
+    return rx.el.section(
+        rx.el.h2("Modificações e preparação", class_name="detail-panel-title"),
+        rx.cond(
+            modificacoes.length() > 0,
+            rx.el.div(rx.foreach(modificacoes, grupo_modificacoes), class_name="mod-groups"),
+            rx.el.p(MENSAGEM_SEM_MODIFICACOES, class_name="value-missing"),
+        ),
+        class_name="detail-panel detail-mods",
+    )
+
+
+def secoes_detalhe() -> rx.Component:
+    """Descrição e modificações, abaixo da ficha e separadas da configuração original."""
+    return rx.el.div(
+        secao_descricao(),
+        rx.cond(DetalheState.veiculo.modificado, secao_modificacoes()),
+        class_name=rx.cond(
+            DetalheState.veiculo.modificado, "detail-sections", "detail-sections is-single"
+        ),
+    )
 
 
 def imagem_detalhe() -> rx.Component:
@@ -479,31 +706,155 @@ def imagem_detalhe() -> rx.Component:
     )
 
 
+def bloco_anunciante() -> rx.Component:
+    """Anunciante do veículo Disponível; o WhatsApp só aparece com contato autorizado e válido."""
+    veiculo = DetalheState.veiculo
+    return rx.el.section(
+        rx.cond(
+            veiculo.anunciante != "",
+            rx.el.p(
+                rx.el.span("Anunciado por", class_name="seller-label"),
+                rx.el.strong(veiculo.anunciante, class_name="seller-name"),
+                class_name="seller-id",
+            ),
+        ),
+        rx.cond(
+            veiculo.link_whatsapp != "",
+            rx.el.a(
+                "Conversar no WhatsApp",
+                href=veiculo.link_whatsapp,
+                target="_blank",
+                rel="noopener noreferrer",
+                class_name="btn btn-red btn-whatsapp",
+            ),
+            rx.el.p(MENSAGEM_SEM_CONTATO, class_name="value-missing seller-unavailable"),
+        ),
+        class_name="detail-actions seller-box",
+        custom_attrs={"aria-label": "Contato com o anunciante"},
+    )
+
+
 def acao_negociacao() -> rx.Component:
-    """Vendido: aviso de indisponibilidade. Disponível: interesse demonstrativo, sem contato."""
+    """Vendido: aviso de indisponibilidade, sem contato. Disponível: bloco do anunciante."""
     return rx.cond(
         DetalheState.veiculo.vendido,
         rx.el.p(
             "Este veículo já foi vendido e está indisponível para negociação.",
             class_name="detail-notice",
         ),
+        bloco_anunciante(),
+    )
+
+
+AVISO_SIMULACAO = (
+    "Simulação hipotética, com taxa ilustrativa. Não inclui impostos, tarifas e seguros "
+    "e não representa proposta, aprovação ou contratação de crédito."
+)
+
+
+def campo_simulador(id_campo: str, rotulo: str, valor, ao_mudar, prefixo: str, sufixo: str = "") -> rx.Component:
+    return rx.el.div(
+        rx.el.label(rotulo, html_for=id_campo),
         rx.el.div(
-            rx.el.button(
-                "Tenho interesse",
-                type="button",
-                class_name="btn btn-red",
-                on_click=DetalheState.mostrar_interesse,
+            rx.el.span(prefixo, class_name="sim-affix", custom_attrs={"aria-hidden": "true"}) if prefixo else rx.fragment(),
+            # Debounce: o valor vai ao servidor após uma pausa curta na digitação.
+            rx.debounce_input(
+                rx.el.input(
+                    id=id_campo,
+                    type="text",
+                    input_mode="decimal",
+                    auto_complete="off",
+                    value=valor,
+                    on_change=ao_mudar,
+                ),
+                debounce_timeout=300,
             ),
-            rx.cond(
-                DetalheState.interesse_aberto,
-                rx.el.p(MENSAGEM_INTERESSE, class_name="detail-notice", role="status"),
-            ),
-            class_name="detail-actions",
+            rx.el.span(sufixo, class_name="sim-affix", custom_attrs={"aria-hidden": "true"}) if sufixo else rx.fragment(),
+            class_name="sim-input",
         ),
+        class_name="sim-field",
+    )
+
+
+def opcao_parcelas(n: int) -> rx.Component:
+    ativo = DetalheState.parcelas == n
+    return rx.el.button(
+        f"{n}x",
+        type="button",
+        class_name=rx.cond(ativo, "sim-term is-active", "sim-term"),
+        on_click=DetalheState.definir_parcelas(n),
+        custom_attrs={"aria-pressed": rx.cond(ativo, "true", "false"), "aria-label": f"{n} parcelas"},
+    )
+
+
+def linha_resultado(rotulo: str, valor) -> rx.Component:
+    return rx.el.div(rx.el.dt(rotulo), rx.el.dd(valor), class_name="spec-item")
+
+
+def secao_simulador() -> rx.Component:
+    """Simulação informativa (Tabela Price), somente para veículo Disponível."""
+    sim = DetalheState.simulacao
+    return rx.el.section(
+        rx.el.h2("Simular financiamento", class_name="section-title"),
+        rx.el.div(
+            rx.el.div(
+                rx.el.div(
+                    rx.el.span("Valor do veículo", class_name="sim-label"),
+                    rx.el.strong(DetalheState.veiculo.preco, class_name="sim-price"),
+                    class_name="sim-field",
+                ),
+                campo_simulador("sim-entrada", "Entrada", DetalheState.entrada_texto, DetalheState.definir_entrada, "R$"),
+                rx.el.fieldset(
+                    rx.el.legend("Prazo"),
+                    rx.el.div(*(opcao_parcelas(n) for n in OPCOES_PARCELAS), class_name="sim-terms"),
+                    class_name="sim-field",
+                ),
+                campo_simulador(
+                    "sim-taxa", "Taxa de juros ilustrativa (ao mês)", DetalheState.taxa_texto,
+                    DetalheState.definir_taxa, "", "%",
+                ),
+                class_name="sim-form",
+            ),
+            rx.el.div(
+                rx.cond(
+                    sim.erro != "",
+                    rx.el.p(sim.erro, class_name="sim-error"),
+                    rx.el.div(
+                        rx.el.p("Parcela estimada", class_name="sim-label"),
+                        rx.el.p(
+                            DetalheState.parcelas.to_string() + "x de ",
+                            rx.el.strong(sim.parcela),
+                            class_name="sim-installment",
+                        ),
+                        rx.el.dl(
+                            linha_resultado("Entrada", sim.entrada),
+                            linha_resultado("Valor financiado", sim.financiado),
+                            linha_resultado("Total pago", sim.total),
+                            linha_resultado("Total de juros", sim.juros),
+                            class_name="spec-list",
+                        ),
+                    ),
+                ),
+                rx.el.p(AVISO_SIMULACAO, class_name="sim-notice"),
+                class_name="sim-result",
+                custom_attrs={"aria-live": "polite"},
+            ),
+            class_name="sim-grid",
+        ),
+        class_name="simulator",
+        custom_attrs={"aria-label": "Simulador de financiamento"},
     )
 
 
 def conteudo_detalhe() -> rx.Component:
+    return rx.fragment(
+        ficha_detalhe(),
+        secoes_detalhe(),
+        rx.cond(~DetalheState.veiculo.vendido, secao_simulador()),
+    )
+
+
+def ficha_detalhe() -> rx.Component:
     veiculo = DetalheState.veiculo
     return rx.el.article(
         imagem_detalhe(),
@@ -519,17 +870,7 @@ def conteudo_detalhe() -> rx.Component:
                 item_ficha("Condição", veiculo.condicao),
                 class_name="spec-list",
             ),
-            rx.cond(
-                veiculo.modificado,
-                rx.el.section(
-                    rx.el.h2("Modificações"),
-                    rx.el.p(
-                        "Veículo modificado/preparado. Os detalhes das modificações "
-                        "não foram informados."
-                    ),
-                    class_name="detail-mods",
-                ),
-            ),
+            configuracao_original(),
             acao_negociacao(),
             class_name="detail-info",
         ),
@@ -568,19 +909,32 @@ def regiao_detalhe() -> rx.Component:
                     class_name="state-message",
                 ),
             ),
-            rx.el.p("Carregando veículo…", class_name="state-message"),
+            indicador_carregamento("Carregando veículo…"),
         ),
         id="vehicle-region",
         custom_attrs={"aria-live": "polite"},
     )
 
 
+def fundo_veiculo() -> rx.Component:
+    """A própria foto do anúncio, desfocada, ao fundo do topo da página (decorativa)."""
+    capa = DetalheState.veiculo.capa
+    return rx.cond(
+        (DetalheState.situacao == "encontrado") & (capa != IMAGEM_PROVISORIA),
+        rx.el.img(src=capa, alt="", class_name="vehicle-backdrop", custom_attrs={"aria-hidden": "true"}),
+    )
+
+
 def pagina_veiculo() -> rx.Component:
     return pagina(
         "",
-        rx.el.main(
-            rx.el.nav(voltar_ao_estoque(), class_name="detail-back"),
-            regiao_detalhe(),
-            class_name="catalog vehicle-page",
+        rx.el.div(
+            fundo_veiculo(),
+            rx.el.main(
+                rx.el.nav(voltar_ao_estoque(), class_name="detail-back"),
+                regiao_detalhe(),
+                class_name="catalog vehicle-page",
+            ),
+            class_name="inner-page inner-vehicle",
         ),
     )

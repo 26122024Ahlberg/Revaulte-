@@ -8,8 +8,8 @@ A Revaulte é um marketplace especializado em carros clássicos, esportivos e mo
 
 - Novo conceito de domínio **Anunciante**: quem anuncia o veículo, com nome de exibição e meio de contato autorizado (inicialmente WhatsApp).
 - Cada veículo publicado fica vinculado a um anunciante no Xano.
-- Página do veículo Disponível passa a exibir o nome do anunciante e o botão “Conversar no WhatsApp”, que abre o WhatsApp com uma mensagem inicial citando o anúncio. Sem integração com a API do WhatsApp: apenas um link.
-- Contato exibido somente quando o anunciante autorizou sua exibição; caso contrário, a página informa que o contato não está disponível.
+- Página do veículo Disponível passa a exibir o bloco “Anunciado por”, com o nome do anunciante e o botão “Conversar no WhatsApp”, que abre o WhatsApp com uma mensagem inicial identificando o veículo (título e ano). Sem integração com a API do WhatsApp: apenas um link. O endereço do anúncio só entra na mensagem quando houver domínio público (Change futura); nunca `localhost`.
+- Botão exibido somente com anunciante real vinculado, número válido e autorização explícita; caso contrário, a página exibe “Contato não disponível”.
 - Substitui o requisito “Interesse demonstrativo” da Change `detalhes-veiculo`.
 - Backend (somente após autorização do usuário): tabela de anunciantes, vínculo do veículo ao anunciante e inclusão dos dados públicos do anunciante no endpoint de detalhe.
 
@@ -36,4 +36,4 @@ Nenhuma nesta proposta. A `detalhes-veiculo` ainda não foi arquivada; quando fo
 - **Backend Xano** (somente após autorização): nova tabela, campo de referência em `vehicle` e alteração do endpoint de detalhe previsto em `detalhes-veiculo` (etapa B). `GET /vehicles` não passa a expor dados do anunciante.
 - **Frontend Reflex**: bloco do anunciante na página do veículo.
 - **Dados**: os anunciantes e contatos de teste precisam ser pessoas reais que autorizaram a exibição (por exemplo, membros do grupo); nenhum contato é inventado.
-- **Dependências**: depois de `detalhes-veiculo` etapa B.
+- **Dependências**: depois de `detalhes-veiculo` etapa B (enviada ao Xano em 07/11/2026).
