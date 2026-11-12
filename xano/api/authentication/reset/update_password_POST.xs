@@ -32,12 +32,12 @@ query "reset/update_password" verb=POST {
       data = {password: $input.password}
     } as $user
   
-    // Create event log
+    // Create event log (sem senha, hash nem token; Change contas-acesso)
     function.run "Quick Start/log_event" {
       input = {
         user_id : $user.id
         action  : "reset_password"
-        metadata: $user
+        metadata: {}
       }
     } as $event_log
   }

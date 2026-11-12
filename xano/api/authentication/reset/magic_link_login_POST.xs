@@ -77,12 +77,12 @@ query "reset/magic-link-login" verb=POST {
       }
     } as $user1
   
-    // Create an event log for password reset login
+    // Create an event log for password reset login (sem senha, hash nem token; Change contas-acesso)
     function.run "Quick Start/log_event" {
       input = {
         user_id : $user.id
         action  : "login_for_password_reset"
-        metadata: $user1
+        metadata: {}
       }
     } as $event_log
   }

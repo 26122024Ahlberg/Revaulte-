@@ -14,12 +14,12 @@ query "auth/me" verb=GET {
       output = ["id", "created_at", "name", "email", "role"]
     } as $user
   
-    // Create an event log for get user record
+    // Create an event log for get user record (sem dados pessoais; Change contas-acesso)
     function.run "Quick Start/log_event" {
       input = {
         user_id : $user.id
         action  : "get_auth_user"
-        metadata: $user
+        metadata: {}
       }
     } as $event_log
   }

@@ -14,6 +14,26 @@ table user {
       values = ["admin", "member"]
     }
   
+    // Dados cadastrais do Cliente (Change contas-acesso). Opcionais na tabela para
+    // não invalidar contas antigas; obrigatórios no endpoint de cadastro.
+    // CPF somente com dígitos (11). Unicidade verificada no auth/signup.
+    text cpf? filters=trim {
+      sensitive = true
+    }
+
+    // Telefone somente com dígitos: DDD + número (10 ou 11 dígitos).
+    text phone? filters=trim {
+      sensitive = true
+    }
+
+    date birth_date? {
+      sensitive = true
+    }
+
+    text address? filters=trim {
+      sensitive = true
+    }
+
     object password_reset? {
       schema {
         password token?
@@ -27,6 +47,7 @@ table user {
     {type: "primary", field: [{name: "id"}]}
     {type: "btree", field: [{name: "created_at", op: "desc"}]}
     {type: "btree|unique", field: [{name: "email", op: "asc"}]}
+    {type: "btree", field: [{name: "cpf"}]}
   ]
 
   tags = ["xano:quick-start"]
