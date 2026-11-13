@@ -7,7 +7,7 @@
 ## 2. Interface
 
 - [x] 2.1 Implementar em `components.py` o campo de pesquisa com atraso de digitação, os filtros com rótulos conforme a página, a mensagem de nenhum resultado e “Limpar filtros”; verificar no navegador cada cenário de `specs/pesquisa-catalogo/spec.md` — implementado; testes de componente passam e a filtragem foi conferida com os 3 veículos reais do Xano; cenários da spec confirmado pelo usuário no Safari (desktop) em 27/10/2026
-- [ ] 2.2 Estilizar os controles em `styles.css` na identidade da Revaulte e em 980 e 560 px; verificar no navegador nas três larguras e navegação por teclado — implementado (campos com quebra de linha; uma coluna até 560 px); aparência no desktop confirmado pelo usuário no Safari (desktop) em 27/10/2026; pendente 980 e 560 px e navegação por teclado
+- [x] 2.2 Estilizar os controles em `styles.css` na identidade da Revaulte e em 980 e 560 px; verificar no navegador nas três larguras e navegação por teclado — implementado (campos com quebra de linha; uma coluna até 560 px); aparência no desktop confirmado pelo usuário no Safari (desktop) em 27/10/2026; pendente 980 e 560 px e navegação por teclado — verificado em 13/11/2026 no Safari 26 do macOS, por automação WebDriver (`safaridriver`) sobre o servidor local, com medições registradas: a 980 px os três campos ficam em uma linha e a 560 px em uma coluna, sem rolagem horizontal nem elementos fora da tela; pelo teclado, Tab percorre pesquisa e filtros, a pesquisa “gol” resulta em “1 veículo”, “Limpar filtros” é acionado com Enter e o foco é visível (contorno vermelho de 2 px)
 
 ## 3. Documentação e verificação
 

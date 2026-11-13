@@ -135,5 +135,18 @@ class TestComponentes(unittest.TestCase):
                 self.assertNotIn(termo, textos.replace(AVISO_SIMULACAO.lower(), ""))
 
 
+class TestEstiloCelular(unittest.TestCase):
+    def test_coluna_unica_pode_encolher(self):
+        """Em telas estreitas a coluna usa minmax(0, 1fr): com 1fr puro o simulador
+        ultrapassava 375 px e ficava cortado (verificado no Safari em 13/11/2026)."""
+        import re
+        from pathlib import Path
+
+        css = (Path(__file__).resolve().parents[1] / "assets" / "styles.css").read_text(encoding="utf-8")
+        bloco = re.search(r"@media \(max-width: 860px\) \{\s*\.sim-grid \{(.*?)\}", css, re.S)
+        self.assertIsNotNone(bloco)
+        self.assertIn("grid-template-columns: minmax(0, 1fr);", bloco.group(1))
+
+
 if __name__ == "__main__":
     unittest.main()

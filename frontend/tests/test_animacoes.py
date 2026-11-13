@@ -31,6 +31,14 @@ class TestAnimacoes(unittest.TestCase):
         self.assertIn("transition: none !important", tudo)
         self.assertIn("transform: none !important", tudo)
 
+    def test_movimento_reduzido_alcanca_pseudoelementos(self):
+        # A névoa do estoque anima um ::before; `*` sozinho não o alcança.
+        bloco = re.search(r"@media \(prefers-reduced-motion: reduce\) \{(.*?)\n\}", CSS, re.S).group(1)
+        seletor = re.search(r"([^{}]*)\{[^{}]*animation: none !important", bloco).group(1)
+        seletor = re.sub(r"/\*.*?\*/", "", seletor, flags=re.S)
+        partes = {s.strip() for s in seletor.split(",")}
+        self.assertTrue({"*", "*::before", "*::after"} <= partes, partes)
+
     def test_entradas_curtas(self):
         # Entradas novas: no máximo 0,4 s de duração + 0,15 s de atraso nos cartões.
         for nome in ("revaulte-rise", "revaulte-drop"):

@@ -749,7 +749,11 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    * {
+    /* ::before/::after: `*` não alcança pseudoelementos; sem eles a névoa do
+       estoque (revaulte-smoke) continuava animando (verificado no Safari em 13/11/2026). */
+    *,
+    *::before,
+    *::after {
         transition: none !important;
         animation: none !important;
     }
@@ -1304,7 +1308,9 @@ button {
 
 @media (max-width: 860px) {
     .sim-grid {
-        grid-template-columns: 1fr;
+        /* minmax(0, 1fr): sem isso a coluna não encolhe abaixo do conteúdo e o
+           simulador fica cortado à direita em 375 px (verificado no Safari em 13/11/2026). */
+        grid-template-columns: minmax(0, 1fr);
         gap: 20px;
     }
 }
