@@ -6,7 +6,7 @@ Define a apresentação visual das páginas internas da Revaulte (estoque e pág
 ## Requirements
 
 ### Requirement: Banner das páginas de estoque
-As páginas `/estoque`, `/usados` e `/modificados` SHALL exibir no topo um banner horizontal com fotografia automotiva escurecida, o título da página como título principal e um texto curto. Cada página SHALL usar uma fotografia própria, diferente das usadas no carrossel da Home, enquadrada de modo que o carro apareça inteiro e não fique sob o texto em telas de computador. O banner MUST NOT ocupar a altura inteira da tela e a fotografia SHALL ser decorativa, sem afetar a leitura do título se não carregar.
+As páginas `/estoque`, `/usados` e `/modificados` SHALL exibir no topo um banner horizontal com fotografia automotiva escurecida e decorativa, o título da página como título principal e um texto curto. O banner MUST NOT ocupar a altura inteira da tela. Cada página SHALL usar fotografia própria, diferente das do carrossel da Home, com o carro inteiro e fora de baixo do texto em telas de computador. O título SHALL continuar legível se a fotografia não carregar.
 
 #### Scenario: Visitante abre o estoque
 - **WHEN** o visitante abre `/estoque`
