@@ -6,11 +6,15 @@ Permite que o visitante encontre veículos no estoque da Revaulte pesquisando po
 ## Requirements
 
 ### Requirement: Pesquisa por texto
-As páginas de estoque (`/estoque`, `/usados` e `/modificados`) SHALL oferecer um campo de pesquisa que restringe a listagem aos veículos cuja marca, modelo ou versão contenha o texto informado, sem diferenciar maiúsculas, minúsculas e acentos e ignorando espaços nas extremidades. Com o campo vazio, nenhum veículo é excluído pela pesquisa.
+As páginas de estoque (`/estoque`, `/usados` e `/modificados`) SHALL oferecer um campo de pesquisa que restringe a listagem aos veículos cujo título composto (marca, modelo e versão, nessa ordem, separados por espaço) contenha o texto como trecho contínuo, ainda que abranja mais de um campo. A comparação SHALL ignorar maiúsculas, minúsculas, acentos e espaços nas extremidades, tratando espaços repetidos como um só. Com o campo vazio, nenhum veículo é excluído pela pesquisa.
 
 #### Scenario: Pesquisa por modelo
 - **WHEN** o visitante pesquisa “opala” e o estoque contém um Chevrolet Opala SS
 - **THEN** o Chevrolet Opala SS aparece e os veículos sem “opala” na marca, no modelo ou na versão não aparecem
+
+#### Scenario: Pesquisa por marca e modelo
+- **WHEN** o visitante pesquisa “chevrolet opala” e o estoque contém um Chevrolet Opala SS
+- **THEN** o Chevrolet Opala SS aparece, pois o texto é um trecho do título composto “Chevrolet Opala SS”
 
 #### Scenario: Pesquisa sem acento
 - **WHEN** o visitante pesquisa “citroen” e o estoque contém um veículo da marca Citroën

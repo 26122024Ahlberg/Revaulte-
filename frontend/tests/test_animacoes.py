@@ -6,7 +6,8 @@ from pathlib import Path
 
 from revaulte.components import regiao_detalhe, regiao_estoque
 
-CSS = (Path(__file__).resolve().parent.parent / "assets" / "styles.css").read_text()
+# UTF-8 explícito: sem ele, o Windows lê com a codificação local (cp1252) e falha nos acentos.
+CSS = (Path(__file__).resolve().parent.parent / "assets" / "styles.css").read_text(encoding="utf-8")
 
 
 def codigo(componente) -> str:
