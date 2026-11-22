@@ -34,7 +34,7 @@ O site SHALL oferecer a página `/entrar` com e-mail e senha. Credenciais invál
 
 #### Scenario: Sair
 - **WHEN** o usuário autenticado aciona “Sair”
-- **THEN** a sessão é removida do navegador e o menu volta a oferecer “Entrar / Cadastrar”
+- **THEN** a sessão é removida do navegador e o menu volta a oferecer “Entrar” e “Cadastrar”
 
 ### Requirement: Páginas protegidas
 `/conta` SHALL exigir sessão válida, confirmada no backend a cada abertura. `/admin` SHALL exigir sessão de Administrador. Sessão ausente, inválida ou expirada SHALL levar ao login.
@@ -69,16 +69,31 @@ Endpoints administrativos SHALL verificar no backend que o token pertence a um A
 - **WHEN** o endpoint `GET /admin/users` é chamado com token de Cliente
 - **THEN** responde 403 e nenhum dado é devolvido
 
-### Requirement: Menu da conta
-O painel “Minha conta” SHALL mostrar “Entrar / Cadastrar” ao visitante; ao usuário autenticado, “Minha conta” e “Sair”; ao Administrador, também “Painel administrativo”. Itens ainda não implementados SHALL continuar como “Em breve”.
+#### Scenario: Endpoint administrativo sem token
+- **WHEN** o endpoint `GET /admin/users` é chamado sem token
+- **THEN** responde 401 e nenhum dado é devolvido
 
-#### Scenario: Administrador abre o menu
-- **WHEN** um Administrador autenticado abre o menu
-- **THEN** vê “Minha conta”, “Painel administrativo” e “Sair”
+### Requirement: Painel administrativo básico
+A página `/admin` SHALL exibir ao Administrador somente a lista de usuários, sem ações de edição, bloqueio ou troca de perfil. A página SHALL informar quando a lista está vazia ou não pôde ser carregada, sem exibir texto técnico.
+
+#### Scenario: Falha ao carregar a lista
+- **WHEN** um Administrador abre `/admin` e o backend não responde
+- **THEN** a página informa em português que a lista não pôde ser carregada e não exibe dados parciais
 
 ### Requirement: Dados pessoais fora dos logs
-Cadastro, login e consulta da própria conta MUST NOT gravar senha, hash, CPF, telefone, data de nascimento ou endereço no registro de eventos.
+Cadastro, login, consulta da própria conta e redefinição de senha MUST NOT gravar senha, hash, token de redefinição, CPF, telefone, data de nascimento ou endereço no registro de eventos.
 
 #### Scenario: Login registrado
 - **WHEN** um usuário faz login
 - **THEN** o evento é registrado sem dados pessoais no campo `metadata`
+
+#### Scenario: Cadastro registrado
+- **WHEN** um visitante cria uma conta
+- **THEN** o evento é registrado sem senha, hash nem dados cadastrais no campo `metadata`
+
+### Requirement: Datas no fuso de Brasília em qualquer sistema operacional
+As validações e exibições de data da conta SHALL usar o fuso de Brasília (UTC−03:00) e SHALL funcionar mesmo quando o sistema operacional não oferecer a base de fusos IANA, como no Windows sem o pacote `tzdata`.
+
+#### Scenario: Servidor no Windows sem base de fusos
+- **WHEN** o frontend é iniciado no Windows sem a base de fusos IANA
+- **THEN** o site inicia sem erro, a data de nascimento é validada em relação à data de hoje em Brasília e a data de cadastro é exibida no formato `dd/mm/aaaa`

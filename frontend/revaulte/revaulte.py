@@ -7,11 +7,16 @@ from .components import (
     ROTA_MODIFICADOS,
     ROTA_USADOS,
     ROTA_VEICULO,
+    pagina_admin,
+    pagina_cadastro,
+    pagina_conta,
+    pagina_entrar,
     pagina_estoque,
     pagina_inicial,
     pagina_nao_encontrada,
     pagina_veiculo,
 )
+from .auth import ROTA_ADMIN, ROTA_CADASTRO, ROTA_CONTA, ROTA_ENTRAR, AuthState
 from .state import CarrosselState, CatalogState, DetalheState, MenuState
 
 FONTES_GOOGLE = (
@@ -34,6 +39,8 @@ def modificados() -> rx.Component:
     )
 
 
+# Menu "Minha conta" (tarefa 3.4): as páginas públicas chamam AuthState.verificar_sessao,
+# que só consulta auth/me quando há token e a sessão ainda não foi conferida nesta conexão.
 app = rx.App(
     # Identidade visual da Revaulte, portada de frontend-html/css/styles.css.
     stylesheets=[FONTES_GOOGLE, "/styles.css"],
@@ -53,7 +60,7 @@ for componente, rota, titulo, recorte in (
         componente,
         route=rota,
         title=titulo,
-        on_load=[MenuState.fechar_menu, CatalogState.abrir_pagina(recorte)],
+        on_load=[MenuState.fechar_menu, AuthState.verificar_sessao, CatalogState.abrir_pagina(recorte)],
     )
 
 # Página inicial: os destaques usam o recorte "destaques" do catálogo.
@@ -62,7 +69,12 @@ app.add_page(
     route=ROTA_HOME,
     title="Revaulte | Clássicos, esportivos e preparados",
     description="Carros antigos, clássicos, esportivos e modificados/preparados.",
-    on_load=[MenuState.fechar_menu, CarrosselState.reiniciar, CatalogState.abrir_pagina("destaques")],
+    on_load=[
+        MenuState.fechar_menu,
+        AuthState.verificar_sessao,
+        CarrosselState.reiniciar,
+        CatalogState.abrir_pagina("destaques"),
+    ],
 )
 
 # Página individual do veículo; o identificador é validado no DetalheState.
@@ -70,7 +82,42 @@ app.add_page(
     pagina_veiculo,
     route=ROTA_VEICULO,
     title="Veículo | Revaulte",
-    on_load=[MenuState.fechar_menu, DetalheState.abrir],
+    on_load=[MenuState.fechar_menu, AuthState.verificar_sessao, DetalheState.abrir],
+)
+
+# Login (Change contas-acesso). abrir_formulario limpa a mensagem, guarda o destino seguro
+# (?proximo=) e leva quem já está autenticado direto para ele.
+app.add_page(
+    pagina_entrar,
+    route=ROTA_ENTRAR,
+    title="Entrar | Revaulte",
+    on_load=[MenuState.fechar_menu, AuthState.abrir_formulario],
+)
+
+# Cadastro de Cliente (Change contas-acesso): mesmo on_load do login.
+app.add_page(
+    pagina_cadastro,
+    route=ROTA_CADASTRO,
+    title="Criar conta | Revaulte",
+    on_load=[MenuState.fechar_menu, AuthState.abrir_formulario],
+)
+
+# Minha conta (Change contas-acesso): exigir_login confere o token no backend a cada abertura
+# e leva o visitante a /entrar?proximo=/conta.
+app.add_page(
+    pagina_conta,
+    route=ROTA_CONTA,
+    title="Minha conta | Revaulte",
+    on_load=[MenuState.fechar_menu, AuthState.exigir_login],
+)
+
+# Painel administrativo (Change contas-acesso): exigir_admin confere token e perfil no backend;
+# visitante vai a /entrar?proximo=/admin e Cliente vê "Acesso restrito".
+app.add_page(
+    pagina_admin,
+    route=ROTA_ADMIN,
+    title="Painel administrativo | Revaulte",
+    on_load=[MenuState.fechar_menu, AuthState.exigir_admin],
 )
 
 # Endereço antigo do catálogo, mantido para não quebrar links.
@@ -85,5 +132,5 @@ app.add_page(
     pagina_nao_encontrada,
     route="404",
     title="Página não encontrada | Revaulte",
-    on_load=MenuState.fechar_menu,
+    on_load=[MenuState.fechar_menu, AuthState.verificar_sessao],
 )

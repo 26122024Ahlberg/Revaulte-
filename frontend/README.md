@@ -24,7 +24,28 @@ source .venv/bin/activate
 reflex run
 ```
 
-O app abre em `http://localhost:3000/`, na página inicial (`/`). As demais páginas são `/estoque`, `/usados`, `/modificados` e `/veiculo/<id>`; o endereço antigo `/catalogo` redireciona para `/estoque`. Se a porta estiver ocupada, o Reflex usa a próxima disponível e mostra o endereço no terminal.
+O app abre em `http://localhost:3000/`, na página inicial (`/`). As demais páginas públicas são `/estoque`, `/usados`, `/modificados` e `/veiculo/<id>`; o endereço antigo `/catalogo` redireciona para `/estoque`. Se a porta estiver ocupada, o Reflex usa a próxima disponível e mostra o endereço no terminal.
+
+Páginas de conta (Change `contas-acesso`):
+
+| Página | Acesso |
+| --- | --- |
+| `/entrar` | login com e-mail e senha |
+| `/cadastro` | cadastro de Cliente |
+| `/conta` | Minha conta (exige login) |
+| `/admin` | lista de usuários (exige perfil Administrador, conferido no backend) |
+
+## Endereços do backend (Xano)
+
+Os endereços padrão estão em `revaulte/config.py` e são públicos. Cada um pode ser substituído por uma variável de ambiente antes do `reflex run`:
+
+| Variável | Grupo de API | Padrão |
+| --- | --- | --- |
+| `REVAULTE_CATALOG_API_URL` | Catálogo | `https://x8ki-letl-twmt.n7.xano.io/api:ghostpay-catalog` |
+| `REVAULTE_AUTH_API_URL` | Cadastro, login e `auth/me` | `https://x8ki-letl-twmt.n7.xano.io/api:shCFXLjC` |
+| `REVAULTE_ADMIN_API_URL` | Área administrativa | `https://x8ki-letl-twmt.n7.xano.io/api:revaulte-admin` |
+
+O token de sessão fica só no cookie `revaulte_sessao` do navegador (validade de 24 h) e nunca é gravado em arquivo. O plano gratuito do Xano aceita 10 requisições a cada 20 s; acima disso, o site mostra a mensagem genérica de erro.
 
 ## Imagens de terceiros
 

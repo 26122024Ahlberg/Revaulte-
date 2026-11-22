@@ -1,6 +1,7 @@
 # Componentes da interface: topo e menu, rodapé, cartão, selos e mensagens de estado.
 import reflex as rx
 
+from .auth import ROTA_ADMIN, ROTA_CADASTRO, ROTA_CONTA, ROTA_ENTRAR, AdminState, AuthState, LinhaUsuario
 from .state import (
     IMAGEM_PROVISORIA,
     CarrosselState,
@@ -34,14 +35,14 @@ ITENS_MENU = (
 )
 
 
-# Itens da conta: ainda não implementados, exibidos só como "Em breve" e sem link.
-ITENS_CONTA = (
-    "Meu perfil",
-    "Anunciar veículo",
-    "Meus anúncios",
-    "Favoritos",
-    "Entrar / Cadastrar",
-)
+# Menu "Minha conta" (Change contas-acesso, tarefa 3.4). Os itens dependem da sessão
+# confirmada no backend (AuthState.usuario vem do auth/me); esconder "Painel administrativo"
+# é só interface: GET admin/users continua exigindo Administrador no backend.
+ITENS_VISITANTE = (("Entrar", ROTA_ENTRAR), ("Cadastrar", ROTA_CADASTRO))
+ITENS_AUTENTICADO = (("Minha conta", ROTA_CONTA),)
+ITENS_ADMINISTRADOR = (("Painel administrativo", ROTA_ADMIN),)
+# Ainda não implementados: "Em breve", sem link nem evento.
+ITENS_EM_BREVE = ("Anunciar veículo", "Meus anúncios", "Favoritos")
 
 
 def item_navegacao(rotulo: str, rota: str, atual: str) -> rx.Component:
@@ -73,6 +74,51 @@ def item_em_breve(rotulo: str) -> rx.Component:
     )
 
 
+def item_menu_conta(rotulo: str, rota: str, atual: str) -> rx.Component:
+    """Link da conta no painel; fecha o menu ao ser acionado."""
+    ativo = rota == atual
+    return rx.el.li(
+        rx.el.a(
+            rotulo,
+            href=rota,
+            class_name="menu-account-link current" if ativo else "menu-account-link",
+            custom_attrs={"aria-current": "page"} if ativo else {},
+            on_click=MenuState.fechar_menu,
+        ),
+    )
+
+
+def item_sair() -> rx.Component:
+    """Sair: AuthState.sair apaga a sessão, remove o cookie e leva à página inicial."""
+    return rx.el.li(
+        rx.el.button(
+            "Sair",
+            type="button",
+            class_name="menu-account-link menu-logout",
+            on_click=[MenuState.fechar_menu, AuthState.sair],
+        ),
+    )
+
+
+def itens_conta(atual: str) -> rx.Component:
+    """Itens da seção "Minha conta" conforme a sessão: visitante, Cliente ou Administrador."""
+    return rx.el.ul(
+        rx.cond(
+            AuthState.autenticado,
+            rx.fragment(
+                *(item_menu_conta(rotulo, rota, atual) for rotulo, rota in ITENS_AUTENTICADO),
+                rx.cond(
+                    AuthState.administrador,
+                    rx.fragment(*(item_menu_conta(rotulo, rota, atual) for rotulo, rota in ITENS_ADMINISTRADOR)),
+                ),
+            ),
+            rx.fragment(*(item_menu_conta(rotulo, rota, atual) for rotulo, rota in ITENS_VISITANTE)),
+        ),
+        *(item_em_breve(rotulo) for rotulo in ITENS_EM_BREVE),
+        rx.cond(AuthState.autenticado, item_sair()),
+    )
+
+
 def painel_menu(atual: str) -> rx.Component:
     """Painel do botão ☰: "Navegação" (só em telas estreitas, via CSS) e "Minha conta"."""
     return rx.el.div(
@@ -83,8 +129,9 @@ def painel_menu(atual: str) -> rx.Component:
         ),
         rx.el.section(
             rx.el.h2("Minha conta", class_name="menu-panel-title"),
-            rx.el.ul(*(item_em_breve(rotulo) for rotulo in ITENS_CONTA)),
-            class_name="menu-panel-section",
+            itens_conta(atual),
+            class_name="menu-panel-section menu-panel-account",
+            custom_attrs={"aria-label": "Minha conta"},
         ),
         id="menu-painel",
         class_name="menu-panel",
@@ -587,6 +634,340 @@ def pagina_nao_encontrada() -> rx.Component:
                 class_name="state-message",
             ),
             class_name="catalog",
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Página de login (/entrar), Change contas-acesso.
+# ---------------------------------------------------------------------------
+
+
+def campo_formulario(id_campo: str, rotulo: str, dica: str = "", largo: bool = False, **atributos) -> rx.Component:
+    """Campo não controlado: o valor só vai ao servidor no envio, nunca fica no estado.
+
+    `dica` aparece abaixo do campo e é ligada a ele por aria-describedby; `largo` ocupa
+    as duas colunas do formulário de cadastro.
+    """
+    if dica:
+        atributos["custom_attrs"] = {"aria-describedby": f"{id_campo}-dica"}
+    return rx.el.div(
+        rx.el.label(rotulo, html_for=id_campo),
+        rx.el.input(id=id_campo, name=id_campo, **atributos),
+        rx.el.p(dica, id=f"{id_campo}-dica", class_name="field-hint") if dica else rx.fragment(),
+        class_name="filter-field auth-field is-wide" if largo else "filter-field auth-field",
+    )
+
+
+def mensagem_formulario() -> rx.Component:
+    """Erro do formulário; a região aria-live existe sempre para o leitor de tela anunciar a mudança."""
+    return rx.el.div(
+        rx.cond(
+            AuthState.erro_formulario != "",
+            rx.el.p(AuthState.erro_formulario, class_name="form-error"),
+        ),
+        custom_attrs={"aria-live": "polite", "aria-atomic": "true"},
+    )
+
+
+def botao_enviar(rotulo: str, rotulo_enviando: str) -> rx.Component:
+    """Botão desabilitado durante o envio, com o anel de carregamento."""
+    return rx.el.button(
+        rx.cond(
+            AuthState.enviando,
+            rx.fragment(
+                rx.el.span(class_name="spinner", custom_attrs={"aria-hidden": "true"}),
+                rx.el.span(rotulo_enviando),
+            ),
+            rx.el.span(rotulo),
+        ),
+        type="submit",
+        class_name="btn btn-red auth-submit",
+        disabled=AuthState.enviando,
+        custom_attrs={"aria-busy": rx.cond(AuthState.enviando, "true", "false")},
+    )
+
+
+def pagina_entrar() -> rx.Component:
+    """Login com e-mail e senha. A validação e a chamada ao Xano ficam em AuthState.entrar."""
+    return pagina(
+        ROTA_ENTRAR,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Minha conta", class_name="hero-kicker"),
+                    rx.el.h1("Entrar", id="titulo-entrar", class_name="section-title"),
+                    rx.el.p("Acesse sua conta com e-mail e senha.", class_name="auth-intro"),
+                    rx.el.form(
+                        campo_formulario(
+                            "email", "E-mail", type="email", auto_complete="email", input_mode="email",
+                            max_length=254,
+                        ),
+                        campo_formulario("senha", "Senha", type="password", auto_complete="current-password"),
+                        mensagem_formulario(),
+                        botao_enviar("Entrar", "Entrando…"),
+                        # Mensagens em português pelo AuthState, não pelas do navegador.
+                        no_validate=True,
+                        on_submit=AuthState.entrar,
+                        class_name="auth-form",
+                    ),
+                    rx.el.p(
+                        "Ainda não tem conta? ",
+                        rx.el.a("Cadastre-se", href=ROTA_CADASTRO, class_name="auth-link"),
+                        class_name="auth-alt",
+                    ),
+                    class_name="auth-card",
+                    custom_attrs={"aria-labelledby": "titulo-entrar"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+# Página de cadastro (/cadastro). Os nomes dos campos são os que validar_cadastro espera;
+# ela converte para o formato do Xano (CPF e telefone só com dígitos, data AAAA-MM-DD).
+DICA_SENHA = "No mínimo 8 caracteres, com pelo menos uma letra (A–Z) e um número (0–9)."
+
+
+def pagina_cadastro() -> rx.Component:
+    """Cadastro de Cliente. A validação e a chamada ao Xano ficam em AuthState.cadastrar."""
+    return pagina(
+        ROTA_CADASTRO,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Minha conta", class_name="hero-kicker"),
+                    rx.el.h1("Criar conta", id="titulo-cadastro", class_name="section-title"),
+                    rx.el.p("Todos os campos são obrigatórios.", class_name="auth-intro"),
+                    rx.el.form(
+                        campo_formulario(
+                            "nome", "Nome completo", largo=True, type="text", auto_complete="name", max_length=100,
+                        ),
+                        campo_formulario(
+                            "email", "E-mail", largo=True, type="email", auto_complete="email",
+                            input_mode="email", max_length=254,
+                        ),
+                        campo_formulario(
+                            "cpf", "CPF", dica="Somente números ou no formato 000.000.000-00.", type="text",
+                            input_mode="numeric", auto_complete="off", max_length=14, placeholder="000.000.000-00",
+                        ),
+                        campo_formulario(
+                            "telefone", "Telefone", dica="Com DDD.", type="tel", input_mode="tel",
+                            auto_complete="tel", max_length=16, placeholder="(11) 90000-0000",
+                        ),
+                        campo_formulario(
+                            "nascimento", "Data de nascimento", type="date", auto_complete="bday", min="1900-01-01",
+                        ),
+                        campo_formulario(
+                            "endereco", "Endereço", largo=True, type="text", auto_complete="street-address",
+                            max_length=200, placeholder="Rua, número, bairro, cidade",
+                        ),
+                        campo_formulario(
+                            "senha", "Senha", dica=DICA_SENHA, type="password", auto_complete="new-password",
+                        ),
+                        campo_formulario(
+                            "confirmacao", "Confirmar senha", type="password", auto_complete="new-password",
+                        ),
+                        rx.el.div(mensagem_formulario(), class_name="is-wide"),
+                        rx.el.div(botao_enviar("Criar conta", "Criando conta…"), class_name="is-wide"),
+                        no_validate=True,
+                        on_submit=AuthState.cadastrar,
+                        class_name="auth-form is-grid",
+                    ),
+                    rx.el.p(
+                        "Já tem conta? ",
+                        rx.el.a("Entrar", href=ROTA_ENTRAR, class_name="auth-link"),
+                        class_name="auth-alt",
+                    ),
+                    class_name="auth-card is-wide",
+                    custom_attrs={"aria-labelledby": "titulo-cadastro"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+# Página Minha conta (/conta). AuthState.exigir_login (on_load) confere o token no backend
+# (auth/me) e leva o visitante a /entrar?proximo=/conta; os dados só aparecem com "ok".
+# Usuario não tem CPF, telefone, nascimento, endereço, senha nem hash.
+MENSAGEM_ERRO_CONTA = "Não foi possível carregar sua conta agora. Verifique sua conexão e tente novamente."
+
+
+def item_dado_conta(rotulo: str, valor) -> rx.Component:
+    return rx.el.div(rx.el.dt(rotulo), rx.el.dd(valor), class_name="account-item")
+
+
+def dados_conta() -> rx.Component:
+    usuario = AuthState.usuario
+    return rx.fragment(
+        rx.el.p("Olá, ", usuario.nome, ".", class_name="auth-intro"),
+        rx.el.dl(
+            item_dado_conta("Nome", usuario.nome),
+            item_dado_conta("E-mail", usuario.email),
+            item_dado_conta("Perfil", usuario.rotulo_perfil),
+            class_name="account-list",
+        ),
+        rx.el.button(
+            "Sair",
+            type="button",
+            class_name="btn btn-red auth-submit",
+            on_click=AuthState.sair,
+        ),
+    )
+
+
+def regiao_conta() -> rx.Component:
+    situacao = AuthState.situacao_protegida
+    return rx.el.div(
+        rx.cond(
+            situacao == "ok",
+            dados_conta(),
+            rx.cond(
+                situacao == "erro",
+                rx.el.div(
+                    rx.el.p(MENSAGEM_ERRO_CONTA),
+                    rx.el.button(
+                        "Tentar novamente", type="button", class_name="btn btn-red", on_click=AuthState.exigir_login
+                    ),
+                    class_name="state-message",
+                ),
+                indicador_carregamento("Carregando sua conta…"),
+            ),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_conta() -> rx.Component:
+    return pagina(
+        ROTA_CONTA,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Revaulte", class_name="hero-kicker"),
+                    rx.el.h1("Minha conta", id="titulo-conta", class_name="section-title"),
+                    regiao_conta(),
+                    class_name="auth-card",
+                    custom_attrs={"aria-labelledby": "titulo-conta"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+# Painel administrativo (/admin), decisão D1: somente a lista de usuários, sem ações.
+# AuthState.exigir_admin confere o token e o perfil no backend (auth/me) e só então chama
+# AdminState.carregar_usuarios (GET admin/users, que também exige Administrador no backend).
+MENSAGEM_ERRO_ACESSO = "Não foi possível verificar seu acesso agora. Verifique sua conexão e tente novamente."
+MENSAGEM_ERRO_USUARIOS = "Não foi possível carregar a lista de usuários. Tente novamente em instantes."
+MENSAGEM_SEM_USUARIOS = "Nenhum usuário cadastrado."
+COLUNAS_USUARIOS = ("ID", "Data de cadastro", "Nome", "E-mail", "Perfil")
+
+
+def mensagem_com_acao(texto: str, rotulo: str, ao_clicar) -> rx.Component:
+    return rx.el.div(
+        rx.el.p(texto),
+        rx.el.button(rotulo, type="button", class_name="btn btn-red", on_click=ao_clicar),
+        class_name="state-message",
+    )
+
+
+def acesso_restrito() -> rx.Component:
+    return rx.el.div(
+        rx.el.p(rx.el.strong("Acesso restrito")),
+        rx.el.p("Esta área é exclusiva para administradores da Revaulte."),
+        rx.el.a("Ir para Minha conta", href=ROTA_CONTA, class_name="btn btn-red"),
+        class_name="state-message",
+    )
+
+
+def celula(rotulo: str, valor) -> rx.Component:
+    # data-label: em telas estreitas cada linha vira um bloco com o nome da coluna (styles.css).
+    return rx.el.td(valor, custom_attrs={"data-label": rotulo})
+
+
+def linha_usuario(usuario: rx.Var[LinhaUsuario]) -> rx.Component:
+    return rx.el.tr(
+        celula("ID", usuario.id.to_string()),
+        celula("Data de cadastro", usuario.desde),
+        celula("Nome", usuario.nome),
+        celula("E-mail", usuario.email),
+        celula("Perfil", usuario.perfil),
+    )
+
+
+def tabela_usuarios() -> rx.Component:
+    return rx.el.table(
+        rx.el.caption("Usuários cadastrados, do mais recente para o mais antigo."),
+        rx.el.thead(rx.el.tr(*(rx.el.th(coluna, scope="col") for coluna in COLUNAS_USUARIOS))),
+        rx.el.tbody(rx.foreach(AdminState.usuarios, linha_usuario)),
+        class_name="admin-table",
+    )
+
+
+def lista_admin() -> rx.Component:
+    situacao = AdminState.situacao
+    return rx.cond(
+        situacao == "lista",
+        rx.cond(
+            AdminState.usuarios.length() > 0,
+            tabela_usuarios(),
+            rx.el.p(MENSAGEM_SEM_USUARIOS, class_name="state-message"),
+        ),
+        rx.cond(
+            situacao == "restrito",
+            acesso_restrito(),
+            rx.cond(
+                situacao == "erro",
+                mensagem_com_acao(MENSAGEM_ERRO_USUARIOS, "Tentar novamente", AdminState.carregar_usuarios),
+                indicador_carregamento("Carregando usuários…"),
+            ),
+        ),
+    )
+
+
+def regiao_admin() -> rx.Component:
+    """Nada da lista aparece antes de o backend confirmar o perfil de Administrador."""
+    situacao = AuthState.situacao_protegida
+    return rx.el.div(
+        rx.cond(
+            situacao == "ok",
+            lista_admin(),
+            rx.cond(
+                situacao == "restrito",
+                acesso_restrito(),
+                rx.cond(
+                    situacao == "erro",
+                    mensagem_com_acao(MENSAGEM_ERRO_ACESSO, "Tentar novamente", AuthState.exigir_admin),
+                    indicador_carregamento("Verificando acesso…"),
+                ),
+            ),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_admin() -> rx.Component:
+    return pagina(
+        ROTA_ADMIN,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Área administrativa", class_name="hero-kicker"),
+                    rx.el.h1("Usuários", id="titulo-admin", class_name="section-title"),
+                    regiao_admin(),
+                    class_name="admin-panel",
+                    custom_attrs={"aria-labelledby": "titulo-admin"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
         ),
     )
 

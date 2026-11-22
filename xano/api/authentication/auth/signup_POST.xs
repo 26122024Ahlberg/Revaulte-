@@ -26,7 +26,9 @@ query "auth/signup" verb=POST {
       error = "invalid_email"
     }
 
-    precondition ($input.password != null && ($input.password|strlen) >= 8) {
+    // Senha: no mínimo 8 caracteres, com pelo menos uma letra e um número (decisão 3; pendência B10,
+    // 20/11/2026). Antes, letra e número dependiam só do filtro da tabela no db.add.
+    precondition ($input.password != null && ($input.password|strlen) >= 8 && ("/[A-Za-z]/"|regex_matches:$input.password) && ("/[0-9]/"|regex_matches:$input.password)) {
       error_type = "inputerror"
       error = "invalid_password"
     }
@@ -49,6 +51,14 @@ query "auth/signup" verb=POST {
     // Data de nascimento no passado e posterior a 1900; nenhuma idade mínima é presumida.
     var $nascimento {
       value = $input.birth_date|to_timestamp:"UTC"
+    }
+
+    // Data impossível (ex.: 1990-02-30, 2026-02-29): o to_timestamp a converte em outro dia,
+    // então a data formatada de volta, no mesmo fuso UTC, precisa ser igual ao texto recebido.
+    // Conversão e formatação em UTC, sem deslocamento de dia (falha V9, 19/11/2026).
+    precondition (($nascimento|format_timestamp:"Y-m-d":"UTC") == $input.birth_date) {
+      error_type = "inputerror"
+      error = "invalid_birth_date"
     }
 
     precondition ($nascimento < now && $nascimento >= ("1900-01-01"|to_timestamp:"UTC")) {

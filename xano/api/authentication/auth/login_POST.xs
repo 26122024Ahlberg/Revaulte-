@@ -8,6 +8,13 @@ query "auth/login" verb=POST {
   }
 
   stack {
+    // E-mail e senha ausentes ou vazios: 401 com a mesma mensagem, antes de consultar o banco
+    // (Change contas-acesso; antes o db.get respondia 400 "Missing param: field_value").
+    precondition ($input.email != null && $input.email != "" && $input.password != null && $input.password != "") {
+      error_type = "unauthorized"
+      error = "Invalid Credentials."
+    }
+
     // Get the user record via email
     db.get user {
       field_name = "email"
@@ -15,9 +22,9 @@ query "auth/login" verb=POST {
       output = ["id", "created_at", "name", "email", "password", "role"]
     } as $user
   
-    // Check to make sure a user with that email exists
+    // Check to make sure a user with that email exists (conta inexistente ou excluída: 401, mesma mensagem)
     precondition ($user != null) {
-      error_type = "accessdenied"
+      error_type = "unauthorized"
       error = "Invalid Credentials."
     }
   
@@ -29,7 +36,7 @@ query "auth/login" verb=POST {
   
     // Verify that the password check passed
     precondition ($pass_result) {
-      error_type = "accessdenied"
+      error_type = "unauthorized"
       error = "Invalid Credentials."
     }
   

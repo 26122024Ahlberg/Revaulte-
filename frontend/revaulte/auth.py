@@ -3,9 +3,9 @@
 # A senha só existe dentro do evento de envio do formulário; nunca fica no estado nem em log.
 import dataclasses
 import re
-from datetime import date, datetime, timezone
+import string
+from datetime import date, datetime, timedelta, timezone
 from urllib.parse import parse_qs, urlparse
-from zoneinfo import ZoneInfo
 
 import httpx
 import reflex as rx
@@ -26,7 +26,14 @@ VALIDADE_SESSAO_SEGUNDOS = 86400
 
 ROTULOS_PERFIL = {"member": "Cliente", "admin": "Administrador"}
 
-FUSO = ZoneInfo("America/Sao_Paulo")
+# Horário de Brasília com deslocamento fixo (UTC−03:00): o Brasil não tem horário de verão
+# desde 2019. Não usa ZoneInfo porque o Windows não traz a base IANA e exigiria o pacote tzdata.
+FUSO = timezone(timedelta(hours=-3), "BRT")
+
+# Destinos aceitos após o login: somente páginas conhecidas do site (lista fechada).
+# /entrar e /cadastro ficam de fora para não voltar ao próprio formulário.
+DESTINOS_INTERNOS = frozenset({"/", "/estoque", "/usados", "/modificados", ROTA_CONTA, ROTA_ADMIN})
+_DESTINO_VEICULO = re.compile(r"/veiculo/[1-9][0-9]{0,11}")
 
 
 # ---------------------------------------------------------------------------
@@ -62,8 +69,10 @@ def problema_senha(senha: object) -> str:
     """Mensagem do problema da senha, ou vazio quando ela atende à política do backend."""
     if not isinstance(senha, str) or len(senha) < 8:
         return "A senha deve ter pelo menos 8 caracteres."
-    if not any(c.isalpha() for c in senha) or not any(c.isdigit() for c in senha):
-        return "A senha deve ter pelo menos uma letra e um número."
+    # Mesma regra do backend ("/[A-Za-z]/" e "/[0-9]/"): só letras e números ASCII contam;
+    # isalpha/isdigit aceitariam "ç" ou "١", que o Xano recusa (tarefa 2.14).
+    if not any(c in string.ascii_letters for c in senha) or not any(c in string.digits for c in senha):
+        return "A senha deve ter pelo menos uma letra (A–Z) e um número (0–9)."
     return ""
 
 
@@ -135,7 +144,7 @@ ERROS_CADASTRO = {
     "cpf_taken": "Este CPF já está cadastrado.",
     "invalid_name": "Informe seu nome completo.",
     "invalid_email": "Informe um e-mail válido.",
-    "invalid_password": "A senha deve ter pelo menos 8 caracteres, com letra e número.",
+    "invalid_password": "A senha deve ter pelo menos 8 caracteres, com uma letra (A–Z) e um número (0–9).",
     "invalid_cpf": "Informe um CPF válido.",
     "invalid_phone": "Informe o telefone com DDD.",
     "invalid_birth_date": "Informe uma data de nascimento válida.",
@@ -157,14 +166,14 @@ def mensagem_erro_cadastro(status: int, corpo: object) -> str:
 
 
 def destino_seguro(proximo: object) -> str:
-    """Só caminhos internos do site; qualquer outro valor leva a Minha conta."""
-    if (
-        isinstance(proximo, str)
-        and proximo.startswith("/")
-        and not proximo.startswith("//")
-        and "\\" not in proximo
-        and proximo not in (ROTA_ENTRAR, ROTA_CADASTRO)
-    ):
+    """Só rotas internas conhecidas, comparadas exatamente; qualquer outro valor leva a Minha conta.
+
+    Rejeita URLs externas (https://, //host), barras invertidas, codificação (%2F), espaços,
+    caracteres de controle, "..", parâmetros (?), fragmentos (#) e rotas desconhecidas.
+    """
+    if not isinstance(proximo, str):
+        return ROTA_CONTA
+    if proximo in DESTINOS_INTERNOS or _DESTINO_VEICULO.fullmatch(proximo):
         return proximo
     return ROTA_CONTA
 
@@ -339,9 +348,12 @@ class AuthState(rx.State):
         """on_load de /admin: perfil conferido no backend; Cliente vê “Acesso restrito”."""
         resultado = await self._exigir(ROTA_ADMIN, "admin")
         if resultado is not None:
-            return resultado
+            # Sem sessão: nenhuma lista anterior fica no estado enviado ao navegador.
+            return [AdminState.limpar, *(resultado if isinstance(resultado, list) else [resultado])]
         if self.situacao_protegida == "ok":
             return AdminState.carregar_usuarios
+        # Cliente ("restrito") ou falha ao conferir a sessão ("erro").
+        return AdminState.limpar
 
     @rx.event
     def abrir_formulario(self):
@@ -401,7 +413,7 @@ class AuthState(rx.State):
     @rx.event
     def sair(self):
         self._encerrar()
-        return [rx.remove_cookie(NOME_COOKIE), rx.redirect("/")]
+        return [AdminState.limpar, rx.remove_cookie(NOME_COOKIE), rx.redirect("/")]
 
 
 # ---------------------------------------------------------------------------
@@ -436,6 +448,12 @@ class AdminState(rx.State):
 
     situacao: str = "carregando"  # "carregando", "lista", "restrito" ou "erro"
     usuarios: list[LinhaUsuario] = []
+
+    @rx.event
+    def limpar(self):
+        """Apaga a lista (saída da conta ou acesso sem perfil de Administrador)."""
+        self.situacao = "carregando"
+        self.usuarios = []
 
     @rx.event
     async def carregar_usuarios(self):
