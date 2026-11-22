@@ -1833,3 +1833,284 @@ button {
         opacity: 0.28;
     }
 }
+
+/* ===========================================================================
+   Página de login /entrar (Change contas-acesso)
+   =========================================================================== */
+.auth-main {
+    display: flex;
+    justify-content: center;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    padding: 32px 28px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    animation: revaulte-rise 0.4s ease-out both;
+}
+
+.auth-card .section-title {
+    margin-bottom: 8px;
+}
+
+.auth-intro {
+    margin-bottom: 24px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* Grade: os campos reaproveitam .filter-field sem o flex da barra de filtros */
+.auth-form {
+    display: grid;
+    gap: 18px;
+}
+
+.form-error {
+    padding: 10px 12px;
+    border-left: 3px solid var(--red);
+    background-color: rgba(214, 40, 40, 0.1);
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.auth-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.auth-submit:disabled {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+.auth-submit .spinner {
+    width: 14px;
+    height: 14px;
+    border-color: rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+}
+
+.auth-alt {
+    margin-top: 22px;
+    font-size: 14px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.auth-link {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid var(--red);
+}
+
+.auth-link:hover,
+.auth-link:focus-visible {
+    color: var(--red);
+}
+
+@media (max-width: 560px) {
+    .auth-card {
+        padding: 24px 18px;
+    }
+}
+
+/* ===========================================================================
+   Página de cadastro /cadastro (Change contas-acesso)
+   =========================================================================== */
+.auth-card.is-wide {
+    max-width: 640px;
+}
+
+/* Duas colunas em telas largas; campos longos, mensagem e botão ocupam a linha toda */
+.auth-form.is-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 20px;
+}
+
+.auth-form.is-grid > .is-wide {
+    grid-column: 1 / -1;
+}
+
+.field-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+/* Ícone do calendário visível no tema escuro */
+.auth-field input[type="date"] {
+    color-scheme: dark;
+}
+
+@media (max-width: 560px) {
+    .auth-form.is-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ===========================================================================
+   Página Minha conta /conta (Change contas-acesso)
+   =========================================================================== */
+.account-list {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.account-item {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.account-item dt {
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* E-mails longos quebram a linha em vez de criar rolagem horizontal a 375 px */
+.account-item dd {
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+/* ===========================================================================
+   Painel administrativo /admin (Change contas-acesso)
+   =========================================================================== */
+.admin-panel {
+    width: 100%;
+    max-width: 1100px;
+    animation: revaulte-rise 0.4s ease-out both;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.admin-table caption {
+    margin-bottom: 12px;
+    text-align: left;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+.admin-table th {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.admin-table td {
+    overflow-wrap: anywhere;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+    background-color: rgba(214, 40, 40, 0.06);
+}
+
+/* Telas estreitas: cada usuário vira um bloco com o nome da coluna, sem rolagem horizontal */
+@media (max-width: 760px) {
+    .admin-table,
+    .admin-table tbody,
+    .admin-table tr,
+    .admin-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .admin-table thead {
+        display: none;
+    }
+
+    .admin-table caption {
+        display: block;
+    }
+
+    .admin-table tr {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .admin-table td {
+        display: grid;
+        grid-template-columns: minmax(0, 9em) minmax(0, 1fr);
+        gap: 12px;
+        padding: 6px 0;
+        border-bottom: none;
+    }
+
+    .admin-table td::before {
+        content: attr(data-label);
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+}
+
+/* ===========================================================================
+   Menu "Minha conta" com sessão (Change contas-acesso, tarefa 3.4)
+   =========================================================================== */
+.menu-account-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    border-top: 1px solid var(--line);
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.menu-account-link:hover,
+.menu-account-link:focus-visible,
+.menu-account-link.current {
+    color: var(--red);
+}
+
+.menu-account-link.current {
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--red);
+    padding-left: 12px;
+}
+
+.menu-logout {
+    color: var(--muted);
+}

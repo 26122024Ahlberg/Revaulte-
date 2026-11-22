@@ -84,6 +84,13 @@ Representa o acesso autenticado de um usuário ao Revaulte.
 - funcionalidades administrativas devem exigir autorização adequada;
 - visitantes não precisam possuir Conta para navegar pelo catálogo público.
 
+### Implementação atual (Change `contas-acesso`)
+
+- no backend, o perfil fica no campo `role` da tabela `user`: `member` corresponde a Cliente e `admin` a Administrador;
+- todo cadastro feito pelo site cria a conta com o perfil Cliente; não existe tela para trocar o perfil;
+- o primeiro Administrador é definido manualmente pela equipe no painel do Xano, alterando o `role` de uma conta já cadastrada para `admin`;
+- a senha é armazenada somente como hash, e o perfil exibido no site vem sempre do backend (`auth/me`).
+
 ---
 
 ## 4. Administrador

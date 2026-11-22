@@ -1,0 +1,24 @@
+REVAULTE - Marketplace de veiculos classicos, esportivos e modificados
+Grupo academico: GhostPay
+Entrega: 24/11/2026
+
+Repositorio publico (GitHub):
+https://github.com/26122024Ahlberg/Revaulte-
+
+Branch principal: main
+
+Tecnologias:
+- Frontend: Reflex 0.10 (Python 3.12), na pasta frontend/
+- Backend: Xano (XanoScript), na pasta xano/
+- Especificacao: OpenSpec, na pasta openspec/
+
+Como executar (Windows, PowerShell), dentro de frontend/:
+  py -3.12 -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  reflex run
+Site: http://localhost:3000/
+
+Manual de uso, testes e limitacoes: README.md (raiz do repositorio).
+Roteiro de testes das contas: docs/testes-contas-acesso.md
+Roteiro do video: docs/roteiro-video.md

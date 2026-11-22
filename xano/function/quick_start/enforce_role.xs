@@ -1,9 +1,11 @@
 // Checks that a user has the appropriate role level. This example sets a hierarchy of roles, and a user must pass the minimum level to execute.
+// Change contas-acesso: conta excluída -> 401; conta sem cargo ou com cargo insuficiente -> 403.
+// As mensagens de erro não revelam o cargo atual do usuário.
 function "Quick Start/enforce_role" {
   input {
     // The ID of the user to check the role for.
     int user_id
-  
+
     // The role required to perform the action.
     text required_role
   }
@@ -13,49 +15,46 @@ function "Quick Start/enforce_role" {
     var $role_hierarchy {
       value = {admin: 2, member: 1}
     }
-  
+
     // Retrieve the user's role from the database.
     db.get user {
       field_name = "id"
       field_value = $input.user_id
-      output = ["role"]
+      output = ["id", "role"]
     } as $user
-  
-    // Ensure the user exists
+
+    // Conta excluída depois da emissão do token: a sessão deixa de valer (401).
     precondition ($user != null) {
-      error_type = "inputerror"
-      error = "User not found with the provided ID."
+      error_type = "unauthorized"
+      error = "unauthorized"
     }
-  
-    // Extract the user's role from the retrieved user data.
-    var $user_role {
-      value = $user.role
+
+    // Conta sem cargo não tem nenhuma permissão (403).
+    precondition ($user.role != null) {
+      error_type = "accessdenied"
+      error = "forbidden"
     }
-  
-    // Get the numerical level of the user's role. Defaults to 0 if not defined.
+
+    // Get the numerical level of the user's role.
     var $user_role_level {
-      value = $role_hierarchy|get:$user_role
+      value = $role_hierarchy|get:$user.role
     }
-  
-    // Get the numerical level of the required role. Defaults to 0 if not defined.
+
+    // Get the numerical level of the required role.
     var $required_role_level {
       value = $role_hierarchy|get:$input.required_role
     }
-  
-    // Ensure the required role is a valid, defined role in the hierarchy.
+
+    // Ensure the required role is a valid, defined role in the hierarchy (erro de programação).
     precondition ($required_role_level > 0) {
       error_type = "inputerror"
-      error = "Invalid required role specified: " ~ $input.required_role
+      error = "Invalid required role specified."
     }
-  
-    // Check if the user's role level is sufficient for the required role.
-    conditional {
-      if ($user_role_level < $required_role_level) {
-        throw {
-          name = "accessdenied"
-          value = "User does not have the required role to perform this action. Required: " ~ $input.required_role ~ ", Actual: " ~ $user_role
-        }
-      }
+
+    // Cargo insuficiente (por exemplo, Cliente pedindo recurso de Administrador): 403.
+    precondition ($user_role_level >= $required_role_level) {
+      error_type = "accessdenied"
+      error = "forbidden"
     }
   }
 

@@ -13,13 +13,19 @@ query "auth/me" verb=GET {
       field_value = $auth.id
       output = ["id", "created_at", "name", "email", "role"]
     } as $user
-  
-    // Create an event log for get user record
+
+    // Conta excluída depois da emissão do token: a sessão deixa de valer (401; Change contas-acesso).
+    precondition ($user != null) {
+      error_type = "unauthorized"
+      error = "unauthorized"
+    }
+
+    // Create an event log for get user record (sem dados pessoais; Change contas-acesso)
     function.run "Quick Start/log_event" {
       input = {
         user_id : $user.id
         action  : "get_auth_user"
-        metadata: $user
+        metadata: {}
       }
     } as $event_log
   }

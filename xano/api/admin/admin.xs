@@ -1,0 +1,6 @@
+// Endpoints da área administrativa (Change contas-acesso). Todos exigem token de Administrador.
+api_group Admin {
+  canonical = "revaulte-admin"
+  swagger = {active: false}
+  guid = "BAIVGJBUZ0_mvnQ2m5nY7gjVlbo"
+}
