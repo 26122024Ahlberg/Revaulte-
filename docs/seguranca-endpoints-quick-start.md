@@ -17,7 +17,7 @@ A função `Quick Start/generate_magic_link` continua no workspace, mas nenhum e
 ## Endpoint restringido: `GET logs/user/my_events`
 
 - **Antes:** exigia token e devolvia ao próprio usuário todas as colunas dos seus eventos (incluindo `user_id` e `metadata`), sem ordem definida. Em 19/11/2026 poderia expor registros antigos com hash de senha, mas o `event_log` estava vazio e hoje todos os registros têm `metadata` igual a `{}` (inventário de 24/11/2026: 103 registros de `signup`, `login` e `get_auth_user`).
-- **Correção local (24/11/2026, **ainda não publicada**):** continua filtrando por `$auth.id` e passa a devolver só `id`, `created_at` e `action`, do mais recente ao mais antigo, ainda como lista. O frontend não usa o endpoint.
+- **Correção (24/11/2026, publicada pelo usuário no mesmo dia; verificada em execução com a conta Cliente A: sem token 401; com token 200, 58 eventos, só `id`, `created_at` e `action`, do mais recente ao mais antigo):** continua filtrando por `$auth.id` e passa a devolver só `id`, `created_at` e `action`, do mais recente ao mais antigo, ainda como lista. O frontend não usa o endpoint.
 - **Sem paginação:** a resposta continua um array para preservar o formato. Como cada abertura de página protegida gera um evento `get_auth_user`, a lista cresce; se o endpoint passar a ser usado, é preciso acrescentar limite.
 
 ## Regra para novos endpoints
@@ -35,6 +35,6 @@ Todo endpoint novo exige `auth = "user"` e `enforce_role`, exceto a lista abaixo
 - `login`, `signup`, `get_auth_user` e troca de senha gravam `metadata = {}`; nenhum endpoint grava o registro do usuário, senha, hash ou token (testado em `TestLogsSemDadosDeAutenticacao` e `TestMyEventsMinimo`).
 - Nenhum registro do `event_log` foi apagado ou alterado nesta Change.
 
-## Pendente de publicação
+## Publicação e verificação
 
-As alterações de `my_events` e da data de nascimento de `auth/signup` (ver `openspec/changes/contas-acesso/design.md`) existem somente nos arquivos locais.
+`my_events` e a regra da data de nascimento de `auth/signup` foram publicados em 24/11/2026 (novo dry-run: “No changes to push”). Verificação em execução (24/11/2026): `my_events` com a conta Cliente A, como descrito acima; no cadastro, a data de hoje é recusada (`invalid_birth_date`) e a de ontem passa na data (falha só no endereço de teste, antes de qualquer gravação).

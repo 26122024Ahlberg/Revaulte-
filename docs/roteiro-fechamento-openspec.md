@@ -34,9 +34,9 @@ Um único percurso pelo navegador, com quatro perfis em sequência. Cobre `catal
 | catálogo 4.1, 9.1 (Novo/Vendido), 9.3; detalhes 2.4, 4.1; contato 2.2 | Cobertura **automatizada com ressalva**: não existe veículo Novo nem Vendido no Xano e os veículos reais não serão alterados | Continuam pendentes; só fecham com revisão formal de escopo, nunca marcadas como testadas |
 | catálogo 9.5 | **Concluída com ressalva**: a baseline isolada não é recuperável; vale a auditoria do estado atual (nenhum arquivo fora do previsto, `frontend-html` e `frontend-rascunho` intactos, sem segredos; `reflex.lock` versionado). `c4d7694` **não** é a baseline original | Nada |
 | contas 1.6 | Conta sem cargo (403) com ressalva de cobertura automatizada; nenhuma conta será criada | Continua pendente |
-| contas 2.3 | `my_events` reduzido a `id`, `created_at` e `action`, só da própria conta (local) | **Publicar no Xano** e verificar |
+| contas 2.3 | `my_events` reduzido a `id`, `created_at` e `action`, só da própria conta; **publicado e verificado em execução em 24/11/2026** (401 sem token; 200 com 58 eventos, só `id`, `created_at` e `action`) | Nada |
 | contas 2.4 | **Concluída**: teste global de endpoints sem `auth` | Nada |
-| contas 2.13 | Backend alinhado ao frontend (data de hoje em Brasília), com testes de datas-limite (local) | **Publicar no Xano** e verificar |
+| contas 2.13 | Backend alinhado ao frontend (data de hoje em Brasília), com testes de datas-limite; **publicado e verificado em execução em 24/11/2026** (hoje → `invalid_birth_date`; ontem passa na data) | Nada |
 | contas 3.6 | **Concluída**: mensagem própria para HTTP 429 em login e cadastro | Nada (429 real não provocado) |
 | contas 4.2 | **Concluída**: `docs/seguranca-endpoints-quick-start.md` | Nada |
 | anúncios 8.2 | O anúncio 7 foi criado **por API, não pelo navegador**; não será criado outro | Continua pendente (ou revisão formal de escopo) |

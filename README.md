@@ -110,7 +110,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - Nenhum token, senha ou credencial é versionado; o token de sessão fica só no cookie `revaulte_sessao` do navegador.
 - As senhas são armazenadas pelo Xano somente como hash; os registros de evento não guardam senha, hash, CPF, telefone, data de nascimento nem endereço.
 - O perfil de acesso é sempre conferido no backend; esconder itens do menu é apenas interface.
-- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404. O `GET logs/user/my_events` foi restringido localmente a `id`, `created_at` e `action` da própria conta; essa correção e a regra da data de nascimento no cadastro (data de hoje em Brasília) **ainda não foram publicadas no Xano**. Detalhes em `docs/seguranca-endpoints-quick-start.md`.
+- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404. O `GET logs/user/my_events` foi restringido a `id`, `created_at` e `action` da própria conta; essa correção e a regra da data de nascimento no cadastro (data de hoje em Brasília) foram publicadas no Xano em 24/11/2026 e verificadas em execução (a data de hoje é recusada; `my_events` só devolve `id`, `created_at` e `action` da própria conta). Detalhes em `docs/seguranca-endpoints-quick-start.md`.
 
 ## Limitações conhecidas
 
