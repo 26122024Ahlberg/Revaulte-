@@ -419,7 +419,7 @@ Representa o conjunto de veículos apresentados publicamente no Revaulte, em uma
 - veículos vendidos, quando apresentados, devem estar claramente identificados como “Vendido” e indisponíveis para negociação;
 - veículos modificados/preparados devem possuir uma identificação como “Modificado” ou “Preparado”;
 - o catálogo oferece pesquisa por marca, modelo e versão e filtros por condição (novo/usado) e por modificação (modificados/originais), aplicados sobre os veículos publicados; filtros por ano e faixa de preço e ordenações relevantes continuam planejados;
-- a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com os três veículos Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque.
+- a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com até três veículos Disponíveis: os de destaque editorial (identificadores 4, 5 e 6, por configuração no frontend) têm prioridade e as vagas restantes são completadas com os Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque (Change `destaques-editoriais`).
 
 ---
 
@@ -472,7 +472,7 @@ Detalhes que ainda não foram definidos, como:
 - funcionamento detalhado do contato com o anunciante e do chat interno;
 - quem pode ser Anunciante, como se cadastra e como os anúncios são moderados;
 - permissões específicas da área administrativa e criação do primeiro Administrador;
-- critério administrativo de destaque na página inicial (no MVP, os destaques são os três veículos Disponíveis mais recentes);
+- critério administrativo de destaque na página inicial (hoje, destaques editoriais fixos em configuração do frontend, completados pelos Disponíveis mais recentes; sem campo no banco);
 - existência de opções selecionáveis oferecidas pelo anunciante;
 
 deverão ser definidos incrementalmente por meio das especificações e Changes do OpenSpec.

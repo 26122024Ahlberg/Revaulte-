@@ -121,7 +121,7 @@ Veículos em rascunho não aparecem no catálogo público.
 
 As páginas de estoque oferecem pesquisa por marca, modelo e versão (sem diferenciar maiúsculas, minúsculas e acentos) e filtros por condição (novo/usado) e por modificação (modificados/originais). Filtros por ano e faixa de preço e ordenações relevantes continuam planejados.
 
-A página inicial possui uma seção de veículos em destaque. O critério adotado no MVP é exibir os três veículos no estado Disponível cadastrados mais recentemente; veículos vendidos não aparecem nos destaques. Um critério administrativo (por exemplo, marcar manualmente um veículo como destaque) poderá ser especificado em uma Change própria.
+A página inicial possui uma seção de veículos em destaque. O critério atual (Change `destaques-editoriais`) é exibir até três veículos no estado Disponível: os de destaque editorial (identificadores 4, 5 e 6, definidos em configuração do frontend) têm prioridade, e as vagas restantes são completadas com os Disponíveis cadastrados mais recentemente; veículos vendidos não aparecem nos destaques. Um critério administrativo (por exemplo, marcar manualmente um veículo como destaque) poderá ser especificado em uma Change própria.
 
 ### Detalhes do veículo
 
