@@ -1,7 +1,27 @@
 # Componentes da interface: topo e menu, rodapé, cartão, selos e mensagens de estado.
 import reflex as rx
 
-from .auth import ROTA_ADMIN, ROTA_CADASTRO, ROTA_CONTA, ROTA_ENTRAR, AdminState, AuthState, LinhaUsuario
+from .anuncios import (
+    ERRO_NAO_ENCONTRADO,
+    ERRO_RESTRITO,
+    ROTA_FICHA_ANUNCIO,
+    AnunciarState,
+    FichaAnuncio,
+    FichaAnuncioState,
+    MeusAnunciosState,
+    ResumoAnuncio,
+)
+from .auth import (
+    ROTA_ADMIN,
+    ROTA_ANUNCIAR,
+    ROTA_CADASTRO,
+    ROTA_CONTA,
+    ROTA_ENTRAR,
+    ROTA_MEUS_ANUNCIOS,
+    AdminState,
+    AuthState,
+    LinhaUsuario,
+)
 from .state import (
     IMAGEM_PROVISORIA,
     CarrosselState,
@@ -41,8 +61,11 @@ ITENS_MENU = (
 ITENS_VISITANTE = (("Entrar", ROTA_ENTRAR), ("Cadastrar", ROTA_CADASTRO))
 ITENS_AUTENTICADO = (("Minha conta", ROTA_CONTA),)
 ITENS_ADMINISTRADOR = (("Painel administrativo", ROTA_ADMIN),)
+# Anúncios (Change anuncios-cliente): links para todos; o visitante passa pela proteção da página,
+# que o leva ao login e de volta (?proximo=).
+ITENS_ANUNCIOS = (("Anunciar veículo", ROTA_ANUNCIAR), ("Meus anúncios", ROTA_MEUS_ANUNCIOS))
 # Ainda não implementados: "Em breve", sem link nem evento.
-ITENS_EM_BREVE = ("Anunciar veículo", "Meus anúncios", "Favoritos")
+ITENS_EM_BREVE = ("Favoritos",)
 
 
 def item_navegacao(rotulo: str, rota: str, atual: str) -> rx.Component:
@@ -114,6 +137,7 @@ def itens_conta(atual: str) -> rx.Component:
             ),
             rx.fragment(*(item_menu_conta(rotulo, rota, atual) for rotulo, rota in ITENS_VISITANTE)),
         ),
+        *(item_menu_conta(rotulo, rota, atual) for rotulo, rota in ITENS_ANUNCIOS),
         *(item_em_breve(rotulo) for rotulo in ITENS_EM_BREVE),
         rx.cond(AuthState.autenticado, item_sair()),
     )
@@ -659,22 +683,28 @@ def campo_formulario(id_campo: str, rotulo: str, dica: str = "", largo: bool = F
     )
 
 
-def mensagem_formulario() -> rx.Component:
-    """Erro do formulário; a região aria-live existe sempre para o leitor de tela anunciar a mudança."""
+def mensagem_formulario(erro=AuthState.erro_formulario) -> rx.Component:
+    """Erro do formulário; a região aria-live existe sempre para o leitor de tela anunciar a mudança.
+
+    `erro`: variável de estado com a mensagem (padrão: formulários de conta).
+    """
     return rx.el.div(
         rx.cond(
-            AuthState.erro_formulario != "",
-            rx.el.p(AuthState.erro_formulario, class_name="form-error"),
+            erro != "",
+            rx.el.p(erro, class_name="form-error"),
         ),
         custom_attrs={"aria-live": "polite", "aria-atomic": "true"},
     )
 
 
-def botao_enviar(rotulo: str, rotulo_enviando: str) -> rx.Component:
-    """Botão desabilitado durante o envio, com o anel de carregamento."""
+def botao_enviar(rotulo: str, rotulo_enviando: str, enviando=AuthState.enviando) -> rx.Component:
+    """Botão desabilitado durante o envio, com o anel de carregamento.
+
+    `enviando`: variável de estado do envio (padrão: formulários de conta).
+    """
     return rx.el.button(
         rx.cond(
-            AuthState.enviando,
+            enviando,
             rx.fragment(
                 rx.el.span(class_name="spinner", custom_attrs={"aria-hidden": "true"}),
                 rx.el.span(rotulo_enviando),
@@ -683,8 +713,8 @@ def botao_enviar(rotulo: str, rotulo_enviando: str) -> rx.Component:
         ),
         type="submit",
         class_name="btn btn-red auth-submit",
-        disabled=AuthState.enviando,
-        custom_attrs={"aria-busy": rx.cond(AuthState.enviando, "true", "false")},
+        disabled=enviando,
+        custom_attrs={"aria-busy": rx.cond(enviando, "true", "false")},
     )
 
 
@@ -964,6 +994,355 @@ def pagina_admin() -> rx.Component:
                     regiao_admin(),
                     class_name="admin-panel",
                     custom_attrs={"aria-labelledby": "titulo-admin"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Anúncios dos Clientes (Change anuncios-cliente, tarefas 4.3 e 5.2).
+# As páginas só mostram dados depois de AuthState._exigir confirmar a sessão no backend;
+# o backend filtra os anúncios pelo token, e nada aqui decide o dono de um anúncio.
+# ---------------------------------------------------------------------------
+
+MENSAGEM_SEM_ANUNCIOS = "Você ainda não tem anúncios."
+INTRO_ANUNCIAR = (
+    "Seu anúncio será enviado como rascunho e publicado pela equipe da Revaulte. "
+    "Campos marcados com * são obrigatórios."
+)
+COLUNAS_ANUNCIOS = ("Anúncio", "Ano", "Preço", "Estado", "Enviado em", "Detalhes")
+OPCOES_CONDICAO = (("used", "Usado"), ("new", "Novo"))
+OPCOES_MODIFICADO = (("nao", "Não"), ("sim", "Sim"))
+
+
+def link_anunciar(rotulo: str = "Anunciar veículo") -> rx.Component:
+    return rx.el.a(rotulo, href=ROTA_ANUNCIAR, class_name="btn btn-red")
+
+
+def restrito_anuncios() -> rx.Component:
+    return rx.el.div(
+        rx.el.p(rx.el.strong("Acesso restrito")),
+        rx.el.p(ERRO_RESTRITO),
+        rx.el.a("Ir para Minha conta", href=ROTA_CONTA, class_name="btn btn-red"),
+        class_name="state-message",
+    )
+
+
+def etiqueta_estado(anuncio: rx.Var[ResumoAnuncio]) -> rx.Component:
+    return rx.el.span(anuncio.rotulo_estado, class_name="status-tag is-" + anuncio.estado)
+
+
+def linha_anuncio(anuncio: rx.Var[ResumoAnuncio]) -> rx.Component:
+    return rx.el.tr(
+        celula("Anúncio", anuncio.titulo),
+        celula("Ano", anuncio.ano),
+        celula("Preço", anuncio.preco),
+        rx.el.td(etiqueta_estado(anuncio), custom_attrs={"data-label": "Estado"}),
+        celula("Enviado em", anuncio.enviado_em),
+        rx.el.td(
+            rx.el.a("Ver detalhes", href=anuncio.endereco, class_name="auth-link"),
+            custom_attrs={"data-label": "Detalhes"},
+        ),
+    )
+
+
+def tabela_anuncios() -> rx.Component:
+    return rx.el.table(
+        rx.el.caption("Seus anúncios, do mais recente para o mais antigo."),
+        rx.el.thead(rx.el.tr(*(rx.el.th(coluna, scope="col") for coluna in COLUNAS_ANUNCIOS))),
+        rx.el.tbody(rx.foreach(MeusAnunciosState.anuncios, linha_anuncio)),
+        class_name="admin-table ads-table",
+    )
+
+
+def lista_meus_anuncios() -> rx.Component:
+    situacao = MeusAnunciosState.situacao
+    return rx.el.div(
+        rx.cond(
+            situacao == "lista",
+            rx.cond(
+                MeusAnunciosState.anuncios.length() > 0,
+                tabela_anuncios(),
+                rx.el.div(
+                    rx.el.p(MENSAGEM_SEM_ANUNCIOS),
+                    link_anunciar(),
+                    class_name="state-message",
+                ),
+            ),
+            rx.cond(
+                situacao == "restrito",
+                restrito_anuncios(),
+                rx.cond(
+                    situacao == "erro",
+                    mensagem_com_acao(MeusAnunciosState.mensagem_erro, "Tentar novamente", MeusAnunciosState.abrir),
+                    indicador_carregamento("Carregando seus anúncios…"),
+                ),
+            ),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_meus_anuncios() -> rx.Component:
+    return pagina(
+        ROTA_MEUS_ANUNCIOS,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Minha conta", class_name="hero-kicker"),
+                    rx.el.h1("Meus anúncios", id="titulo-meus-anuncios", class_name="section-title"),
+                    rx.cond(
+                        MeusAnunciosState.aviso != "",
+                        rx.el.p(MeusAnunciosState.aviso, class_name="form-success", role="status"),
+                    ),
+                    rx.cond(
+                        (MeusAnunciosState.situacao == "lista") & (MeusAnunciosState.anuncios.length() > 0),
+                        rx.el.div(
+                            rx.cond(
+                                MeusAnunciosState.anunciante != "",
+                                rx.el.p("Anunciante: ", rx.el.strong(MeusAnunciosState.anunciante)),
+                            ),
+                            link_anunciar("Anunciar outro veículo"),
+                            class_name="ads-toolbar",
+                        ),
+                    ),
+                    lista_meus_anuncios(),
+                    class_name="admin-panel",
+                    custom_attrs={"aria-labelledby": "titulo-meus-anuncios"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+def grupo_opcoes(nome: str, legenda: str, opcoes: tuple[tuple[str, str], ...]) -> rx.Component:
+    """Botões de opção sem opção marcada: a escolha precisa ser explícita (design.md, decisão 7)."""
+    return rx.el.fieldset(
+        rx.el.legend(legenda),
+        rx.el.div(
+            *(
+                rx.el.label(
+                    rx.el.input(type="radio", name=nome, value=valor, id=f"{nome}-{valor}"),
+                    rx.el.span(rotulo),
+                    html_for=f"{nome}-{valor}",
+                    class_name="choice",
+                )
+                for valor, rotulo in opcoes
+            ),
+            class_name="choice-group",
+        ),
+        class_name="filter-field auth-field choice-field",
+    )
+
+
+def campo_descricao() -> rx.Component:
+    return rx.el.div(
+        rx.el.label("Descrição", html_for="descricao"),
+        rx.el.textarea(
+            id="descricao", name="descricao", rows=5, max_length=2000,
+            custom_attrs={"aria-describedby": "descricao-dica"},
+        ),
+        rx.el.p("Até 2.000 caracteres. Histórico, estado de conservação, documentação.", id="descricao-dica",
+                class_name="field-hint"),
+        class_name="filter-field auth-field is-wide",
+    )
+
+
+def campo_anunciante() -> rx.Component:
+    """Primeiro anúncio: nome editável, sugerido a partir da conta. Depois: só exibido (decisão 3)."""
+    return rx.cond(
+        AnunciarState.tem_anunciante,
+        rx.el.div(
+            rx.el.p("Anunciante: ", rx.el.strong(AnunciarState.nome_anunciante)),
+            rx.el.p("O nome de exibição é definido no primeiro anúncio.", class_name="field-hint"),
+            class_name="is-wide seller-readonly",
+        ),
+        campo_formulario(
+            "nome_exibicao", "Nome de exibição do anunciante *", largo=True,
+            dica="Aparece no anúncio publicado. Não poderá ser alterado depois.",
+            type="text", max_length=60, default_value=AnunciarState.nome_sugerido, auto_complete="off",
+        ),
+    )
+
+
+def formulario_anuncio() -> rx.Component:
+    return rx.el.form(
+        campo_anunciante(),
+        campo_formulario("marca", "Marca *", type="text", max_length=40, placeholder="Ford", auto_complete="off"),
+        campo_formulario("modelo", "Modelo *", type="text", max_length=60, placeholder="Maverick", auto_complete="off"),
+        campo_formulario("versao", "Versão", type="text", max_length=80, placeholder="GT", auto_complete="off"),
+        campo_formulario(
+            "ano", "Ano *", type="text", input_mode="numeric", max_length=4, placeholder="1975", auto_complete="off",
+        ),
+        campo_formulario(
+            "quilometragem", "Quilometragem (km) *", type="text", input_mode="numeric", max_length=12,
+            placeholder="120.000", auto_complete="off",
+        ),
+        campo_formulario(
+            "preco", "Preço *", dica="Em reais, por exemplo 45.000,00.", type="text", input_mode="decimal",
+            max_length=18, placeholder="R$ 45.000,00", auto_complete="off",
+        ),
+        grupo_opcoes("condicao", "Condição *", OPCOES_CONDICAO),
+        grupo_opcoes("modificado", "Modificado/preparado? *", OPCOES_MODIFICADO),
+        campo_formulario("cor", "Cor", type="text", max_length=60, auto_complete="off"),
+        campo_formulario("motorizacao", "Motorização", type="text", max_length=60, placeholder="V8 302", auto_complete="off"),
+        campo_formulario("cambio", "Câmbio", type="text", max_length=60, placeholder="Manual", auto_complete="off"),
+        campo_descricao(),
+        rx.el.div(mensagem_formulario(AnunciarState.erro_formulario), class_name="is-wide"),
+        rx.el.div(botao_enviar("Enviar anúncio", "Enviando…", AnunciarState.enviando), class_name="is-wide"),
+        no_validate=True,
+        on_submit=AnunciarState.enviar,
+        class_name="auth-form is-grid",
+    )
+
+
+def regiao_anunciar() -> rx.Component:
+    situacao = AnunciarState.situacao
+    return rx.el.div(
+        rx.cond(
+            situacao == "pronto",
+            formulario_anuncio(),
+            rx.cond(
+                situacao == "restrito",
+                restrito_anuncios(),
+                rx.cond(
+                    situacao == "erro",
+                    mensagem_com_acao(AnunciarState.mensagem_erro, "Tentar novamente", AnunciarState.abrir),
+                    indicador_carregamento("Preparando o formulário…"),
+                ),
+            ),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_anunciar() -> rx.Component:
+    return pagina(
+        ROTA_ANUNCIAR,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Minha conta", class_name="hero-kicker"),
+                    rx.el.h1("Anunciar veículo", id="titulo-anunciar", class_name="section-title"),
+                    rx.el.p(INTRO_ANUNCIAR, class_name="auth-intro"),
+                    regiao_anunciar(),
+                    rx.el.p(
+                        rx.el.a("Ver meus anúncios", href=ROTA_MEUS_ANUNCIOS, class_name="auth-link"),
+                        class_name="auth-alt",
+                    ),
+                    class_name="auth-card is-wide",
+                    custom_attrs={"aria-labelledby": "titulo-anunciar"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
+def linha_ficha(rotulo: str, valor) -> rx.Component:
+    """Linha da ficha; só aparece quando o dado foi informado."""
+    return rx.cond(
+        valor != "",
+        rx.el.div(rx.el.dt(rotulo), rx.el.dd(valor), class_name="account-item"),
+    )
+
+
+def dados_da_ficha(ficha: rx.Var[FichaAnuncio]) -> rx.Component:
+    return rx.el.div(
+        rx.el.dl(
+            linha_ficha("Marca", ficha.marca),
+            linha_ficha("Modelo", ficha.modelo),
+            linha_ficha("Versão", ficha.versao),
+            linha_ficha("Ano", ficha.ano),
+            linha_ficha("Condição", ficha.condicao),
+            linha_ficha("Quilometragem", ficha.quilometragem),
+            linha_ficha("Preço", ficha.preco),
+            linha_ficha("Modificado/preparado", ficha.modificado),
+            linha_ficha("Cor", ficha.cor),
+            linha_ficha("Motorização", ficha.motorizacao),
+            linha_ficha("Câmbio", ficha.cambio),
+            linha_ficha("Enviado em", ficha.enviado_em),
+            class_name="account-list ad-facts",
+        ),
+        rx.cond(
+            ficha.descricao != "",
+            rx.el.div(
+                rx.el.h2("Descrição", class_name="ad-subtitle"),
+                rx.el.p(ficha.descricao, class_name="ad-description"),
+                class_name="ad-block",
+            ),
+        ),
+        rx.cond(
+            ficha.endereco_publico != "",
+            rx.el.a("Ver página pública", href=ficha.endereco_publico, class_name="btn btn-red"),
+            rx.el.p(
+                "Este anúncio ainda não está no site. Ele aparecerá depois de publicado pela equipe da Revaulte.",
+                class_name="field-hint",
+            ),
+        ),
+    )
+
+
+def regiao_ficha_anuncio() -> rx.Component:
+    situacao = FichaAnuncioState.situacao
+    return rx.el.div(
+        rx.cond(
+            situacao == "ficha",
+            dados_da_ficha(FichaAnuncioState.ficha),
+            rx.cond(
+                situacao == "nao_encontrado",
+                rx.el.div(
+                    rx.el.p(ERRO_NAO_ENCONTRADO),
+                    rx.el.a("Ver meus anúncios", href=ROTA_MEUS_ANUNCIOS, class_name="btn btn-red"),
+                    class_name="state-message",
+                ),
+                rx.cond(
+                    situacao == "restrito",
+                    restrito_anuncios(),
+                    rx.cond(
+                        situacao == "erro",
+                        mensagem_com_acao(
+                            FichaAnuncioState.mensagem_erro, "Tentar novamente", FichaAnuncioState.abrir
+                        ),
+                        indicador_carregamento("Carregando o anúncio…"),
+                    ),
+                ),
+            ),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_ficha_anuncio() -> rx.Component:
+    ficha = FichaAnuncioState.ficha
+    return pagina(
+        ROTA_FICHA_ANUNCIO,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.nav(
+                        rx.el.a("← Meus anúncios", href=ROTA_MEUS_ANUNCIOS, class_name="auth-link"),
+                        class_name="ad-back",
+                    ),
+                    rx.el.p("Meu anúncio", class_name="hero-kicker"),
+                    rx.el.h1(
+                        rx.cond(FichaAnuncioState.situacao == "ficha", ficha.titulo, "Anúncio"),
+                        id="titulo-ficha-anuncio",
+                        class_name="section-title",
+                    ),
+                    rx.cond(
+                        FichaAnuncioState.situacao == "ficha",
+                        rx.el.p(ficha.rotulo_estado, class_name="status-tag ad-state is-" + ficha.estado),
+                    ),
+                    regiao_ficha_anuncio(),
+                    class_name="auth-card is-wide",
+                    custom_attrs={"aria-labelledby": "titulo-ficha-anuncio"},
                 ),
                 class_name="catalog auth-main",
             ),

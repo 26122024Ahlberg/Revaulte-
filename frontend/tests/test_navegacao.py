@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 
 from revaulte.components import (
     ITENS_ADMINISTRADOR,
+    ITENS_ANUNCIOS,
     ITENS_AUTENTICADO,
     ITENS_EM_BREVE,
     ITENS_MENU,
@@ -75,7 +76,9 @@ def itens_visiveis(autenticado: bool, administrador: bool, atual: str = "/estoqu
     return itens
 
 
-EM_BREVE = [("Anunciar veículo", "em breve"), ("Meus anúncios", "em breve"), ("Favoritos", "em breve")]
+# Change anuncios-cliente: Anunciar veículo e Meus anúncios viraram links; só Favoritos continua "Em breve".
+ANUNCIOS = [("Anunciar veículo", "/anunciar"), ("Meus anúncios", "/meus-anuncios")]
+EM_BREVE = [*ANUNCIOS, ("Favoritos", "em breve")]
 
 
 class TestNavegacao(unittest.TestCase):
@@ -97,11 +100,12 @@ class TestNavegacao(unittest.TestCase):
         self.assertEqual(ITENS_VISITANTE, (("Entrar", "/entrar"), ("Cadastrar", "/cadastro")))
         self.assertEqual(ITENS_AUTENTICADO, (("Minha conta", "/conta"),))
         self.assertEqual(ITENS_ADMINISTRADOR, (("Painel administrativo", "/admin"),))
-        self.assertEqual(ITENS_EM_BREVE, ("Anunciar veículo", "Meus anúncios", "Favoritos"))
+        self.assertEqual(ITENS_ANUNCIOS, (("Anunciar veículo", "/anunciar"), ("Meus anúncios", "/meus-anuncios")))
+        self.assertEqual(ITENS_EM_BREVE, ("Favoritos",))
 
     def test_rotas_da_conta_estao_registradas(self):
         rotas = set(app._unevaluated_pages) | set(getattr(app, "_pages", {}))
-        for _, rota in ITENS_VISITANTE + ITENS_AUTENTICADO + ITENS_ADMINISTRADOR:
+        for _, rota in ITENS_VISITANTE + ITENS_AUTENTICADO + ITENS_ADMINISTRADOR + ITENS_ANUNCIOS:
             with self.subTest(rota=rota):
                 self.assertIn(rota.strip("/"), rotas)
 
@@ -162,7 +166,7 @@ class TestMenuDaConta(unittest.TestCase):
 
     def test_links_da_conta_fecham_o_menu(self):
         gerado = codigo(itens_conta("/estoque"))
-        for rota in ("/entrar", "/cadastro", "/conta", "/admin"):
+        for rota in ("/entrar", "/cadastro", "/conta", "/admin", "/anunciar", "/meus-anuncios"):
             with self.subTest(rota=rota):
                 link = gerado[: gerado.index(f'to:"{rota}"')]
                 link = link[link.rindex("ReactRouterLink"):]

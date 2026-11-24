@@ -8,15 +8,27 @@ from .components import (
     ROTA_USADOS,
     ROTA_VEICULO,
     pagina_admin,
+    pagina_anunciar,
     pagina_cadastro,
     pagina_conta,
     pagina_entrar,
     pagina_estoque,
+    pagina_ficha_anuncio,
     pagina_inicial,
+    pagina_meus_anuncios,
     pagina_nao_encontrada,
     pagina_veiculo,
 )
-from .auth import ROTA_ADMIN, ROTA_CADASTRO, ROTA_CONTA, ROTA_ENTRAR, AuthState
+from .anuncios import ROTA_FICHA_ANUNCIO, AnunciarState, FichaAnuncioState, MeusAnunciosState
+from .auth import (
+    ROTA_ADMIN,
+    ROTA_ANUNCIAR,
+    ROTA_CADASTRO,
+    ROTA_CONTA,
+    ROTA_ENTRAR,
+    ROTA_MEUS_ANUNCIOS,
+    AuthState,
+)
 from .state import CarrosselState, CatalogState, DetalheState, MenuState
 
 FONTES_GOOGLE = (
@@ -118,6 +130,30 @@ app.add_page(
     route=ROTA_ADMIN,
     title="Painel administrativo | Revaulte",
     on_load=[MenuState.fechar_menu, AuthState.exigir_admin],
+)
+
+# Anúncios dos Clientes (Change anuncios-cliente). abrir confere a sessão no backend (auth/me)
+# a cada abertura e leva o visitante a /entrar?proximo=<rota>; só então consulta GET /anuncios.
+app.add_page(
+    pagina_anunciar,
+    route=ROTA_ANUNCIAR,
+    title="Anunciar veículo | Revaulte",
+    on_load=[MenuState.fechar_menu, AnunciarState.abrir],
+)
+
+app.add_page(
+    pagina_meus_anuncios,
+    route=ROTA_MEUS_ANUNCIOS,
+    title="Meus anúncios | Revaulte",
+    on_load=[MenuState.fechar_menu, MeusAnunciosState.abrir],
+)
+
+# Ficha privada: o identificador é validado no FichaAnuncioState; inválido não consulta o backend.
+app.add_page(
+    pagina_ficha_anuncio,
+    route=ROTA_FICHA_ANUNCIO,
+    title="Meu anúncio | Revaulte",
+    on_load=[MenuState.fechar_menu, FichaAnuncioState.abrir],
 )
 
 # Endereço antigo do catálogo, mantido para não quebrar links.

@@ -44,6 +44,7 @@ Os endereços padrão estão em `revaulte/config.py` e são públicos. Cada um p
 | `REVAULTE_CATALOG_API_URL` | Catálogo | `https://x8ki-letl-twmt.n7.xano.io/api:ghostpay-catalog` |
 | `REVAULTE_AUTH_API_URL` | Cadastro, login e `auth/me` | `https://x8ki-letl-twmt.n7.xano.io/api:shCFXLjC` |
 | `REVAULTE_ADMIN_API_URL` | Área administrativa | `https://x8ki-letl-twmt.n7.xano.io/api:revaulte-admin` |
+| `REVAULTE_ANUNCIOS_API_URL` | Anúncios dos Clientes (exige sessão) | `https://x8ki-letl-twmt.n7.xano.io/api:revaulte-anuncios` |
 
 O token de sessão fica só no cookie `revaulte_sessao` do navegador (validade de 24 h) e nunca é gravado em arquivo. O plano gratuito do Xano aceita 10 requisições a cada 20 s; acima disso, o site mostra a mensagem genérica de erro.
 
