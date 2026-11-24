@@ -12,7 +12,7 @@
 
 ## 3. Frontend
 
-- [ ] 3.1 Trocar o “Tenho interesse” demonstrativo pelo bloco do anunciante e pelo link do WhatsApp; verificar com testes em `frontend/tests/` (com e sem autorização, sem anunciante, vendido) e no navegador — implementado em 07/11/2026: bloco “Anunciado por”, “Conversar no WhatsApp” (nova aba, `noopener noreferrer`) e “Contato não disponível”; `tests/test_contato.py` com dados simulados (com e sem autorização, sem anunciante, sem nome, vendido, números inválidos, mensagem sem endereço); 116 testes passam e `reflex compile` sem erros. Pendente a verificação no navegador (“Contato não disponível” nos 3 veículos após o envio; o botão só com anunciante real autorizado)
+- [ ] 3.1 Trocar o “Tenho interesse” demonstrativo pelo bloco do anunciante e pelo link do WhatsApp; verificar com testes em `frontend/tests/` (com e sem autorização, sem anunciante, vendido) e no navegador — implementado em 07/11/2026: bloco “Anunciado por”, “Conversar no WhatsApp” (nova aba, `noopener noreferrer`) e “Contato não disponível”; `tests/test_contato.py` com dados simulados (com e sem autorização, sem anunciante, sem nome, vendido, números inválidos, mensagem sem endereço); 116 testes passam e `reflex compile` sem erros. Pendente a verificação no navegador (“Contato não disponível” nos 3 veículos após o envio; o botão só com anunciante real autorizado) — **Decisão do usuário em 24/11/2026:** o caso de veículo Vendido segue com cobertura automatizada (`test_contato.py`) e ressalva; sem alterar veículos reais. Continua pendente o percurso no navegador.
 
 ## 4. Verificação
 

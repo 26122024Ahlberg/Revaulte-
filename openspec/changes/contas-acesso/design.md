@@ -147,3 +147,11 @@ Novas variáveis opcionais `REVAULTE_AUTH_API_URL` (padrão `.../api:shCFXLjC`) 
 - [Deslocamento fixo −03:00] → correto enquanto o Brasil não adotar horário de verão; se isso mudar, rever a decisão 9 (por exemplo, `ZoneInfo` com `tzdata`).
 - [Mudança em `Quick Start/enforce_role`, função compartilhada] → hoje só `GET /admin/users` a chama; os novos códigos (401 para conta excluída, 403 para conta sem cargo) valem para qualquer chamador futuro.
 - [XanoScript não validado pelo MCP na etapa 4] → resolvido em 19/11/2026: todos os arquivos do envio validados com `xano_validate_xanoscript` antes da prévia (tarefa 2.9).
+
+## Atualização de 24/11/2026 (correções locais, não publicadas)
+
+- **`my_events` (tarefa 2.3):** mantido, restrito à própria conta, com saída `id`, `created_at` e `action`, em ordem decrescente de data e ainda como lista (sem paginação, para preservar o formato; o frontend não o usa). Os três endpoints desativados seguem em 404.
+- **Data de nascimento (tarefa 2.13):** o backend passa a recusar a data de hoje em Brasília, como o frontend; a divergência registrada na seção “Pendências” deixa de existir quando a correção for publicada.
+- **HTTP 429 (tarefa 3.6):** login e cadastro mostram mensagem própria de “muitas tentativas”; o `auth/me` por página protegida continua consumindo o mesmo limite do plano (10 requisições a cada 20 s).
+- **Teste global (tarefa 2.4)** e **documento de segurança (tarefa 4.2):** `frontend/tests/test_pendencias_contas.py` e `docs/seguranca-endpoints-quick-start.md`.
+- **Para entrar em vigor no Xano** é preciso publicar `auth/signup` e `logs/user/my_events`, com cópia de segurança e prévia `--dry-run` antes, sem `--sync`, `--delete` nem `--force`.

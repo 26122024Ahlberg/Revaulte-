@@ -110,11 +110,11 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - Nenhum token, senha ou credencial é versionado; o token de sessão fica só no cookie `revaulte_sessao` do navegador.
 - As senhas são armazenadas pelo Xano somente como hash; os registros de evento não guardam senha, hash, CPF, telefone, data de nascimento nem endereço.
 - O perfil de acesso é sempre conferido no backend; esconder itens do menu é apenas interface.
-- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404.
+- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404. O `GET logs/user/my_events` foi restringido localmente a `id`, `created_at` e `action` da própria conta; essa correção e a regra da data de nascimento no cadastro (data de hoje em Brasília) **ainda não foram publicadas no Xano**. Detalhes em `docs/seguranca-endpoints-quick-start.md`.
 
 ## Limitações conhecidas
 
-- O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra uma mensagem genérica de erro.
+- O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra “Muitas tentativas em pouco tempo…” em login, cadastro, anúncios e favoritos.
 - Recuperação de senha, confirmação de e-mail e chat ainda não existem (estão planejados no OpenSpec). Anúncios pelo site não têm fotos, edição nem exclusão.
 - Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos.
 - Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
@@ -127,5 +127,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - `docs/testes-contas-acesso.md`: roteiro de testes manuais das contas.
 - `docs/testes-anuncios-cliente.md`: roteiro de testes de anúncios dos Clientes.
 - `docs/testes-favoritos.md`: roteiro de testes de Favoritos.
+- `docs/seguranca-endpoints-quick-start.md`: endpoints do Quick Start desativados e logs de eventos.
+- `docs/roteiro-fechamento-openspec.md`: roteiro de fechamento das Changes e pendências.
 - `docs/roteiro-video.md`: roteiro do vídeo de apresentação.
 - `openspec/changes/contas-acesso/`: proposta, decisões (`design.md`), requisitos e tarefas das contas de acesso.

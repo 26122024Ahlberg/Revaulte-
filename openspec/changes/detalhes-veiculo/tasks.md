@@ -21,4 +21,4 @@
 
 ## 4. Verificação integrada
 
-- [ ] 4.1 Percorrer todos os cenários de `specs/detalhes-veiculo/spec.md`, inspecionar as mensagens do WebSocket para confirmar que nenhum dado de Rascunho chega ao navegador, executar os testes, `reflex compile` e `openspec validate detalhes-veiculo --strict`; verificar que tudo passa e que `frontend-html/` não foi alterado
+- [ ] 4.1 Percorrer todos os cenários de `specs/detalhes-veiculo/spec.md`, inspecionar as mensagens do WebSocket para confirmar que nenhum dado de Rascunho chega ao navegador, executar os testes, `reflex compile` e `openspec validate detalhes-veiculo --strict`; verificar que tudo passa e que `frontend-html/` não foi alterado — **Decisão do usuário em 24/11/2026:** o cenário de veículo Vendido segue com cobertura automatizada (`test_detalhes.py`) e ressalva; sem alterar veículos reais. Continua pendente o percurso no navegador.

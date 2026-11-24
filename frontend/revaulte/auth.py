@@ -162,6 +162,8 @@ ERROS_CADASTRO = {
 }
 ERRO_GENERICO = "Não foi possível concluir agora. Verifique sua conexão e tente novamente."
 ERRO_LOGIN = "E-mail ou senha incorretos."
+# HTTP 429 do plano do Xano (10 requisições a cada 20 s): vale para login e cadastro.
+ERRO_MUITAS_TENTATIVAS = "Muitas tentativas em pouco tempo. Aguarde alguns segundos e tente novamente."
 
 
 def mensagem_erro_cadastro(status: int, corpo: object) -> str:
@@ -170,6 +172,8 @@ def mensagem_erro_cadastro(status: int, corpo: object) -> str:
         return ERROS_CADASTRO[mensagem]
     if isinstance(mensagem, str) and "already exists" in mensagem:
         return ERROS_CADASTRO["email_taken"]
+    if status == 429:
+        return ERRO_MUITAS_TENTATIVAS
     if status == 400:
         return "Confira os dados informados e tente novamente."
     return ERRO_GENERICO
@@ -399,7 +403,12 @@ class AuthState(rx.State):
         token = _token_da_resposta(corpo) if status == 200 else ""
         if not token:
             self.enviando = False
-            self.erro_formulario = ERRO_LOGIN if status in (400, 401, 403, 404) else ERRO_GENERICO
+            if status in (400, 401, 403, 404):
+                self.erro_formulario = ERRO_LOGIN
+            elif status == 429:
+                self.erro_formulario = ERRO_MUITAS_TENTATIVAS
+            else:
+                self.erro_formulario = ERRO_GENERICO
             return
         yield await self._concluir_entrada(token)
 
