@@ -21,8 +21,8 @@
 ## 4. Dados de teste e verificação do backend
 
 - [ ] 4.1 Inserir pelo painel do Xano os registros de teste da decisão 9 do design (incluindo ao menos um Rascunho, um Vendido, um Modificado, um Novo, um sem versão e um sem imagem); verificar pela contagem de registros na tabela
-- [ ] 4.2 Verificar que a resposta do endpoint não contém o veículo em Rascunho: comparar os `id` devolvidos com os da tabela e confirmar que todo item tem `status` `available` ou `sold`
-- [ ] 4.3 Verificar que cada item da resposta contém somente os onze campos de catálogo, sem `created_at` nem outros campos
+- [x] 4.2 Verificar que a resposta do endpoint não contém o veículo em Rascunho: comparar os `id` devolvidos com os da tabela e confirmar que todo item tem `status` `available` ou `sold` — **Concluída em 24/11/2026 por leitura pública (sem alterar o Xano):** a tabela `vehicle` tem 7 registros (ids 1 a 7, o 7 em `draft`) e `GET /vehicles` devolve os ids 1 a 6, todos `available`; o Rascunho não aparece.
+- [x] 4.3 Verificar que cada item da resposta contém somente os onze campos de catálogo, sem `created_at` nem outros campos — **Concluída em 24/11/2026 por leitura pública:** cada item de `GET /vehicles` tem exatamente os onze campos de catálogo (`brand`, `condition`, `cover_image_url`, `id`, `is_modified`, `mileage`, `model`, `price`, `status`, `version`, `year`), sem `created_at`, contato ou anunciante.
 - [x] 4.4 Alterar temporariamente todos os registros para Rascunho (ou usar uma tabela vazia) e verificar que o endpoint responde 200 com lista vazia; restaurar os estados em seguida
 
 ## 5. Versão HTML de referência

@@ -1,5 +1,7 @@
 # Tasks
 
+> **Pós-merge (24/11/2026):** a PR #4 foi integrada à `main` (merge `32b5a68`), com os commits `4db828c`, `5bacd6d` e `43f3df1`. Continuam abertas as tarefas 3.5 (limpeza dos rascunhos de teste, com autorização) e 8.2 (roteiro no navegador). Não arquivar antes de `contas-acesso`.
+
 > **Situação (23/11/2026, fim do dia):** backend publicado e testado (3.3 e 3.4); frontend local (sem commit): 4.1 a 4.4, 5.1 a 5.3, 6.1 e 6.2 feitas. Próximas: documentação (7.x) e verificação no navegador (8.x). Registro anterior: **Situação (23/11/2026):** etapas E0, E1, E2 e E3 (somente local) autorizadas e concluídas (tarefas 1.1 a 1.3 e 2.1 a 2.4), e preparação da E4 sem envio (3.1 e 3.2): worktree `Revaulte-anuncios-cliente`, branch `feat/anuncios-cliente` criada a partir de `origin/main` (`dda54f7`) e sem upstream, artefatos desta Change, a tabela `seller_account` (opção A, 23/11/2026, no lugar de `seller.user_id`) e o grupo `Anuncios` somente nos arquivos locais de `xano/`, sem envio. As próximas etapas (a partir da tarefa 3.1, E4) dependem de nova autorização. Nenhuma alteração no Xano, nos dados ou no GitHub, e nenhum commit.
 
 ## 1. Preparação

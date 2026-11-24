@@ -1,5 +1,7 @@
 # Tasks
 
+> **Pós-merge (24/11/2026):** a PR #4 foi integrada à `main` (merge `32b5a68`), com os commits `4db828c`, `5bacd6d` e `43f3df1`. Tarefas completas; o arquivamento deve vir depois de `contas-acesso` e `anuncios-cliente` (mesmo requisito “Menu da conta” de `navegacao-site`). Este delta agora também modifica “Menu em tela estreita”, para que o texto final não mantenha “Favoritos” como “Em breve”.
+
 > **Situação (24/11/2026):** implementação concluída (410 testes, `reflex compile --dry`, `xano_validate_xanoscript` com 37 arquivos válidos e `openspec validate favoritos --strict`); `favorite` e o grupo `Favoritos` publicados no Xano pelo usuário; teste manual no navegador com os Clientes A e B (favoritar, listar por conta, remover; listas e tabela vazias ao final). Registros não inspecionados no banco enquanto existiam; índice único e concorrência não testados (ver `design.md`). Nada enviado ao GitHub.
 
 ## 1. Backend local (sem envio ao Xano)

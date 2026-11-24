@@ -28,3 +28,18 @@ Todas as páginas públicas SHALL exibir, no canto superior direito do cabeçalh
 #### Scenario: Fechar o menu
 - **WHEN** o painel está aberto e o visitante aciona novamente o botão ☰, clica fora do painel ou abre outra página
 - **THEN** o painel é fechado
+
+### Requirement: Menu em tela estreita
+Em telas de até 760 px de largura, a navegação principal SHALL sair do cabeçalho e o painel do botão ☰ SHALL reunir as seções “Navegação”, com Home, Estoque, Usados e Modificados e a página atual identificada, e “Minha conta”, com os itens correspondentes à sessão, sem remover nenhuma opção. A página MUST NOT apresentar rolagem horizontal.
+
+#### Scenario: Navegar pelo celular
+- **WHEN** em uma tela de 375 px o visitante abre o painel e aciona “Modificados”
+- **THEN** a página de Modificados é aberta, o painel é fechado e não há rolagem horizontal
+
+#### Scenario: Painel completo no celular
+- **WHEN** em uma tela de 375 px um visitante sem sessão abre o painel
+- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Entrar”, “Cadastrar”, “Anunciar veículo”, “Meus anúncios” e “Favoritos”, todos como links
+
+#### Scenario: Painel do Administrador no celular
+- **WHEN** em uma tela de 375 px um Administrador autenticado abre o painel
+- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Minha conta”, “Painel administrativo”, “Anunciar veículo”, “Meus anúncios”, “Favoritos” e “Sair”, sem rolagem horizontal
