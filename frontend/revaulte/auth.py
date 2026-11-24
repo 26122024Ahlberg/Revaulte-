@@ -19,6 +19,12 @@ ROTA_ENTRAR = "/entrar"
 ROTA_CADASTRO = "/cadastro"
 ROTA_CONTA = "/conta"
 ROTA_ADMIN = "/admin"
+# Páginas de anúncios (Change anuncios-cliente); definidas aqui para entrarem nos destinos seguros
+# sem importação circular (revaulte/anuncios.py importa este módulo).
+ROTA_ANUNCIAR = "/anunciar"
+ROTA_MEUS_ANUNCIOS = "/meus-anuncios"
+# Página de favoritos (Change favoritos).
+ROTA_FAVORITOS = "/favoritos"
 
 # Cookie da sessão: só o token, com a mesma validade do token do Xano (24 h).
 NOME_COOKIE = "revaulte_sessao"
@@ -32,8 +38,12 @@ FUSO = timezone(timedelta(hours=-3), "BRT")
 
 # Destinos aceitos após o login: somente páginas conhecidas do site (lista fechada).
 # /entrar e /cadastro ficam de fora para não voltar ao próprio formulário.
-DESTINOS_INTERNOS = frozenset({"/", "/estoque", "/usados", "/modificados", ROTA_CONTA, ROTA_ADMIN})
+DESTINOS_INTERNOS = frozenset(
+    {"/", "/estoque", "/usados", "/modificados", ROTA_CONTA, ROTA_ADMIN, ROTA_ANUNCIAR, ROTA_MEUS_ANUNCIOS, ROTA_FAVORITOS}
+)
 _DESTINO_VEICULO = re.compile(r"/veiculo/[1-9][0-9]{0,11}")
+# Ficha privada do anúncio (Change anuncios-cliente): /meus-anuncios/<1 a 12 dígitos>, sem zero à esquerda.
+_DESTINO_ANUNCIO = re.compile(r"/meus-anuncios/[1-9][0-9]{0,11}")
 
 
 # ---------------------------------------------------------------------------
@@ -173,7 +183,7 @@ def destino_seguro(proximo: object) -> str:
     """
     if not isinstance(proximo, str):
         return ROTA_CONTA
-    if proximo in DESTINOS_INTERNOS or _DESTINO_VEICULO.fullmatch(proximo):
+    if proximo in DESTINOS_INTERNOS or _DESTINO_VEICULO.fullmatch(proximo) or _DESTINO_ANUNCIO.fullmatch(proximo):
         return proximo
     return ROTA_CONTA
 
@@ -412,8 +422,20 @@ class AuthState(rx.State):
 
     @rx.event
     def sair(self):
+        # Importação local: revaulte/anuncios.py importa este módulo.
+        from .anuncios import AnunciarState, FichaAnuncioState, MeusAnunciosState
+        from .favoritos import FavoritosState
+
         self._encerrar()
-        return [AdminState.limpar, rx.remove_cookie(NOME_COOKIE), rx.redirect("/")]
+        return [
+            AdminState.limpar,
+            AnunciarState.limpar,
+            MeusAnunciosState.limpar,
+            FichaAnuncioState.limpar,
+            FavoritosState.limpar,
+            rx.remove_cookie(NOME_COOKIE),
+            rx.redirect("/"),
+        ]
 
 
 # ---------------------------------------------------------------------------

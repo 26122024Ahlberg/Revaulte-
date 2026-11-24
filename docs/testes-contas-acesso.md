@@ -21,8 +21,8 @@ Contas sugeridas:
 
 | # | Ação | Resultado esperado |
 | --- | --- | --- |
-| 1.1 | Abrir `/` e acionar ☰ 📱 | “Minha conta” mostra **Entrar**, **Cadastrar** e Anunciar veículo, Meus anúncios e Favoritos com “Em breve”; nada de “Minha conta”, “Painel administrativo” ou “Sair” |
-| 1.2 | Acionar “Favoritos” | Nada acontece; o item continua “Em breve” |
+| 1.1 | Abrir `/` e acionar ☰ 📱 | “Minha conta” mostra **Entrar**, **Cadastrar**, Anunciar veículo, Meus anúncios e Favoritos como links; nada de “Minha conta”, “Painel administrativo” ou “Sair” |
+| 1.2 | Acionar “Favoritos” | Vai para `/entrar?proximo=/favoritos` |
 | 1.3 | Abrir `/conta` | Vai para `/entrar?proximo=/conta` |
 | 1.4 | Abrir `/admin` | Vai para `/entrar?proximo=/admin` |
 | 1.5 | Em `/entrar`, enviar vazio | “Informe e-mail e senha.”; nenhuma requisição ao Xano |
@@ -52,7 +52,7 @@ Durante cada envio válido, o botão mostra “Criando conta…” e fica desabi
 | # | Ação | Resultado esperado |
 | --- | --- | --- |
 | 3.1 | Cadastrar a conta C com dados válidos | Vai para `/conta`; mostra nome, e-mail e perfil **Cliente**; não mostra CPF, telefone, nascimento, endereço nem senha |
-| 3.2 | Acionar ☰ 📱 | **Minha conta**, os três “Em breve” e **Sair**; sem “Painel administrativo”, “Entrar” ou “Cadastrar” |
+| 3.2 | Acionar ☰ 📱 | **Minha conta**, Anunciar veículo, Meus anúncios, Favoritos e **Sair**; sem “Painel administrativo”, “Entrar” ou “Cadastrar” |
 | 3.3 | Tentar cadastrar outra conta com o mesmo e-mail (maiúsculas e espaços) | “Este e-mail já está cadastrado. Entre com ele ou use outro.” |
 | 3.4 | Tentar cadastrar com o mesmo CPF e outro e-mail | “Este CPF já está cadastrado.” |
 | 3.5 | No painel do Xano, abrir a conta C | `role = member`; `birth_date` igual à data informada, sem deslocamento de dia |
@@ -76,7 +76,7 @@ Durante cada envio válido, o botão mostra “Criando conta…” e fica desabi
 | 5.2 | No painel do Xano, trocar o `role` da conta A para `admin` | — |
 | 5.3 | Entrar com a conta A a partir de `/admin` (`/entrar?proximo=/admin`) | Volta para `/admin` |
 | 5.4 | Ver a lista 📱 | Colunas ID, Data de cadastro, Nome, E-mail e Perfil; as duas contas, a mais recente primeiro; sem rolagem horizontal em 375 px (cada usuário vira um bloco) |
-| 5.5 | Acionar ☰ | **Minha conta**, **Painel administrativo**, os três “Em breve” e **Sair** |
+| 5.5 | Acionar ☰ | **Minha conta**, **Painel administrativo**, Anunciar veículo, Meus anúncios, Favoritos e **Sair** |
 | 5.6 | Abrir `/conta` | Perfil **Administrador** |
 
 ## 6. Conta sem cargo (teste C3)

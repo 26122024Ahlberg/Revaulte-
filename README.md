@@ -57,7 +57,7 @@ O frontend usa o backend já publicado no Xano; não é preciso configurar nada 
 - **Home (`/`)**: carrossel de destaques, veículos em destaque e a proposta da Revaulte.
 - **Estoque (`/estoque`), Usados (`/usados`) e Modificados (`/modificados`)**: catálogo com pesquisa por texto e filtros de condição e modificação.
 - **Página do veículo (`/veiculo/<id>`)**: fotos, ficha técnica, configuração original, modificações e preparação, anunciante, contato por WhatsApp (quando informado) e simulador de financiamento (somente para veículo disponível; valores ilustrativos, sem valor de proposta).
-- **Menu ☰ → Minha conta**: “Entrar” e “Cadastrar”. “Anunciar veículo”, “Meus anúncios” e “Favoritos” aparecem como “Em breve”.
+- **Menu ☰ → Minha conta**: “Entrar”, “Cadastrar”, “Anunciar veículo”, “Meus anúncios” e “Favoritos”; os três últimos levam ao login quando não há sessão.
 
 ### Criar conta (`/cadastro`)
 
@@ -73,6 +73,10 @@ Todos os campos são obrigatórios: nome completo, e-mail, CPF (com dígitos ver
 
 - **Minha conta (`/conta`)**: nome, e-mail e perfil (Cliente). CPF, telefone, data de nascimento, endereço e senha não são exibidos.
 - Abrir `/conta` sem estar autenticado leva ao login e, depois dele, de volta à conta.
+
+- **Anunciar veículo (`/anunciar`)**: formulário de anúncio (sem fotos). O anúncio nasce como Rascunho, fica fora do catálogo e é publicado pela equipe no painel do Xano. O nome de exibição do anunciante é pedido só no primeiro anúncio (limite de 20 rascunhos por conta).
+- **Meus anúncios (`/meus-anuncios`) e ficha (`/meus-anuncios/<id>`)**: somente os anúncios da própria conta, com o estado de cada um. Não há edição nem exclusão nesta versão.
+- **Favoritos**: botão “Favoritar” / “Remover dos favoritos” na página do veículo e lista em `/favoritos`. Veículos vendidos continuam na lista; os que deixam de ser públicos não aparecem. Depende do grupo `Favoritos` do Xano, já publicado.
 
 ### Administrador
 
@@ -111,7 +115,8 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 ## Limitações conhecidas
 
 - O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra uma mensagem genérica de erro.
-- Recuperação de senha, confirmação de e-mail, favoritos, anúncios pelo site e chat ainda não existem (estão planejados no OpenSpec).
+- Recuperação de senha, confirmação de e-mail e chat ainda não existem (estão planejados no OpenSpec). Anúncios pelo site não têm fotos, edição nem exclusão.
+- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos.
 - Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
 
 ## Documentação
@@ -120,5 +125,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - `docs/domain-model.md`: conceitos do domínio.
 - `docs/colaboracao.md`: preparação do Windows e fluxo com branches.
 - `docs/testes-contas-acesso.md`: roteiro de testes manuais das contas.
+- `docs/testes-anuncios-cliente.md`: roteiro de testes de anúncios dos Clientes.
+- `docs/testes-favoritos.md`: roteiro de testes de Favoritos.
 - `docs/roteiro-video.md`: roteiro do vídeo de apresentação.
 - `openspec/changes/contas-acesso/`: proposta, decisões (`design.md`), requisitos e tarefas das contas de acesso.
