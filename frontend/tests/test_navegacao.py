@@ -76,9 +76,9 @@ def itens_visiveis(autenticado: bool, administrador: bool, atual: str = "/estoqu
     return itens
 
 
-# Change anuncios-cliente: Anunciar veículo e Meus anúncios viraram links; só Favoritos continua "Em breve".
-ANUNCIOS = [("Anunciar veículo", "/anunciar"), ("Meus anúncios", "/meus-anuncios")]
-EM_BREVE = [*ANUNCIOS, ("Favoritos", "em breve")]
+# Changes anuncios-cliente e favoritos: Anunciar veículo, Meus anúncios e Favoritos são links; nada fica "Em breve".
+ANUNCIOS = [("Anunciar veículo", "/anunciar"), ("Meus anúncios", "/meus-anuncios"), ("Favoritos", "/favoritos")]
+EM_BREVE = ANUNCIOS
 
 
 class TestNavegacao(unittest.TestCase):
@@ -100,8 +100,8 @@ class TestNavegacao(unittest.TestCase):
         self.assertEqual(ITENS_VISITANTE, (("Entrar", "/entrar"), ("Cadastrar", "/cadastro")))
         self.assertEqual(ITENS_AUTENTICADO, (("Minha conta", "/conta"),))
         self.assertEqual(ITENS_ADMINISTRADOR, (("Painel administrativo", "/admin"),))
-        self.assertEqual(ITENS_ANUNCIOS, (("Anunciar veículo", "/anunciar"), ("Meus anúncios", "/meus-anuncios")))
-        self.assertEqual(ITENS_EM_BREVE, ("Favoritos",))
+        self.assertEqual(ITENS_ANUNCIOS, tuple(ANUNCIOS))
+        self.assertEqual(ITENS_EM_BREVE, ())
 
     def test_rotas_da_conta_estao_registradas(self):
         rotas = set(app._unevaluated_pages) | set(getattr(app, "_pages", {}))

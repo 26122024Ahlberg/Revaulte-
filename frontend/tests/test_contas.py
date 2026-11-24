@@ -130,14 +130,14 @@ class TestErrosEDestinos(unittest.TestCase):
                 self.assertEqual(destino_seguro(rota), ROTA_CONTA)
 
     def test_destinos_coincidem_com_rotas_do_site(self):
-        from revaulte.auth import ROTA_ANUNCIAR, ROTA_MEUS_ANUNCIOS
+        from revaulte.auth import ROTA_ANUNCIAR, ROTA_FAVORITOS, ROTA_MEUS_ANUNCIOS
         from revaulte.components import ROTA_ESTOQUE, ROTA_HOME, ROTA_MODIFICADOS, ROTA_USADOS, ROTA_VEICULO
 
         # Anúncios: Change anuncios-cliente, tarefa 6.1.
         self.assertEqual(
             DESTINOS_INTERNOS,
             {ROTA_HOME, ROTA_ESTOQUE, ROTA_USADOS, ROTA_MODIFICADOS, ROTA_CONTA, ROTA_ADMIN,
-             ROTA_ANUNCIAR, ROTA_MEUS_ANUNCIOS},
+             ROTA_ANUNCIAR, ROTA_MEUS_ANUNCIOS, ROTA_FAVORITOS},
         )
         self.assertEqual((ROTA_ANUNCIAR, ROTA_MEUS_ANUNCIOS), ("/anunciar", "/meus-anuncios"))
         self.assertEqual(ROTA_VEICULO, "/veiculo/[veiculo_id]")

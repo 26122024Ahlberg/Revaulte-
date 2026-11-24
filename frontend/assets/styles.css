@@ -2370,3 +2370,40 @@ button {
         text-align: center;
     }
 }
+
+/* Favoritos (Change favoritos): botão da página do veículo e lista em /favoritos */
+.btn-outline {
+    background-color: transparent;
+    color: var(--text);
+    border: 1px solid var(--red);
+}
+
+.btn-outline:hover {
+    background-color: rgba(214, 40, 40, 0.15);
+}
+
+.favorite-box {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.favorite-btn {
+    width: 100%;
+    max-width: 320px;
+}
+
+.favorite-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.favorite-item {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+}
+
+.favorite-remove {
+    width: 100%;
+}

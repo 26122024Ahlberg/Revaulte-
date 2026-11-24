@@ -8,7 +8,7 @@ O Revaulte é um marketplace automotivo especializado em carros clássicos, anti
 
 - A Revaulte é a intermediadora da descoberta e do contato entre comprador e vendedor. Ela não é uma concessionária nem proprietária do estoque anunciado.
 - Futuramente, particulares, lojas e vendedores profissionais poderão anunciar seus veículos. Quem anuncia é chamado de **Anunciante** (ver `docs/domain-model.md`).
-- Nesta etapa do projeto, os anúncios são cadastrados pela equipe diretamente no backend; o cadastro de anunciantes, o contato com o anunciante e o chat interno são funcionalidades futuras, planejadas no OpenSpec (Changes `contato-vendedor` e `chat-interno`).
+- Os anúncios podem ser cadastrados pela equipe diretamente no backend ou enviados por Clientes autenticados pelo site; os enviados por Clientes nascem como Rascunho e são publicados pela equipe (Change `anuncios-cliente`). O Cliente também pode favoritar veículos (Change `favoritos`). O chat interno é funcionalidade futura, planejada no OpenSpec (Change `chat-interno`).
 - A negociação e a conclusão da venda ocorrem entre comprador e anunciante, fora do fluxo de compra do site.
 
 ### Identidade nominal

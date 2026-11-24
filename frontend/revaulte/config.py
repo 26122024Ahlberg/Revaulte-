@@ -21,6 +21,8 @@ AUTH_API_URL_PADRAO = "https://x8ki-letl-twmt.n7.xano.io/api:shCFXLjC"
 ADMIN_API_URL_PADRAO = "https://x8ki-letl-twmt.n7.xano.io/api:revaulte-admin"
 # Grupo de anúncios dos Clientes (Change anuncios-cliente); todos os endpoints exigem token.
 ANUNCIOS_API_URL_PADRAO = "https://x8ki-letl-twmt.n7.xano.io/api:revaulte-anuncios"
+# Grupo de favoritos dos Clientes (Change favoritos); todos os endpoints exigem token.
+FAVORITOS_API_URL_PADRAO = "https://x8ki-letl-twmt.n7.xano.io/api:revaulte-favoritos"
 
 
 def _url(variavel: str, padrao: str) -> str:
@@ -40,3 +42,8 @@ def admin_api_url() -> str:
 def anuncios_api_url() -> str:
     """Grupo "Anuncios" (enviar e consultar os próprios anúncios); REVAULTE_ANUNCIOS_API_URL substitui o padrão."""
     return _url("REVAULTE_ANUNCIOS_API_URL", ANUNCIOS_API_URL_PADRAO)
+
+
+def favoritos_api_url() -> str:
+    """Grupo "Favoritos" (favoritar, remover e listar); REVAULTE_FAVORITOS_API_URL substitui o padrão."""
+    return _url("REVAULTE_FAVORITOS_API_URL", FAVORITOS_API_URL_PADRAO)

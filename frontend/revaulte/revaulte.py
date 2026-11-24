@@ -13,6 +13,7 @@ from .components import (
     pagina_conta,
     pagina_entrar,
     pagina_estoque,
+    pagina_favoritos,
     pagina_ficha_anuncio,
     pagina_inicial,
     pagina_meus_anuncios,
@@ -26,9 +27,11 @@ from .auth import (
     ROTA_CADASTRO,
     ROTA_CONTA,
     ROTA_ENTRAR,
+    ROTA_FAVORITOS,
     ROTA_MEUS_ANUNCIOS,
     AuthState,
 )
+from .favoritos import FavoritosState
 from .state import CarrosselState, CatalogState, DetalheState, MenuState
 
 FONTES_GOOGLE = (
@@ -94,7 +97,12 @@ app.add_page(
     pagina_veiculo,
     route=ROTA_VEICULO,
     title="Veículo | Revaulte",
-    on_load=[MenuState.fechar_menu, AuthState.verificar_sessao, DetalheState.abrir],
+    on_load=[
+        MenuState.fechar_menu,
+        AuthState.verificar_sessao,
+        DetalheState.abrir,
+        FavoritosState.verificar_veiculo,
+    ],
 )
 
 # Login (Change contas-acesso). abrir_formulario limpa a mensagem, guarda o destino seguro
@@ -154,6 +162,15 @@ app.add_page(
     route=ROTA_FICHA_ANUNCIO,
     title="Meu anúncio | Revaulte",
     on_load=[MenuState.fechar_menu, FichaAnuncioState.abrir],
+)
+
+# Favoritos do Cliente (Change favoritos): abrir confere a sessão no backend e leva o visitante
+# a /entrar?proximo=/favoritos.
+app.add_page(
+    pagina_favoritos,
+    route=ROTA_FAVORITOS,
+    title="Favoritos | Revaulte",
+    on_load=[MenuState.fechar_menu, FavoritosState.abrir],
 )
 
 # Endereço antigo do catálogo, mantido para não quebrar links.

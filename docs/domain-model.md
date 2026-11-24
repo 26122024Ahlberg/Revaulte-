@@ -336,7 +336,8 @@ Representa a marcação de um Veículo por um Cliente para consulta posterior.
 ### Regras importantes
 
 - favoritar exige um Cliente autenticado;
-- o comportamento de um Favorito quando o veículo muda de estado ainda deverá ser especificado.
+- favoritar duas vezes não duplica o Favorito;
+- somente veículos públicos (Disponível ou Vendido) podem ser favoritados; um veículo Vendido continua na lista com o selo “Vendido”, e um veículo que deixa de ser público (Rascunho) deixa de aparecer na lista, sem apagar o registro (Change `favoritos`, 24/11/2026).
 
 ---
 
@@ -380,7 +381,7 @@ Representa quem anuncia um veículo na Revaulte: futuramente, particulares, loja
 
 - um Anunciante pode anunciar vários Veículos;
 - um Veículo anunciado pode estar associado a um Anunciante (enquanto não houver anunciante real cadastrado, o veículo fica sem anunciante e a página informa que o contato não está disponível);
-- futuramente, um Anunciante estará associado a uma Conta; após cadastro e login, os usuários poderão publicar e gerenciar os próprios veículos (conceito aprovado pelo usuário em 27/10/2026, a ser especificado em Change futura).
+- um Anunciante pode estar associado a uma Conta (no máximo um por Conta, vínculo definido pelo backend a partir da sessão); o Cliente autenticado envia anúncios que nascem como Rascunho e só são publicados (Disponível) pela equipe (Change `anuncios-cliente`, 23/11/2026). Edição e exclusão pelo Cliente ainda não existem.
 
 ### Regras importantes
 

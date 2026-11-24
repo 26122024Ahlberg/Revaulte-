@@ -43,12 +43,12 @@
 
 ## 7. Documentação
 
-- [ ] 7.1 Atualizar `docs/domain-model.md` (Anunciante ligado à Conta, estado inicial Rascunho, limites atuais) e `docs/project-overview.md` (anúncios enviados por Clientes e publicados pela equipe); verificar que os textos não citam dados pessoais nem credenciais
-- [ ] 7.2 Atualizar `README.md` (menu, páginas novas, limitações: sem fotos, sem edição, publicação pela equipe) e criar `docs/testes-anuncios-cliente.md` com o roteiro de testes no navegador; verificar que o roteiro cobre todos os cenários da spec `anuncios-cliente`
+- [x] 7.1 Atualizar `docs/domain-model.md` (Anunciante ligado à Conta, estado inicial Rascunho, limites atuais) e `docs/project-overview.md` (anúncios enviados por Clientes e publicados pela equipe); verificar que os textos não citam dados pessoais nem credenciais
+- [x] 7.2 Atualizar `README.md` (menu, páginas novas, limitações: sem fotos, sem edição, publicação pela equipe) e criar `docs/testes-anuncios-cliente.md` com o roteiro de testes no navegador; verificar que o roteiro cobre todos os cenários da spec `anuncios-cliente`
 
 ## 8. Verificação integrada
 
-- [ ] 8.1 Executar todos os testes, `reflex compile` e `openspec validate anuncios-cliente --strict`; verificar que passam
+- [x] 8.1 Executar todos os testes, `reflex compile` e `openspec validate anuncios-cliente --strict`; verificar que passam
 - [ ] 8.2 Percorrer no navegador o roteiro de `docs/testes-anuncios-cliente.md` com o Reflex local e o Xano real (visitante, Cliente A, Cliente B; desktop e 375 px), conferindo o console sem erros e nenhuma requisição direta ao Xano; registrar o resultado de cada cenário
 - [ ] 8.3 Revisar o `git diff` em relação a `dda54f7`; verificar que só mudaram os arquivos previstos nesta Change, sem credenciais nem arquivos gerados pelo Reflex
 

@@ -17,11 +17,13 @@ from .auth import (
     ROTA_CADASTRO,
     ROTA_CONTA,
     ROTA_ENTRAR,
+    ROTA_FAVORITOS,
     ROTA_MEUS_ANUNCIOS,
     AdminState,
     AuthState,
     LinhaUsuario,
 )
+from .favoritos import FavoritosState
 from .state import (
     IMAGEM_PROVISORIA,
     CarrosselState,
@@ -63,9 +65,13 @@ ITENS_AUTENTICADO = (("Minha conta", ROTA_CONTA),)
 ITENS_ADMINISTRADOR = (("Painel administrativo", ROTA_ADMIN),)
 # Anúncios (Change anuncios-cliente): links para todos; o visitante passa pela proteção da página,
 # que o leva ao login e de volta (?proximo=).
-ITENS_ANUNCIOS = (("Anunciar veículo", ROTA_ANUNCIAR), ("Meus anúncios", ROTA_MEUS_ANUNCIOS))
+ITENS_ANUNCIOS = (
+    ("Anunciar veículo", ROTA_ANUNCIAR),
+    ("Meus anúncios", ROTA_MEUS_ANUNCIOS),
+    ("Favoritos", ROTA_FAVORITOS),
+)
 # Ainda não implementados: "Em breve", sem link nem evento.
-ITENS_EM_BREVE = ("Favoritos",)
+ITENS_EM_BREVE: tuple[str, ...] = ()  # nenhum item pendente após a Change favoritos
 
 
 def item_navegacao(rotulo: str, rota: str, atual: str) -> rx.Component:
@@ -238,6 +244,10 @@ def selo(texto: str, classe: str) -> rx.Component:
 
 
 def cartao_veiculo(cartao: rx.Var[CartaoVeiculo]) -> rx.Component:
+    return cartao_com_imagem(cartao, CatalogState.usar_imagem_provisoria)
+
+
+def cartao_com_imagem(cartao: rx.Var[CartaoVeiculo], ao_falhar_imagem) -> rx.Component:
     """Cartão de um veículo: capa, selos, título, detalhes e preço.
 
     Os dados são exibidos como texto pelos componentes do Reflex, sem rx.html. O cartão
@@ -250,7 +260,7 @@ def cartao_veiculo(cartao: rx.Var[CartaoVeiculo]) -> rx.Component:
                 capa_veiculo(
                     cartao.capa,
                     cartao.titulo,
-                    CatalogState.usar_imagem_provisoria(cartao.id, cartao.capa),
+                    ao_falhar_imagem(cartao.id, cartao.capa),
                 ),
                 rx.cond(
                     cartao.vendido | cartao.modificado,
@@ -1018,6 +1028,67 @@ OPCOES_CONDICAO = (("used", "Usado"), ("new", "Novo"))
 OPCOES_MODIFICADO = (("nao", "Não"), ("sim", "Sim"))
 
 
+def cartao_favorito(cartao: rx.Var[CartaoVeiculo]) -> rx.Component:
+    return rx.el.div(
+        cartao_com_imagem(cartao, FavoritosState.usar_imagem_provisoria),
+        rx.el.button(
+            "Remover dos favoritos",
+            type="button",
+            class_name="btn btn-outline favorite-remove",
+            on_click=FavoritosState.remover(cartao.id),
+        ),
+        class_name="favorite-item",
+    )
+
+
+def lista_favoritos() -> rx.Component:
+    situacao = FavoritosState.situacao
+    return rx.el.div(
+        rx.match(
+            situacao,
+            ("lista", rx.el.div(rx.foreach(FavoritosState.cartoes, cartao_favorito), class_name="cards")),
+            (
+                "vazio",
+                rx.el.div(
+                    rx.el.p("Você ainda não favoritou nenhum veículo."),
+                    rx.el.a("Ver o estoque", href=ROTA_ESTOQUE, class_name="btn btn-red"),
+                    class_name="state-message",
+                ),
+            ),
+            ("restrito", restrito_anuncios()),
+            (
+                "erro",
+                mensagem_com_acao(FavoritosState.mensagem_erro, "Tentar novamente", FavoritosState.abrir),
+            ),
+            indicador_carregamento("Carregando seus favoritos…"),
+        ),
+        rx.cond(
+            (situacao == "lista") & (FavoritosState.mensagem_erro != ""),
+            rx.el.p(FavoritosState.mensagem_erro, class_name="form-error", role="alert"),
+        ),
+        custom_attrs={"aria-live": "polite"},
+    )
+
+
+def pagina_favoritos() -> rx.Component:
+    return pagina(
+        ROTA_FAVORITOS,
+        rx.el.div(
+            rx.el.main(
+                rx.el.section(
+                    rx.el.p("Minha conta", class_name="hero-kicker"),
+                    rx.el.h1("Favoritos", id="titulo-favoritos", class_name="section-title"),
+                    lista_favoritos(),
+                    class_name="admin-panel",
+                    custom_attrs={"aria-labelledby": "titulo-favoritos"},
+                ),
+                class_name="catalog auth-main",
+            ),
+            class_name="inner-page",
+        ),
+    )
+
+
 def link_anunciar(rotulo: str = "Anunciar veículo") -> rx.Component:
     return rx.el.a(rotulo, href=ROTA_ANUNCIAR, class_name="btn btn-red")
 
@@ -1614,6 +1685,25 @@ def conteudo_detalhe() -> rx.Component:
     )
 
 
+def botao_favorito() -> rx.Component:
+    """Favoritar / remover dos favoritos; visitante é levado ao login ao acionar (Change favoritos)."""
+    return rx.el.div(
+        rx.el.button(
+            rx.cond(FavoritosState.favorito_atual, "Remover dos favoritos", "Favoritar"),
+            type="button",
+            class_name=rx.cond(FavoritosState.favorito_atual, "btn btn-outline favorite-btn", "btn btn-red favorite-btn"),
+            disabled=FavoritosState.ocupado,
+            on_click=FavoritosState.alternar,
+            custom_attrs={"aria-pressed": rx.cond(FavoritosState.favorito_atual, "true", "false")},
+        ),
+        rx.cond(
+            FavoritosState.erro_botao != "",
+            rx.el.p(FavoritosState.erro_botao, class_name="form-error", role="alert"),
+        ),
+        class_name="favorite-box",
+    )
+
+
 def ficha_detalhe() -> rx.Component:
     veiculo = DetalheState.veiculo
     return rx.el.article(
@@ -1632,6 +1722,7 @@ def ficha_detalhe() -> rx.Component:
             ),
             configuracao_original(),
             acao_negociacao(),
+            botao_favorito(),
             class_name="detail-info",
         ),
         class_name="detail",
