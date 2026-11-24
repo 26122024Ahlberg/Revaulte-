@@ -4,4 +4,5 @@
 api_group Favoritos {
   canonical = "revaulte-favoritos"
   swagger = {active: false}
+  guid = "a3O6VEHJDOxcl7RTvKak_VBUTF0"
 }

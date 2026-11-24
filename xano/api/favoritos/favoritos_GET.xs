@@ -22,4 +22,5 @@ query favoritos verb=GET {
   }
 
   response = $favoritos
+  guid = "5mEXM_WAgnDBbCdIJ7PlxFpNbs0"
 }

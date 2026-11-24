@@ -27,4 +27,5 @@ table favorite {
     }
     {type: "btree", field: [{name: "vehicle_id"}]}
   ]
+  guid = "bCUjNCabmumomNmKdcMP93krSjw"
 }

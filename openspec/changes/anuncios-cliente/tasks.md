@@ -50,7 +50,7 @@
 
 - [x] 8.1 Executar todos os testes, `reflex compile` e `openspec validate anuncios-cliente --strict`; verificar que passam
 - [ ] 8.2 Percorrer no navegador o roteiro de `docs/testes-anuncios-cliente.md` com o Reflex local e o Xano real (visitante, Cliente A, Cliente B; desktop e 375 px), conferindo o console sem erros e nenhuma requisição direta ao Xano; registrar o resultado de cada cenário
-- [ ] 8.3 Revisar o `git diff` em relação a `dda54f7`; verificar que só mudaram os arquivos previstos nesta Change, sem credenciais nem arquivos gerados pelo Reflex
+- [x] 8.3 Revisar o `git diff` em relação a `dda54f7`; verificar que só mudaram os arquivos previstos nesta Change, sem credenciais nem arquivos gerados pelo Reflex — feito em 24/11/2026: `dda54f7..4db828c` altera 22 arquivos, todos previstos (frontend, testes, `openspec/changes/anuncios-cliente`, `xano/api/anuncios`, `xano/table/seller_account.xs`); busca por tokens, e-mails reais, CPFs e telefones no diff encontrou apenas valores fictícios de testes; `reflex.lock` fora do commit
 
 ## Workflow follow-up
 

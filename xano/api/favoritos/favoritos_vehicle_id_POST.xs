@@ -45,4 +45,5 @@ query "favoritos/{vehicle_id}" verb=POST {
   }
 
   response = {vehicle_id: $input.vehicle_id, favorited: true}
+  guid = "8U_yMACOTwTd6ovW2gvz1OTJWDQ"
 }

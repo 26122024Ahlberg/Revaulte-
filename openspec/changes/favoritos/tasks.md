@@ -1,6 +1,6 @@
 # Tasks
 
-> **Situação (24/11/2026):** implementação e testes locais concluídos (410 testes, `reflex compile --dry`, `xano_validate_xanoscript` com 37 arquivos válidos e `openspec validate favoritos --strict`). Nada foi enviado ao Xano nem ao GitHub.
+> **Situação (24/11/2026):** implementação concluída (410 testes, `reflex compile --dry`, `xano_validate_xanoscript` com 37 arquivos válidos e `openspec validate favoritos --strict`); `favorite` e o grupo `Favoritos` publicados no Xano pelo usuário; teste manual no navegador com os Clientes A e B (favoritar, listar por conta, remover; listas e tabela vazias ao final). Registros não inspecionados no banco enquanto existiam; índice único e concorrência não testados (ver `design.md`). Nada enviado ao GitHub.
 
 ## 1. Backend local (sem envio ao Xano)
 - [x] 1.1 Criar `xano/table/favorite.xs` (índice único `user_id`+`vehicle_id`); validar com `xano_validate_xanoscript`
@@ -15,7 +15,7 @@
 
 ## 3. Verificação
 - [x] 3.1 Suíte completa, `reflex compile --dry` e `openspec validate favoritos --strict`
-- [x] 3.2 Roteiro `docs/testes-favoritos.md` criado (24/11/2026); **a execução real no navegador depende do envio ao Xano, que ainda não foi autorizado**
+- [x] 3.2 Roteiro `docs/testes-favoritos.md` criado e executado parcialmente no navegador em 24/11/2026 (favoritar, listar por conta e remover); os cenários 3.1 a 3.5 e 4.1 e 4.2 do roteiro (API com token, Vendido e Rascunho) não foram executados
 
 ## Workflow follow-up
 - Envio ao Xano, push e archive somente com autorização.

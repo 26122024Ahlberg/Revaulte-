@@ -76,7 +76,7 @@ Todos os campos são obrigatórios: nome completo, e-mail, CPF (com dígitos ver
 
 - **Anunciar veículo (`/anunciar`)**: formulário de anúncio (sem fotos). O anúncio nasce como Rascunho, fica fora do catálogo e é publicado pela equipe no painel do Xano. O nome de exibição do anunciante é pedido só no primeiro anúncio (limite de 20 rascunhos por conta).
 - **Meus anúncios (`/meus-anuncios`) e ficha (`/meus-anuncios/<id>`)**: somente os anúncios da própria conta, com o estado de cada um. Não há edição nem exclusão nesta versão.
-- **Favoritos**: botão “Favoritar” / “Remover dos favoritos” na página do veículo e lista em `/favoritos`. Veículos vendidos continuam na lista; os que deixam de ser públicos não aparecem. Exige o grupo `Favoritos` publicado no Xano.
+- **Favoritos**: botão “Favoritar” / “Remover dos favoritos” na página do veículo e lista em `/favoritos`. Veículos vendidos continuam na lista; os que deixam de ser públicos não aparecem. Depende do grupo `Favoritos` do Xano, já publicado.
 
 ### Administrador
 
@@ -116,7 +116,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 
 - O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra uma mensagem genérica de erro.
 - Recuperação de senha, confirmação de e-mail e chat ainda não existem (estão planejados no OpenSpec). Anúncios pelo site não têm fotos, edição nem exclusão.
-- Favoritos dependem do envio de `favorite` e do grupo `Favoritos` ao Xano, que ainda não foi feito.
+- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos.
 - Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
 
 ## Documentação

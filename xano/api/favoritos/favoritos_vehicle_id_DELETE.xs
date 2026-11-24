@@ -19,4 +19,5 @@ query "favoritos/{vehicle_id}" verb=DELETE {
   }
 
   response = {vehicle_id: $input.vehicle_id, favorited: false}
+  guid = "rBGGZXNovxLwlAxRLUBfuqVs7iY"
 }
