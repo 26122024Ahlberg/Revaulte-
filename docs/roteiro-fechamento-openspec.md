@@ -27,6 +27,49 @@ Um único percurso pelo navegador, com quatro perfis em sequência. Cobre `catal
 | 13 | Qualquer | **375 px** (modo dispositivo): ☰ de visitante, de Cliente e de Administrador; `/estoque`, `/veiculo/1`, `/entrar`, `/cadastro`, `/meus-anuncios`, `/admin` | Sem rolagem horizontal; selos e mensagens legíveis | contas 3.4, 3.5; catálogo 9.4 |
 | 14 | Todos | Console e Rede ao longo do percurso | Sem erros; o navegador não chama o Xano; nada do veículo 7 aparece para visitante | catálogo 9.2, 9.4; detalhes 4.1 |
 
+## Registro de execução — Bloco 1 (visitante), 24/11/2026
+
+Testes manuais **relatados pelo usuário** em `localhost:3001`, sem capturas arquivadas e sem dados pessoais. As cinco verificações foram marcadas como concluídas.
+
+| Resultado informado | Passos do percurso | Resultado |
+| --- | --- | --- |
+| Catálogo (`/estoque`, `/usados`, `/modificados`), pesquisa e filtros | 1 | **OK** relatado |
+| Fichas `/veiculo/1`, `/2` e `/3` | 2 | **OK** relatado |
+| `/veiculo/7` e `/veiculo/999` | 3 | **OK** relatado |
+| Modo offline e “Tentar novamente” | 4 | Funcionamento confirmado expressamente |
+| Layout a 375 px | 13 (parte do visitante) | **OK** relatado |
+
+**Não informado, portanto não registrado como verificado:** console sem erros, ausência de chamadas diretas ao Xano e inspeção do WebSocket (passos 14 e 7 do percurso de 14 linhas). **Não executados:** cenários de veículo Novo e Vendido e modificações por área com registros.
+
+## Registro de execução — Bloco 2 (autenticação e contas), 24/11/2026
+
+Executado pelo usuário em `localhost:3001`; resultados informados, sem capturas arquivadas e sem dados pessoais.
+
+| Resultado informado | Passos do percurso | Tarefas de `contas-acesso` |
+| --- | --- | --- |
+| Visitante e redirecionamento das rotas protegidas: **OK** | 5 | 3.3 |
+| Validação de cadastro e login inválidos: **OK** | 6 | 3.2 (parcial) |
+| Cliente A: menu, Minha conta e restrição administrativa: **OK** | 7 | 3.3, 3.4 (parcial) |
+| Logout e proteção após sair: **OK** | 10 | 3.3 |
+| Administrador: menu e painel de usuários: **OK** | 12 | 1.8, 3.3 |
+| Layout a 375 px e verificação no Opera: **OK** | 13 e Opera do passo 5 | 3.5, 3.7 (parcial), 3.4 (parcial) |
+
+Concluídas por esse registro: 1.8, 3.3 e 3.5. Continuam abertas: 3.2 (cadastro válido, e-mail ou CPF já cadastrados, `aria-live` e botão desabilitado), 3.4 (menus a 375 px confirmados um a um), 3.7 (falta o Chrome) e 4.3. Os passos 1 a 4 (catálogo, detalhes e contato) e 8, 9 e 11 (anúncios) não fazem parte do Bloco 2 e seguem pendentes.
+
+## Registro de execução — Bloco 3 (anúncios de Clientes), 24/11/2026
+
+Testes manuais **relatados pelo usuário** em `localhost:3001`, sem capturas arquivadas e sem dados pessoais. Nenhum anúncio foi criado.
+
+| # | Resultado informado | Passo do percurso | Resultado |
+| --- | --- | --- | --- |
+| 1 | Cliente A abre `/meus-anuncios` e vê o anúncio 7 como Rascunho | 8 | **OK** |
+| 2 | Cliente A abre a ficha privada do 7, sem editar nem excluir; `/veiculo/7` segue indisponível ao público | 8 | **OK** |
+| 3 | `/anunciar` rejeita envio vazio e preço e ano inválidos, sem envio válido | 9 | **OK** |
+| 4 | Cliente B abre `/meus-anuncios` e não vê anúncios da conta A | 11 | **OK** |
+| 5 | Cliente B abre `/meus-anuncios/7`, `/meus-anuncios/1` e `/meus-anuncios/999`: o mesmo “Anúncio não encontrado” | 11 | **OK** |
+
+**Não testado no navegador:** envio válido pelo formulário (o anúncio 7 foi criado por API em 23/11/2026), redirecionamento com aviso, segundo anúncio, nome de exibição só no primeiro anúncio e 375 px das páginas de anúncios. A tarefa 3.5 (limpeza do anúncio 7 e da conta B) continua pendente, só depois do vídeo.
+
 ## Decisões e resultados (24/11/2026)
 
 | Tarefa | Situação | Falta |
