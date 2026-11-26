@@ -1,10 +1,10 @@
 # Revaulte — Expansão do estoque demonstrativo (24/11/2026)
 
-Seis veículos **demonstrativos** acrescentados ao catálogo para a entrega de 27/11/2026, sem alterar os seis originais, o anúncio 7 (Rascunho), contas, anunciantes ou favoritos. Nenhum código nem esquema muda: os dados vivem só na tabela `vehicle` (e em `vehicle_modification`) do Xano.
+Seis veículos **demonstrativos** acrescentados ao catálogo para a entrega de 27/11/2026, sem alterar os seis originais, o anúncio 7 (Rascunho), contas, anunciantes ou favoritos. Nenhum código nem esquema mudou por causa dos dados: eles vivem só na tabela `vehicle` do Xano. A única mudança de código ligada à expansão é a regra de destaques da Home (Change `destaques-editoriais`).
 
-## Veículos
+## Veículos cadastrados
 
-Todos com `status = available`, `condition = used`, sem anunciante (`seller_id = 0`, como os originais 2 a 6; a ficha mostra “Contato não disponível”). Ids 8 a 13.
+Inseridos pelo usuário, por importação de CSV no painel do Xano, em 24/11/2026. Ids atribuídos pelo Xano e confirmados por leitura: 8 a 13. Todos com `status = available`, `condition = used`, sem anunciante (a ficha mostra “Contato não disponível”). `created_at` é a data real da importação.
 
 | Id | Veículo | Ano | Categorias onde aparece | Motorização (fato do modelo) | km e preço |
 | --- | --- | --- | --- | --- | --- |
@@ -15,11 +15,21 @@ Todos com `status = available`, `condition = used`, sem anunciante (`seller_id =
 | 12 | Volkswagen Brasília LS | 1977 | Estoque, Usados, Modificados | AP 1.8 a água no lugar do motor a ar (troca demonstrativa) | 61.000 km, R$ 49.900 |
 | 13 | Volkswagen Passat GTS Pointer | 1987 | Estoque, Usados, Modificados | AP 1.8 com turbo e intercooler (preparação demonstrativa) | 112.000 km, R$ 59.900 |
 
-Os ids 11 a 13 têm 3 modificações cada em `vehicle_modification` (9 no total), todas marcadas como demonstrativas. “Clássicos” não é uma categoria do site: o catálogo é derivado de `condition` (Usados), `is_modified` (Modificados) e `status`.
+“Clássicos” não é uma categoria do site: o catálogo é derivado de `condition` (Usados), `is_modified` (Modificados) e `status`.
+
+## Modificações: decisão final (24/11/2026)
+
+**Nenhum veículo tem modificações detalhadas cadastradas.** A tabela `vehicle_modification` continua **vazia** (verificado por leitura em 24/11/2026). Os veículos modificados (2, 3, 4, 5, 11, 12 e 13) seguem identificados como Modificados por `is_modified = true`, com os demais dados gerais (marca, modelo, versão, ano, preço e imagem) preservados. As nove modificações demonstrativas que haviam sido preparadas (ids 11, 12 e 13) **não foram importadas** e o CSV correspondente não será usado.
+
+Para os veículos 2 a 5, o único dado registrado sobre preparação é a marcação de modificado e o nome da versão (por exemplo “GTI Turbo”); nada além disso está comprovado, e nenhuma especificação foi inventada.
+
+Consequência na ficha: a página dos veículos modificados mostra a seção “Modificações e preparação” com a mensagem “Veículo modificado/preparado. Os detalhes das modificações não foram informados.” Ocultar essa seção seria uma melhoria possível, mas **não foi implementada**: a spec `detalhes-veiculo` (cenário “Veículo modificado sem detalhes”) exige a mensagem e o teste `test_detalhes.py` a confere; ocultar exigiria alterar a spec e o teste.
+
+**Sem teste real:** os cenários de modificações agrupadas por área, com registros reais, continuam sem verificação no navegador (não há registros em `vehicle_modification`). A tarefa 3.1 de `detalhes-veiculo` no OpenSpec continua pendente.
 
 ## O que é demonstrativo
 
-Quilometragem, preço e preparações são ilustrativos. Não há histórico, proprietário, documentação, anunciante nem contato inventados. A descrição de cada veículo começa com “Anúncio demonstrativo da Revaulte (projeto acadêmico)…” e traz o crédito da imagem.
+Quilometragem, preço e a preparação descrita na motorização dos veículos 11 a 13 são ilustrativos. Não há histórico, proprietário, documentação, anunciante nem contato inventados. A descrição de cada veículo começa com “Anúncio demonstrativo da Revaulte (projeto acadêmico)…” e traz o crédito da imagem.
 
 ## Imagens
 
@@ -34,25 +44,27 @@ Wikimedia Commons, cada URL verificada em 24/11/2026 com HTTP 200 e `image/jpeg`
 | 12 | Brasilia Dacon.jpg | Domínio público |
 | 13 | Passat GTS Pointer 1987.jpg | CC BY 4.0 |
 
-As fotos dos veículos modificados mostram carros de série (imagem ilustrativa). Se uma URL deixar de responder, o site troca a capa pela imagem provisória sozinho. A imagem do veículo 5 não foi alterada.
+As seis imagens foram baixadas e vistas: correspondem aos modelos. Ressalvas: algumas fotos mostram placas, pessoas ao fundo ou adesivos de evento; as dos veículos preparados mostram carros de série (imagem ilustrativa). Se uma URL deixar de responder, o site troca a capa pela imagem provisória sozinho. A imagem do veículo 5 não foi alterada.
 
 ## Ordem na Home
 
-Os veículos novos entram com o `created_at` **real** do momento da inserção (sem datas artificiais). Para os originais 4, 5 e 6 continuarem em destaque, a Home passou a usar destaques editoriais (Change `destaques-editoriais`): `IDS_DESTAQUES = (4, 5, 6)` em `frontend/revaulte/state.py` têm prioridade quando estão Disponíveis, e as vagas restantes são completadas com os Disponíveis mais recentes. A ordem de exibição continua 6, 5 e 4. O Estoque não mudou: continua do mais novo para o mais antigo, então os novos aparecem primeiro nele.
+Os veículos novos têm o `created_at` **real** da importação (sem datas artificiais). Para os originais 4, 5 e 6 continuarem em destaque, a Home usa destaques editoriais (Change `destaques-editoriais`): `IDS_DESTAQUES = (4, 5, 6)` em `frontend/revaulte/state.py` têm prioridade quando estão Disponíveis, e as vagas restantes são completadas com os Disponíveis mais recentes. A ordem de exibição é 6, 5 e 4. O Estoque não mudou: continua do mais novo para o mais antigo, então os novos aparecem primeiro nele. Verificado por simulação com o catálogo público real (12 veículos): destaques 6, 5 e 4.
 
-## Publicação controlada, em duas fases, com ids automáticos
+## Como foi feita a inserção
 
-Os registros entram **sem `id`** (o Xano atribui pela própria sequência, sem risco de colisão com a criação de anúncios) e sem `created_at` artificial. Scripts de apoio ficam fora do repositório, em `~/xano-backups/2026-11-24-antes-expansao-estoque/`; eles só leem o Xano e fazem prévias protegidas, e o envio real é sempre feito pelo usuário, com confirmação interativa, sem `--sync`, `--delete`, `--force` nem `--truncate`.
+1. **Backup** com `xano workspace pull --records` antes de qualquer envio (`~/xano-backups/2026-11-24-antes-expansao-estoque`).
+2. **Tentativa pela CLI (fase 1):** `xano workspace push --records` com registros **sem `id`** terminou com “Pushed 1 documents”, mas **não inseriu nenhum veículo**. O resumo `UPSERT vehicle (6 records)` da CLI é calculado localmente e o “documents” conta documentos, não registros; o Xano não confirma a importação de registros sem id. O banco permaneceu idêntico ao backup (diagnóstico por leitura), sem duplicação. Não repetir esse envio.
+3. **Importação por CSV no painel** (Database → `vehicle` → Importar), sem mapear `id`, em duas etapas (1 veículo e depois 5), cada uma verificada por leitura (`csv_etapa1_verificar.py` e `fase1_verificar.py`).
+4. **Verificação por leitura (24/11/2026):** 13 registros em `vehicle` (ids 1 a 7 inalterados e os 6 novos íntegros, todos `available`; o 7 segue `draft`), `GET /vehicles` com 12 ids (1 a 6 e 8 a 13), `/vehicles/7` com 404, `vehicle_modification` vazia.
 
-1. **Backup** com `xano workspace pull --records` (feito em 24/11/2026).
-2. **Fase 1** (`fase1_preparar.py`): confirma que o banco está idêntico ao backup (ids 1 a 7), que `vehicle_modification` está vazia e que nenhum dos seis veículos já existe; gera `push-fase1/` com só os 6 veículos e mostra a prévia `UPSERT vehicle (6 records)`. O envio roda dentro de uma transação (padrão da CLI): ou entram os 6 ou nenhum. Depois, `fase1_verificar.py` confere campos, imagens, `created_at` real e ids 1 a 7 inalterados e só então libera a fase 2 (grava `fase1_ok.json`).
-3. **Fase 2** (`fase2_preparar.py`): usa os ids realmente atribuídos, recusa-se a rodar sem a fase 1 íntegra ou se já houver modificações, e gera `push-fase2/` com as 9 modificações (`UPSERT vehicle_modification (9 records)`).
-4. **Verificação final** (`final_verificar.py`): `GET /vehicles` com os 12 ids públicos (1 a 6 e os 6 novos), `/vehicles/7` com 404, ids 1 a 7 inalterados, 3 modificações em cada veículo preparado, imagens com HTTP 200 e destaques da Home iguais a 6, 5 e 4.
+Os scripts de apoio ficam fora do repositório, em `~/xano-backups/2026-11-24-antes-expansao-estoque/`.
 
-**Duplicação:** sem `id`, repetir a fase 1 duplicaria os veículos. Os scripts recusam qualquer nova tentativa se já existirem veículos novos ou `fase1_ok.json`; antes de repetir qualquer envio, leia a tabela.
+**Reversão:** remover os veículos 8 a 13 pelo painel (ou restaurar a partir do backup).
 
-**Reversão:** remover os 6 veículos novos e suas 9 modificações (ou restaurar a partir do backup).
+## Ainda falta verificar no navegador
 
-## Conferência das imagens (24/11/2026)
-
-As seis imagens foram baixadas e vistas: correspondem aos modelos (Puma GTB S2 preto, Brasília LS bege, Charger R/T amarelo, Mustang Mach 1 laranja, Passat GTS Pointer verde e Opala coupé azul). Licenças: domínio público (Puma e Brasília), CC BY 2.0 e 3.0 e 4.0 (Mustang, Charger e Passat) e CC BY-SA 4.0 (Opala), todas livres para uso e exibição com crédito, que consta na descrição do veículo. Ressalvas: algumas fotos mostram placas, pessoas ao fundo ou adesivos de evento; são fotos públicas do Commons, mas vale trocar alguma se isso incomodar na demonstração.
+- Home: seção “Veículos em destaque” com os veículos 6, 5 e 4.
+- Estoque, Usados e Modificados: contagens e cartões dos seis veículos novos, com as imagens carregando.
+- Fichas de `/veiculo/8` a `/veiculo/13`: dados, imagem, “Contato não disponível” e, nos modificados (11 a 13 e 2 a 5), a seção de modificações com a mensagem de detalhes não informados.
+- Layout a 375 px das páginas acima, sem rolagem horizontal.
+- Console e rede sem erros.
