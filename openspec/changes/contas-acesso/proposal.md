@@ -2,7 +2,7 @@
 
 ## Why
 
-Cadastro e login são a base das funcionalidades restantes da Revaulte: favoritos, simulações salvas, anúncios publicados pelos próprios usuários, chat interno e área administrativa. Hoje o menu “Minha conta” mostra apenas itens “Em breve”, e o workspace Xano tem somente os endpoints de autenticação do modelo inicial (Quick Start), que ainda gravam o registro completo do usuário — incluindo o hash da senha — no `event_log` e incluem endpoints publicados sem autenticação.
+Cadastro e login são a base das funcionalidades restantes da Revaulte: favoritos, simulações salvas, anúncios publicados pelos próprios usuários, chat interno (cancelado em 26/11/2026) e área administrativa. Hoje o menu “Minha conta” mostra apenas itens “Em breve”, e o workspace Xano tem somente os endpoints de autenticação do modelo inicial (Quick Start), que ainda gravam o registro completo do usuário — incluindo o hash da senha — no `event_log` e incluem endpoints publicados sem autenticação.
 
 ## What Changes
 

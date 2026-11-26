@@ -16,7 +16,7 @@ A Revaulte é um marketplace especializado em carros clássicos, esportivos e mo
 ### Fora do escopo
 
 - Cadastro do anunciante pelo próprio site, “Anunciar veículo” e “Meus anúncios” (dependem de cadastro e login; Change futura).
-- Chat interno (Change `chat-interno`).
+- Chat interno: cancelado em 26/11/2026 (ver `openspec/changes-canceladas/chat-interno/`); o contato é exclusivamente pelo WhatsApp.
 - Verificação do número, avaliações e reputação do anunciante.
 - Exibição de e-mail, CPF, endereço ou qualquer outro dado pessoal do anunciante.
 
