@@ -16,4 +16,4 @@
 
 ## 4. Verificação
 
-- [ ] 4.1 Após o arquivamento de `detalhes-veiculo`, acrescentar o delta MODIFIED de “Interesse demonstrativo”; executar os testes, `reflex compile` e `openspec validate contato-vendedor --strict`; verificar que passam
+- [x] 4.1 Após o arquivamento de `detalhes-veiculo`, acrescentar o delta MODIFIED de “Interesse demonstrativo”; executar os testes, `reflex compile` e `openspec validate contato-vendedor --strict`; verificar que passam — **Concluída em 26/11/2026:** delta de `detalhes-veiculo` acrescentado depois do arquivamento, com REMOVED de “Interesse demonstrativo” (o requisito deixa de existir, por isso REMOVED em vez de MODIFIED) e MODIFIED de “Veículo vendido na página de detalhes” e “Endpoint público de detalhe”; 435 testes aprovados, `reflex compile --dry` com sucesso e `openspec validate contato-vendedor --strict` válido.

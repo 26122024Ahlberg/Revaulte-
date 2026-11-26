@@ -28,7 +28,7 @@ A Revaulte é um marketplace especializado em carros clássicos, esportivos e mo
 
 ### Modified Capabilities
 
-Nenhuma nesta proposta. A `detalhes-veiculo` ainda não foi arquivada; quando for, esta Change ganha um delta MODIFIED que troca o requisito “Interesse demonstrativo” pelo contato do anunciante.
+- `detalhes-veiculo` (delta acrescentado em 26/11/2026, depois do arquivamento daquela Change): o requisito “Interesse demonstrativo” é removido, substituído pelo contato do anunciante; “Veículo vendido na página de detalhes” deixa de citar o botão de interesse; “Endpoint público de detalhe” passa a incluir os dados públicos permitidos do anunciante. Descreve o comportamento já implementado.
 
 ## Impact
 
