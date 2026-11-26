@@ -3,7 +3,7 @@
 ## MODIFIED Requirements
 
 ### Requirement: Menu da conta
-Todas as páginas públicas SHALL exibir, no canto superior direito do cabeçalho e em qualquer largura de tela, um botão de menu (☰) acessível que informa se o menu está aberto. O painel SHALL conter a seção “Minha conta”, com itens conforme a sessão confirmada no backend e os links “Anunciar veículo”, “Meus anúncios” e “Favoritos” (para `/favoritos`). Nesta versão nenhum item está como “Em breve”; um item futuro sem página implementada MUST ser identificado como “Em breve”, sem link. “Painel administrativo” MUST NOT aparecer a visitante nem a Cliente.
+Toda página pública SHALL exibir, no alto à direita do cabeçalho, em qualquer largura, um botão de menu (☰) acessível que informa se está aberto. O painel SHALL ter a seção “Minha conta”, com itens conforme a sessão confirmada no backend e os links “Anunciar veículo”, “Meus anúncios” e “Favoritos” (para `/favoritos`). Nenhum item está hoje como “Em breve”; item sem página implementada MUST aparecer como “Em breve”, sem link. “Painel administrativo” MUST NOT aparecer a visitante nem a Cliente.
 
 #### Scenario: Abrir o menu da conta
 - **WHEN** um visitante sem sessão aciona o botão ☰
