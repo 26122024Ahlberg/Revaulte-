@@ -390,7 +390,7 @@ Representa quem anuncia um veículo na Revaulte: futuramente, particulares, loja
 - nenhum dado de contato pode ser inventado;
 - o contato só é enviado ao site quando o Anunciante autorizou e o veículo está Disponível.
 
-Especificado pela Change `contato-vendedor` (tabela `seller` e vínculo `vehicle.seller_id`). Em 07/11/2026 o código local está pronto e o envio ao Xano aguarda autorização do usuário.
+Especificado pela Change `contato-vendedor` (tabela `seller` e vínculo `vehicle.seller_id`). O backend está publicado no Xano; os requisitos estão em `openspec/specs/contato-vendedor/`.
 
 ---
 

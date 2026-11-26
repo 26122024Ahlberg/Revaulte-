@@ -8,6 +8,8 @@ Um único percurso pelo navegador, com quatro perfis em sequência. Cobre `catal
 - **Não** criar, editar ou excluir veículo, conta, anúncio ou favorito. **Não** enviar o formulário de anúncio com dados válidos. Reaproveitar o anúncio 7 e as contas A (ID 3) e B (ID 5).
 - Responder cada passo com **OK** ou o que apareceu. Sem senhas nem tokens em arquivos.
 
+> **Atualização (26/11/2026):** o percurso e os registros abaixo são históricos. A situação atual das Changes está em “Fechamento (26/11/2026)”, no fim deste documento.
+
 ## Percurso
 
 | # | Perfil | Ação | Esperado | Fecha |
@@ -86,7 +88,7 @@ Testes manuais **relatados pelo usuário** em `localhost:3001`, sem capturas arq
 | anúncios 3.5 | Limpeza do anúncio 7 e da conta B | Só depois do vídeo, com autorização |
 | contato 4.1 | Delta de “Interesse demonstrativo” | Só depois de arquivar `detalhes-veiculo` |
 
-## Ordem de arquivamento (nada executado)
+## Ordem de arquivamento planejada em 24/11/2026
 
 1. `catalogo-publico`.
 2. `contas-acesso` → `anuncios-cliente` → `favoritos` (o último deve ser `favoritos`, que finaliza “Menu da conta” e “Menu em tela estreita”).
@@ -94,3 +96,23 @@ Testes manuais **relatados pelo usuário** em `localhost:3001`, sem capturas arq
 4. `chat-interno` permanece aberta.
 
 Cada arquivamento: `openspec validate <change> --strict` antes e `openspec validate --all` depois. Uma única PR `docs/openspec-pos-merge` → `main` (merge commit), com o commit de checklists, o registro dos resultados deste percurso e um commit por arquivamento. Sem código nem Xano na PR.
+
+## Fechamento (26/11/2026)
+
+Verificação automatizada em Edge sem janela, como visitante, em `localhost:3001` (roteiro e capturas temporários, não versionados), além de leituras no Xano e requisições sem token. Nenhum dado, imagem ou código publicado foi alterado.
+
+| Change | Situação | Motivo |
+| --- | --- | --- |
+| `destaques-editoriais` | Arquivada | Tarefas concluídas |
+| `catalogo-publico` | Arquivada | Critérios revisados; casos não testados registrados |
+| `detalhes-veiculo` | Arquivada | Critérios revisados; casos não testados registrados |
+| `contato-vendedor` | Arquivada | Critérios revisados e delta de `detalhes-veiculo` aplicado |
+| `contas-acesso` | **Aberta** | 3.2, 3.4, 3.7 e 4.3: cadastro válido e e-mail ou CPF repetidos pelo formulário, menus de Cliente e Administrador a 375 px, sessão expirada, falha na lista de usuários e Chrome |
+| `anuncios-cliente` | **Aberta** | 8.2: páginas de anúncios com sessão (375 px, console, rede e nome de exibição); depende de `contas-acesso` |
+| `favoritos` | **Aberta** | Tarefas completas; depende de `contas-acesso` e `anuncios-cliente` |
+| `chat-interno` | **Cancelada** | Contato somente pelo WhatsApp; ver `openspec/changes-canceladas/chat-interno/` |
+
+Ordem para o que falta: `contas-acesso` → `anuncios-cliente` → `favoritos`. Enquanto isso, `openspec/specs/navegacao-site` ainda descreve o menu anterior, com os itens “Em breve”; o menu atual está descrito no delta de `favoritos`.
+
+A integração `docs/openspec-pos-merge` → `main` leva também código do frontend, testes e dois arquivos `.xs` já publicados (commits `0d32eb5` e `0d157a1`); a integração em si não envia nada ao Xano. Isso substitui a observação “Sem código nem Xano na PR” acima.
+

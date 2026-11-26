@@ -1,6 +1,6 @@
 REVAULTE - Marketplace de veiculos classicos, esportivos e modificados
 Grupo academico: GhostPay
-Entrega: 24/11/2026
+Entrega: 27/11/2026
 
 Repositorio publico (GitHub):
 https://github.com/26122024Ahlberg/Revaulte-

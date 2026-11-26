@@ -1,7 +1,7 @@
 # catalogo-publico Specification
 
 ## Purpose
-Permite que qualquer visitante consulte, em uma página própria e sem autenticação, a listagem dos veículos publicados pela loja, com informações resumidas e a identificação de veículos modificados e vendidos.
+Permite que qualquer visitante consulte, em uma página própria e sem autenticação, a listagem dos veículos publicados na Revaulte, com informações resumidas e a identificação de veículos modificados e vendidos.
 
 ## Requirements
 

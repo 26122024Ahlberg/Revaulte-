@@ -20,7 +20,7 @@ Repositório: https://github.com/26122024Ahlberg/Revaulte-
 | --- | --- |
 | `frontend/` | Aplicativo Reflex (páginas, estado, estilos e testes). Ver `frontend/README.md` |
 | `xano/` | Código XanoScript do backend (tabelas, endpoints e funções), sincronizado pelo Xano CLI |
-| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`) e Changes arquivadas |
+| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`), concluídas (`changes/archive/`) e canceladas (`changes-canceladas/`) |
 | `docs/` | Visão geral, modelo de domínio, guia de colaboração e roteiros de teste e de vídeo |
 | `frontend-html/`, `frontend-rascunho/` | Versões anteriores em HTML/CSS/JS, mantidas só como referência |
 
@@ -101,7 +101,7 @@ openspec validate contas-acesso --strict
 openspec validate --all
 ```
 
-Com `--all --strict`, cinco especificações antigas (`contato-vendedor`, `navegacao-site`, `pagina-inicial`, `simulador-financiamento` e `visual-paginas-internas`) recebem apenas o aviso de requisito com mais de 500 caracteres, que o modo estrito trata como falha.
+Com `--all --strict`, três especificações (`navegacao-site`, `pagina-inicial` e `simulador-financiamento`) recebem apenas o aviso de requisito com mais de 500 caracteres (quatro avisos no total), que o modo estrito trata como falha. Sem `--strict`, todos os itens passam.
 
 Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de testes manuais de ponta a ponta, com dados fictícios, está em `docs/testes-contas-acesso.md`.
 
