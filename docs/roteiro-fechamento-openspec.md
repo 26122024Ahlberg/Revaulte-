@@ -128,3 +128,18 @@ A integração `docs/openspec-pos-merge` → `main` leva também código do fron
 | 4 | Abrir `/conta` e `/admin` sem sessão no Chrome, **ou** retirar formalmente o Chrome do critério | Usuário | `contas-acesso` 3.7 |
 
 Com 1 a 4 resolvidos: arquivar `contas-acesso` → `anuncios-cliente` → `favoritos`.
+
+## Fechamento final (26/11/2026)
+
+**Confirmação manual do usuário (26/11/2026, informada em termos gerais, sem capturas):** “os fluxos reais de Cliente A e Administrador estão funcionando, incluindo menus, anúncios e navegação”.
+
+O relato foi registrado em `contas-acesso` e `anuncios-cliente`. **Nenhuma das três Changes foi arquivada**, porque restam critérios obrigatórios sem evidência:
+
+| Change | Falta comprovar |
+| --- | --- |
+| `contas-acesso` 3.7 | `?proximo=` no Chrome |
+| `contas-acesso` 4.3 | No site real: cadastro válido e e-mail ou CPF repetidos; menus de Cliente e Administrador a 375 px |
+| `anuncios-cliente` 8.2 | Com sessão real de Cliente A e Cliente B: páginas de anúncios a 375 px, Console, Rede e nome de exibição fixo |
+| `favoritos` | Somente a dependência das duas anteriores |
+
+Fecham com a execução desses itens ou com a retirada formal e explícita deles do critério pelo usuário, sempre registrada como não testada.
