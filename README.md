@@ -101,7 +101,7 @@ openspec validate contas-acesso --strict
 openspec validate --all
 ```
 
-Com `--all --strict`, três especificações (`navegacao-site`, `pagina-inicial` e `simulador-financiamento`) recebem apenas o aviso de requisito com mais de 500 caracteres (quatro avisos no total), que o modo estrito trata como falha. Sem `--strict`, todos os itens passam.
+Em 26/11/2026, `openspec validate --all --strict` passa em todos os itens, sem avisos.
 
 Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de testes manuais de ponta a ponta, com dados fictícios, está em `docs/testes-contas-acesso.md`.
 

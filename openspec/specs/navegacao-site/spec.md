@@ -21,7 +21,7 @@ Todas as páginas públicas SHALL exibir a navegação principal com os itens Ho
 - **THEN** Home, Estoque, Usados e Modificados aparecem no cabeçalho sem precisar abrir nenhum menu
 
 ### Requirement: Menu da conta
-Todas as páginas públicas SHALL exibir, no canto superior direito do cabeçalho e em qualquer largura de tela, um botão de menu (☰) identificado para tecnologias assistivas, que informa se o menu está aberto ou fechado. O painel aberto SHALL conter a seção “Minha conta” com Meu perfil, Anunciar veículo, Meus anúncios, Favoritos e Entrar / Cadastrar. Enquanto essas funcionalidades não forem implementadas, cada item SHALL ser identificado como “Em breve”, MUST NOT ser um link nem levar a página inexistente, e MUST NOT simular login, cadastro ou anúncio.
+Toda página pública SHALL exibir no canto superior direito do cabeçalho, em qualquer largura de tela, um botão de menu (☰) identificado para tecnologias assistivas, que informa se está aberto ou fechado. O painel aberto SHALL conter a seção “Minha conta” com Meu perfil, Anunciar veículo, Meus anúncios, Favoritos e Entrar / Cadastrar. Até serem implementados, os itens SHALL aparecer como “Em breve”, MUST NOT ser links nem levar a página inexistente, e MUST NOT simular login, cadastro ou anúncio.
 
 #### Scenario: Abrir o menu da conta
 - **WHEN** o visitante aciona o botão ☰
