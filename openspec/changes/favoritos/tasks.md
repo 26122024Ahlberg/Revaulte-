@@ -1,6 +1,6 @@
 # Tasks
 
-> **Situação (26/11/2026): tarefas completas, ABERTA por dependência.** Arquivar depois de `contas-acesso` e `anuncios-cliente`. O delta de `navegacao-site` foi corrigido para manter o cenário “Visitante aciona Anunciar veículo”. Conferido na segunda rodada: cenários preservados na sequência dos três deltas, `Purpose` preenchido e `openspec validate favoritos --strict` válido. O texto de “Menu da conta” deste delta e do de `contas-acesso` foi condensado para menos de 500 caracteres, sem mudar cenários, para o arquivamento não reintroduzir o aviso do modo estrito. Leitura do Xano em 26/11/2026: a tabela `favorite` tem **3 registros** (`user_id` 3: veículos 13 e 6; `user_id` 4: veículo 3), criados depois dos testes de 24/11/2026 descritos abaixo; **preservar**.
+> **Situação final (26/11/2026): concluída com ressalvas** (ver “Ressalvas” no fim), arquivada depois de `contas-acesso` e `anuncios-cliente`. O delta de `navegacao-site` mantém o cenário “Visitante aciona Anunciar veículo”. Leitura do Xano em 26/11/2026: a tabela `favorite` tem **3 registros** (`user_id` 3: veículos 13 e 6; `user_id` 4: veículo 3), criados depois dos testes de 24/11/2026 descritos abaixo; **preservar**.
 
 > **Pós-merge (24/11/2026):** a PR #4 foi integrada à `main` (merge `32b5a68`), com os commits `4db828c`, `5bacd6d` e `43f3df1`. Tarefas completas; o arquivamento deve vir depois de `contas-acesso` e `anuncios-cliente` (mesmo requisito “Menu da conta” de `navegacao-site`). Este delta agora também modifica “Menu em tela estreita”, para que o texto final não mantenha “Favoritos” como “Em breve”.
 
@@ -23,3 +23,22 @@
 
 ## Workflow follow-up
 - Envio ao Xano, push e archive somente com autorização.
+
+## Ressalvas: cenários não executados (26/11/2026)
+
+**Motivo:** Decisão de escopo do usuário em 26/11/2026: nesta entrega não serão executados novos cadastros nem criados anúncios reais, o Chrome não será instalado e não haverá novas baterias manuais em múltiplos navegadores. Autorizada a revisão dos critérios adicionais de validação, preservados os requisitos funcionais. A conclusão desta Change **não** significa que os itens abaixo foram aprovados.
+
+Origens usadas abaixo: **real** é teste do Claude em `localhost:3001` com o Xano, sem gravar dados; **usuário** é relato manual, sem capturas; **requisição** é chamada à API feita fora do navegador; **simulado** é a cópia isolada com backend fictício, que não equivale a teste real; **automatizado** são os testes Python com respostas simuladas ou leitura dos arquivos `.xs`.
+
+| Item não executado no site real | O que existe |
+| --- | --- |
+| Visitante aciona “Favoritar” (retorno à ficha) | Automatizado |
+| Favoritar duas vezes; índice único e envios simultâneos | Automatizado e leitura do `.xs` |
+| `POST` em Rascunho ou identificador inexistente (404) | Automatizado e leitura do `.xs` |
+| Veículo Vendido continua na lista; veículo que deixa de ser público some | Automatizado |
+| Erro ao consultar favoritos | Automatizado |
+| `/favoritos` a 375 px com sessão real | Simulado |
+| Registros conferidos no banco enquanto o teste ocorria | Não feito |
+
+Executados: favoritar, listar por conta, remover e isolamento entre contas (usuário, 24/11); redirecionamento de visitante em `/favoritos` (real, 26/11); 401 sem token (requisição).
+
