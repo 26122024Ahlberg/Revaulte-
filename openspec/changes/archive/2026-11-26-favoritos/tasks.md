@@ -41,4 +41,3 @@ Origens usadas abaixo: **real** é teste do Claude em `localhost:3001` com o Xan
 | Registros conferidos no banco enquanto o teste ocorria | Não feito |
 
 Executados: favoritar, listar por conta, remover e isolamento entre contas (usuário, 24/11); redirecionamento de visitante em `/favoritos` (real, 26/11); 401 sem token (requisição).
-
