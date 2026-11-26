@@ -50,18 +50,11 @@ Para um veículo indicado como modificado, a página SHALL exibir o selo “Modi
 - **THEN** a página não exibe o selo “Modificado” nem a seção de modificações
 
 ### Requirement: Veículo vendido na página de detalhes
-Um veículo Vendido SHALL exibir o selo “Vendido” e ser apresentado como indisponível para negociação, sem botão de interesse.
+Um veículo Vendido SHALL exibir o selo “Vendido” e ser apresentado como indisponível para negociação, sem ação de contato.
 
 #### Scenario: Visitante abre um veículo vendido
 - **WHEN** o visitante abre a página de um veículo Vendido
-- **THEN** a página exibe o selo “Vendido”, informa que o veículo está indisponível para negociação e não exibe o botão de interesse
-
-### Requirement: Interesse demonstrativo
-Para um veículo Disponível, a página SHALL exibir o botão “Tenho interesse”, que ao ser acionado SHALL apenas informar que o contato com o anunciante ainda não está disponível nesta versão. O botão MUST NOT simular compra, reserva ou envio de mensagem, e a página MUST NOT exibir telefone, e-mail ou endereço do anunciante.
-
-#### Scenario: Visitante aciona “Tenho interesse”
-- **WHEN** o visitante aciona “Tenho interesse” em um veículo Disponível
-- **THEN** a página informa que o contato com o anunciante ainda não está disponível, sem registrar nenhuma ação
+- **THEN** a página exibe o selo “Vendido”, informa que o veículo está indisponível para negociação e não exibe ação de contato
 
 ### Requirement: Retorno ao estoque
 A página SHALL oferecer a ação “Voltar ao estoque”, que leva a `/estoque`.
@@ -93,11 +86,11 @@ Quando a solicitação ao backend falha, a página SHALL exibir uma mensagem de 
 - **THEN** a página exibe a mensagem de erro e a opção de tentar novamente
 
 ### Requirement: Endpoint público de detalhe
-O backend SHALL oferecer, sem autenticação, a consulta de um veículo pelo identificador, devolvendo somente veículos Disponíveis ou Vendidos, com os dados de catálogo, cor, motorização, câmbio, descrição e a lista de modificações (área e descrição), e SHALL responder como não encontrado para qualquer outro caso, sem revelar se o veículo existe em Rascunho.
+O backend SHALL oferecer, sem autenticação, a consulta de um veículo pelo identificador, devolvendo somente veículos Disponíveis ou Vendidos, com os dados de catálogo, cor, motorização, câmbio, descrição, a lista de modificações (área e descrição) e os dados públicos do anunciante permitidos pela capability `contato-vendedor`, e SHALL responder como não encontrado para qualquer outro caso, sem revelar se o veículo existe em Rascunho.
 
 #### Scenario: Consulta de veículo publicado
 - **WHEN** o detalhe de um veículo Disponível é solicitado sem token
-- **THEN** o backend responde com sucesso e devolve somente os campos previstos e suas modificações
+- **THEN** o backend responde com sucesso e devolve somente os campos previstos, suas modificações e os dados públicos permitidos do anunciante
 
 #### Scenario: Consulta de veículo em Rascunho ou inexistente
 - **WHEN** o detalhe de um veículo em Rascunho, ou de um identificador inexistente, é solicitado
