@@ -21,19 +21,23 @@ Todas as páginas públicas SHALL exibir a navegação principal com os itens Ho
 - **THEN** Home, Estoque, Usados e Modificados aparecem no cabeçalho sem precisar abrir nenhum menu
 
 ### Requirement: Menu da conta
-Toda página pública SHALL exibir, no alto à direita do cabeçalho, em qualquer largura, um botão de menu (☰) acessível que informa se está aberto. O painel SHALL ter a seção “Minha conta”, com itens conforme a sessão confirmada no backend (visitante, Cliente ou Administrador), e Anunciar veículo, Meus anúncios e Favoritos, que, até serem implementados, SHALL aparecer como “Em breve”, MUST NOT ser links nem simular anúncio ou favorito. Visitante e Cliente MUST NOT ver “Painel administrativo”.
+Todas as páginas públicas SHALL exibir, no canto superior direito do cabeçalho e em qualquer largura de tela, um botão de menu (☰) acessível que informa se o menu está aberto. O painel SHALL conter a seção “Minha conta”, com itens conforme a sessão confirmada no backend, os links “Anunciar veículo” e “Meus anúncios” e “Favoritos” como “Em breve”, sem link e sem simular favorito. “Painel administrativo” MUST NOT aparecer a visitante nem a Cliente.
 
 #### Scenario: Abrir o menu da conta
 - **WHEN** um visitante sem sessão aciona o botão ☰
-- **THEN** a seção “Minha conta” exibe “Entrar” (link para `/entrar`), “Cadastrar” (link para `/cadastro`) e Anunciar veículo, Meus anúncios e Favoritos identificados como “Em breve”
+- **THEN** a seção “Minha conta” exibe “Entrar” (link para `/entrar`), “Cadastrar” (link para `/cadastro`), “Anunciar veículo” (link para `/anunciar`), “Meus anúncios” (link para `/meus-anuncios`) e “Favoritos” identificado como “Em breve”
+
+#### Scenario: Visitante aciona Anunciar veículo
+- **WHEN** um visitante sem sessão aciona “Anunciar veículo” no painel
+- **THEN** o painel é fechado e ele é levado a `/entrar?proximo=/anunciar`
 
 #### Scenario: Cliente abre o menu da conta
 - **WHEN** um Cliente autenticado aciona o botão ☰
-- **THEN** a seção “Minha conta” exibe “Minha conta” (link para `/conta`) e “Sair”, os itens “Em breve” e não exibe “Entrar”, “Cadastrar” nem “Painel administrativo”
+- **THEN** a seção “Minha conta” exibe “Minha conta” (link para `/conta`), “Anunciar veículo”, “Meus anúncios”, “Favoritos” como “Em breve” e “Sair”, e não exibe “Entrar”, “Cadastrar” nem “Painel administrativo”
 
 #### Scenario: Administrador abre o menu da conta
 - **WHEN** um Administrador autenticado aciona o botão ☰
-- **THEN** a seção “Minha conta” exibe “Minha conta” (link para `/conta`), “Painel administrativo” (link para `/admin`) e “Sair”, além dos itens “Em breve”
+- **THEN** a seção “Minha conta” exibe “Minha conta” (link para `/conta`), “Painel administrativo” (link para `/admin`), “Anunciar veículo”, “Meus anúncios”, “Favoritos” como “Em breve” e “Sair”
 
 #### Scenario: Item ainda não disponível
 - **WHEN** o visitante tenta acionar “Favoritos” no painel
@@ -52,11 +56,11 @@ Em telas de até 760 px de largura, a navegação principal SHALL sair do cabeç
 
 #### Scenario: Painel completo no celular
 - **WHEN** em uma tela de 375 px um visitante sem sessão abre o painel
-- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Entrar”, “Cadastrar” e os três itens “Em breve”
+- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Entrar”, “Cadastrar”, “Anunciar veículo”, “Meus anúncios” e “Favoritos” como “Em breve”
 
 #### Scenario: Painel do Administrador no celular
 - **WHEN** em uma tela de 375 px um Administrador autenticado abre o painel
-- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Minha conta”, “Painel administrativo”, “Sair” e os três itens “Em breve”, sem rolagem horizontal
+- **THEN** o painel exibe a seção “Navegação” com os quatro itens e a seção “Minha conta” com “Minha conta”, “Painel administrativo”, “Anunciar veículo”, “Meus anúncios”, “Favoritos” como “Em breve” e “Sair”, sem rolagem horizontal
 
 ### Requirement: Estoque em rota própria
 O catálogo completo SHALL ser acessível em `/estoque`. O endereço `/catalogo` SHALL continuar válido, redirecionando para `/estoque`.
