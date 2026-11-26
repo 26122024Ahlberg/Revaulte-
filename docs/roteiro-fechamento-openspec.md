@@ -107,7 +107,7 @@ Verificação automatizada em Edge sem janela, como visitante, em `localhost:300
 | `catalogo-publico` | Arquivada | Critérios revisados; casos não testados registrados |
 | `detalhes-veiculo` | Arquivada | Critérios revisados; casos não testados registrados |
 | `contato-vendedor` | Arquivada | Critérios revisados e delta de `detalhes-veiculo` aplicado |
-| `contas-acesso` | **Aberta** | 3.2, 3.4, 3.7 e 4.3: cadastro válido e e-mail ou CPF repetidos pelo formulário, menus de Cliente e Administrador a 375 px, sessão expirada, falha na lista de usuários e Chrome |
+| `contas-acesso` | **Aberta** | Ver “Segunda rodada”: restam 3.7 (Chrome) e 4.3 (cenários no site real) |
 | `anuncios-cliente` | **Aberta** | 8.2: páginas de anúncios com sessão (375 px, console, rede e nome de exibição); depende de `contas-acesso` |
 | `favoritos` | **Aberta** | Tarefas completas; depende de `contas-acesso` e `anuncios-cliente` |
 | `chat-interno` | **Cancelada** | Contato somente pelo WhatsApp; ver `openspec/changes-canceladas/chat-interno/` |
@@ -115,3 +115,17 @@ Verificação automatizada em Edge sem janela, como visitante, em `localhost:300
 Ordem para o que falta: `contas-acesso` → `anuncios-cliente` → `favoritos`. Enquanto isso, `openspec/specs/navegacao-site` ainda descreve o menu anterior, com os itens “Em breve”; o menu atual está descrito no delta de `favoritos`.
 
 A integração `docs/openspec-pos-merge` → `main` leva também código do frontend, testes e dois arquivos `.xs` já publicados (commits `0d32eb5` e `0d157a1`); a integração em si não envia nada ao Xano. Isso substitui a observação “Sem código nem Xano na PR” acima.
+
+## Segunda rodada (26/11/2026)
+
+`openspec validate --all --strict` passa em todos os itens. `contas-acesso` passou a 30/32. As três Changes continuam abertas porque os critérios abaixo exigem o site real, credenciais, criação de conta ou o Chrome, que não estavam disponíveis. Testes com backend simulado não os substituem.
+
+| # | O que falta | Quem pode fazer | Fecha |
+| --- | --- | --- | --- |
+| 1 | Entrar no site real como Cliente A, a 375 px, com Console e Rede abertos: menu ☰, `/meus-anuncios`, `/meus-anuncios/7` e `/anunciar` (nome de exibição fixo; **não enviar**) | Usuário (o login gera registro no `event_log`) | `anuncios-cliente` 8.2; menus do Cliente (4.3) |
+| 2 | Entrar como Administrador a 375 px: menu ☰ e `/admin` | Usuário | `contas-acesso` 4.3 (parte) |
+| 3 | Cadastrar uma conta fictícia pelo formulário e tentar repetir e-mail e CPF, **ou** retirar formalmente esses dois cenários do critério | Usuário autoriza (cria dados) | `contas-acesso` 4.3 |
+| 4 | Abrir `/conta` e `/admin` sem sessão no Chrome, **ou** retirar formalmente o Chrome do critério | Usuário | `contas-acesso` 3.7 |
+
+Com 1 a 4 resolvidos: arquivar `contas-acesso` → `anuncios-cliente` → `favoritos`.
+
