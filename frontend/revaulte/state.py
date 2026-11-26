@@ -121,16 +121,34 @@ RECORTES = ("todos", "usados", "modificados", "destaques")
 # Quantidade de veículos em destaque na página inicial.
 QUANTIDADE_DESTAQUES = 3
 
+# Destaques editoriais da Home (Change destaques-editoriais): veículos priorizados quando estão
+# Disponíveis no catálogo público. As vagas restantes são completadas com os Disponíveis mais recentes.
+IDS_DESTAQUES: tuple[int, ...] = (4, 5, 6)
 
-def aplicar_recorte(cartoes: list[CartaoVeiculo], recorte: str) -> list[CartaoVeiculo]:
+
+def selecionar_destaques(
+    cartoes: list[CartaoVeiculo], ids_destaque: tuple[int, ...] = IDS_DESTAQUES
+) -> list[CartaoVeiculo]:
+    """Até três Disponíveis: primeiro os editoriais (na ordem da lista), depois os mais recentes.
+
+    A lista já vem do mais recente para o mais antigo; Vendidos nunca são destaque.
+    """
+    disponiveis = [c for c in cartoes if not c.vendido]
+    editoriais = [c for c in disponiveis if c.id in ids_destaque]
+    demais = [c for c in disponiveis if c.id not in ids_destaque]
+    return (editoriais + demais)[:QUANTIDADE_DESTAQUES]
+
+
+def aplicar_recorte(
+    cartoes: list[CartaoVeiculo], recorte: str, ids_destaque: tuple[int, ...] = IDS_DESTAQUES
+) -> list[CartaoVeiculo]:
     """Cartões exibidos em cada página; recorte desconhecido equivale a "todos"."""
     if recorte == "usados":
         return [c for c in cartoes if c.usado]
     if recorte == "modificados":
         return [c for c in cartoes if c.modificado]
     if recorte == "destaques":
-        # A lista já vem do mais recente para o mais antigo; vendidos não são destaque.
-        return [c for c in cartoes if not c.vendido][:QUANTIDADE_DESTAQUES]
+        return selecionar_destaques(cartoes, ids_destaque)
     return list(cartoes)
 
 

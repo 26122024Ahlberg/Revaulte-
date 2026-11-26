@@ -61,7 +61,12 @@ query "auth/signup" verb=POST {
       error = "invalid_birth_date"
     }
 
-    precondition ($nascimento < now && $nascimento >= ("1900-01-01"|to_timestamp:"UTC")) {
+    // Mesma regra do frontend: nascimento anterior à data de hoje em Brasília (a data de hoje é recusada).
+    var $hoje_brasilia {
+      value = now|format_timestamp:"Y-m-d":"America/Sao_Paulo"|to_timestamp:"UTC"
+    }
+
+    precondition ($nascimento < $hoje_brasilia && $nascimento >= ("1900-01-01"|to_timestamp:"UTC")) {
       error_type = "inputerror"
       error = "invalid_birth_date"
     }

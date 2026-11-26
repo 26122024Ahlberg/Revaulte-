@@ -31,7 +31,7 @@ O visitante SHALL poder ajustar o valor da entrada, de zero até um valor menor 
 - **THEN** o resultado é recalculado para 24 parcelas
 
 ### Requirement: Cálculo da estimativa
-O simulador SHALL calcular o valor a financiar (preço menos entrada) e a parcela mensal fixa pelo sistema de amortização francês (Tabela Price): parcela = valor financiado × i ÷ (1 − (1 + i)^−n), em que i é a taxa mensal e n o número de parcelas; com taxa zero, parcela = valor financiado ÷ n. SHALL exibir também o total pago (entrada + n × parcela) e o total de juros (total pago − preço). Todos os valores SHALL ser exibidos em reais, arredondados ao centavo, e atualizados a cada alteração válida.
+O simulador SHALL calcular o valor a financiar (preço menos entrada) e a parcela mensal fixa pelo sistema de amortização francês (Tabela Price): parcela = valor financiado × i ÷ (1 − (1 + i)^−n), em que i é a taxa mensal e n o número de parcelas; com taxa zero, parcela = valor financiado ÷ n. SHALL exibir o total pago (entrada + n × parcela) e o total de juros (total pago − preço). Todos os valores SHALL ser exibidos em reais, arredondados ao centavo, e atualizados a cada alteração válida.
 
 #### Scenario: Cálculo com juros
 - **WHEN** o preço é R$ 100.000,00, a entrada R$ 20.000,00, o prazo 48 parcelas e a taxa 1,5% ao mês

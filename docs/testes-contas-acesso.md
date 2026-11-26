@@ -4,6 +4,8 @@ Roteiro manual de ponta a ponta para a Change `contas-acesso`: cadastro, login, 
 
 ## Antes de começar
 
+> **26/11/2026:** a Change foi arquivada com ressalvas (`openspec/changes/archive/2026-11-26-contas-acesso/tasks.md`). Este roteiro não foi executado por inteiro. Nas linhas 4.1 e 4.6, o destino “/” vale para páginas públicas; em teste simulado, “Sair” em página protegida terminou na tela de login.
+
 - **Autorização**: as etapas 2 em diante criam contas no Xano (workspace `v1`, live). Só execute com autorização da equipe e apague as contas ao final (etapa 9).
 - **Dados fictícios**: use e-mails do domínio reservado `example.com` e CPFs gerados por um gerador de CPF de teste. Nunca use dados de pessoas reais. Não anote senhas, CPFs ou tokens em arquivos do repositório.
 - **Limite do Xano**: 10 requisições a cada 20 s. Faça uma ação por vez e espere alguns segundos entre elas. Uma mensagem “Não foi possível concluir agora…” logo após muitas ações seguidas indica o limite, não um defeito.

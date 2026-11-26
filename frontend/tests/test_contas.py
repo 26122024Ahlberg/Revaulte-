@@ -322,7 +322,7 @@ class TestPermissoesXano(unittest.TestCase):
         self.assertIn('$input.birth_date|to_timestamp:"UTC"', texto)
         posicao = texto.index(f"precondition ({condicao})")
         self.assertLess(texto.index("var $nascimento"), posicao)
-        for passo in ("precondition ($nascimento < now", "precondition ($input.address", "db.add user"):
+        for passo in ("precondition ($nascimento < $hoje_brasilia", "precondition ($input.address", "db.add user"):
             with self.subTest(passo=passo):
                 self.assertLess(posicao, texto.index(passo))
 
@@ -616,11 +616,24 @@ class TestEventoEntrar(unittest.IsolatedAsyncioTestCase):
     async def test_falha_de_rede_ou_servidor_mensagem_generica(self):
         from revaulte.auth import ERRO_GENERICO
 
-        for status in (0, 429, 500):
+        for status in (0, 500):
             with self.subTest(status=status):
                 estado, _, _ = await self.executar({"email": "teste@exemplo.com", "senha": "senha123"}, (status, None))
                 self.assertEqual(estado.erro_formulario, ERRO_GENERICO)
                 self.assertFalse(estado.enviando)
+
+    async def test_login_com_limite_de_requisicoes_tem_mensagem_propria(self):
+        from revaulte.auth import ERRO_GENERICO, ERRO_LOGIN, ERRO_MUITAS_TENTATIVAS
+
+        estado, chamada, enviando = await self.executar(
+            {"email": "teste@exemplo.com", "senha": "senha123"}, (429, {"code": "ERROR_CODE_TOO_MANY_REQUESTS"})
+        )
+        chamada.assert_awaited_once()
+        self.assertEqual(estado.erro_formulario, ERRO_MUITAS_TENTATIVAS)
+        self.assertNotIn(estado.erro_formulario, (ERRO_GENERICO, ERRO_LOGIN))
+        self.assertTrue(enviando[0])
+        self.assertFalse(estado.enviando)
+        estado.concluir.assert_not_called()
 
     async def test_login_valido_envia_email_normalizado_e_conclui(self):
         estado, chamada, _ = await self.executar(
@@ -755,14 +768,14 @@ class TestEventoCadastrar(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(estado.enviando)
 
     async def test_erros_do_backend_em_portugues(self):
-        from revaulte.auth import ERRO_GENERICO
+        from revaulte.auth import ERRO_GENERICO, ERRO_MUITAS_TENTATIVAS
 
         casos = (
             (403, {"message": "email_taken"}, "Este e-mail já está cadastrado. Entre com ele ou use outro."),
             (403, {"message": "cpf_taken"}, "Este CPF já está cadastrado."),
             (400, {"message": "invalid_password"},
              "A senha deve ter pelo menos 8 caracteres, com uma letra (A–Z) e um número (0–9)."),
-            (429, {"code": "ERROR_CODE_TOO_MANY_REQUESTS"}, ERRO_GENERICO),
+            (429, {"code": "ERROR_CODE_TOO_MANY_REQUESTS"}, ERRO_MUITAS_TENTATIVAS),
             (0, None, ERRO_GENERICO),
         )
         for status, corpo, mensagem in casos:

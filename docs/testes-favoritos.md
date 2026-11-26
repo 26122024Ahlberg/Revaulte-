@@ -4,6 +4,8 @@ Roteiro manual da Change `favoritos`. Complementa os testes automáticos (`front
 
 ## Antes de começar
 
+> **26/11/2026:** a Change foi arquivada; os cenários não executados estão em “Ressalvas” no `tasks.md` arquivado. Sobre o destino após “Sair”, ver o `README.md`.
+
 - **Estado do Xano (24/11/2026)**: `favorite` e o grupo `Favoritos` já estão publicados e verificados (tabela vazia, 3 endpoints, sem token = 401). Cópias de segurança em `~/xano-backups/2026-11-24-antes-favoritos` e `-depois-favoritos`.
 - **Dados reais**: os testes abaixo gravam favoritos reais no Xano. Use somente as contas de teste A e B e **termine pela seção 6 (limpeza)**, deixando `favorite` vazia.
 - **Ordem recomendada**: 1 → 2 → 3 → 4 (4 só com autorização para mudar estados no painel) → 5 → 6.
@@ -57,12 +59,14 @@ Conferir que `/estoque` ainda lista os seis veículos, o anúncio 7 continua em 
 
 ## 6. Limpeza e registro
 
+> **Atenção (26/11/2026):** a tabela `favorite` tem hoje **3 registros** (contas 3 e 4), que devem ser **preservados**. Não execute as linhas 6.1 e 6.2 nem remova favoritos existentes sem nova autorização. O estado “tabela vazia” citado neste roteiro é o de 24/11/2026.
+
 | # | Ação | Resultado esperado |
 | --- | --- | --- |
 | 6.1 | Com A e depois com B, abrir `/favoritos` e usar “Remover dos favoritos” em cada cartão | As duas listas ficam vazias |
 | 6.2 | No painel do Xano, conferir a tabela `favorite` | 0 registros (se sobrar algum, remover só os das contas de teste, com autorização) |
 | 6.3 | Conferir `/estoque` | Seis veículos; `/veiculo/7` continua 404 |
-| 6.4 | Registrar cada linha como OK ou falha, com data, em `openspec/changes/favoritos/design.md` | Resultado arquivado com a Change |
+| 6.4 | Registrar cada linha como OK ou falha, com data, em `openspec/changes/archive/2026-11-26-favoritos/design.md` | Resultado arquivado com a Change |
 
 ## Verificação por API (opcional, com tokens obtidos pelo login do site)
 

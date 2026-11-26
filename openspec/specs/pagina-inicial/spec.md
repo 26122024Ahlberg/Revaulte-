@@ -13,7 +13,18 @@ O sistema SHALL exibir a página inicial da Revaulte no endereço `/`, sem exigi
 - **THEN** a página inicial é exibida, sem redirecionamento para outra página
 
 ### Requirement: Banner principal em carrossel
-A página inicial SHALL exibir um banner em carrossel com três slides, nesta ordem: esportivo, modificado e clássico. Cada slide SHALL ter uma fotografia horizontal com texto alternativo, a categoria, uma frase de impacto e o botão “Explorar estoque”, que leva a `/estoque`. Somente um slide SHALL ficar visível por vez; o primeiro é exibido ao abrir a página. O visitante SHALL poder trocar de slide por setas “anterior” e “próximo” e por indicadores de posição, todos acionáveis por mouse, toque e teclado e identificados para tecnologias assistivas. A troca MUST NOT ocorrer automaticamente. Os slides ocultos MUST NOT receber foco do teclado. O texto do slide SHALL continuar legível se a fotografia não carregar.
+A página inicial SHALL exibir um banner em carrossel com três slides, nesta ordem: esportivo, modificado e clássico. Cada slide SHALL ter uma fotografia horizontal com texto alternativo, a categoria, uma frase de impacto e o botão “Explorar estoque”, que leva a `/estoque`. Somente um slide SHALL ficar visível por vez; o primeiro é exibido ao abrir a página. O texto do slide SHALL continuar legível se a fotografia não carregar.
+
+#### Scenario: Visitante explora o estoque
+- **WHEN** o visitante aciona “Explorar estoque” em qualquer slide
+- **THEN** a página `/estoque` é aberta
+
+#### Scenario: Imagem do slide indisponível
+- **WHEN** a fotografia do slide exibido não carrega
+- **THEN** a frase de impacto e o botão continuam visíveis e legíveis sobre o fundo escuro
+
+### Requirement: Navegação do carrossel
+O visitante SHALL poder trocar de slide no banner por setas “anterior” e “próximo” e por indicadores de posição, todos acionáveis por mouse, toque e teclado e identificados para tecnologias assistivas. A troca MUST NOT ocorrer automaticamente. Os slides ocultos MUST NOT receber foco do teclado.
 
 #### Scenario: Visitante avança e volta
 - **WHEN** o visitante aciona a seta “próximo” no primeiro slide
@@ -27,24 +38,16 @@ A página inicial SHALL exibir um banner em carrossel com três slides, nesta or
 - **WHEN** o visitante aciona o indicador do terceiro slide
 - **THEN** o slide do clássico é exibido
 
-#### Scenario: Visitante explora o estoque
-- **WHEN** o visitante aciona “Explorar estoque” em qualquer slide
-- **THEN** a página `/estoque` é aberta
-
-#### Scenario: Imagem do slide indisponível
-- **WHEN** a fotografia do slide exibido não carrega
-- **THEN** a frase de impacto e o botão continuam visíveis e legíveis sobre o fundo escuro
-
 ### Requirement: Veículos em destaque
-A página inicial SHALL exibir, na seção “Veículos em destaque”, os três veículos no estado Disponível cadastrados mais recentemente, obtidos do backend no carregamento da página e apresentados com as mesmas informações e selos dos cartões do catálogo. Veículos Vendidos MUST NOT aparecer nos destaques. A seção SHALL oferecer um link para o estoque completo.
+A página inicial SHALL exibir, na seção “Veículos em destaque”, até três veículos no estado Disponível, obtidos do backend no carregamento da página e apresentados com as mesmas informações e selos dos cartões do catálogo. Veículos Vendidos MUST NOT aparecer nos destaques. A seção SHALL oferecer um link para o estoque completo.
 
 #### Scenario: Mais de três disponíveis
-- **WHEN** existem cinco veículos Disponíveis no backend
+- **WHEN** existem cinco veículos Disponíveis no backend e nenhum deles é um destaque editorial
 - **THEN** a seção exibe somente os três cadastrados mais recentemente, do mais recente para o mais antigo
 
 #### Scenario: Vendido não é destaque
 - **WHEN** o veículo cadastrado mais recentemente está no estado Vendido
-- **THEN** ele não aparece nos destaques e a seção exibe os três Disponíveis mais recentes
+- **THEN** ele não aparece nos destaques e a seção exibe os Disponíveis que seguem a regra de prioridade
 
 #### Scenario: Menos de três disponíveis
 - **WHEN** existem apenas dois veículos Disponíveis
@@ -57,6 +60,21 @@ A página inicial SHALL exibir, na seção “Veículos em destaque”, os três
 #### Scenario: Falha ao obter os destaques
 - **WHEN** a solicitação ao backend falha
 - **THEN** a seção exibe uma mensagem de erro com a opção de tentar novamente, não exibe veículos fictícios, e o restante da página continua utilizável
+
+### Requirement: Prioridade dos destaques editoriais
+Os veículos de destaque editorial (identificadores 4, 5 e 6) SHALL ter prioridade na seção “Veículos em destaque”, desde que estejam Disponíveis no catálogo público; as vagas restantes SHALL ser completadas com os veículos Disponíveis cadastrados mais recentemente.
+
+#### Scenario: Destaques editoriais disponíveis
+- **WHEN** os veículos 4, 5 e 6 estão Disponíveis e existem outros veículos Disponíveis cadastrados depois deles
+- **THEN** a seção exibe exatamente os veículos 6, 5 e 4, do mais recente para o mais antigo, e nenhum dos mais novos
+
+#### Scenario: Destaque editorial indisponível
+- **WHEN** o veículo 5 está Vendido
+- **THEN** a seção exibe os veículos 6 e 4 e completa a terceira vaga com o Disponível mais recente que não seja um destaque editorial
+
+#### Scenario: Destaques editoriais ausentes
+- **WHEN** nenhum dos veículos 4, 5 e 6 está no catálogo público
+- **THEN** a seção exibe os três Disponíveis cadastrados mais recentemente
 
 ### Requirement: Seção de proposta da Revaulte
 A página inicial SHALL apresentar uma seção descrevendo a especialidade da Revaulte em carros antigos, clássicos, esportivos e modificados/preparados. O texto MUST NOT afirmar serviços, garantias, laudos, condições de financiamento ou dados de contato que não estejam definidos na documentação do projeto.

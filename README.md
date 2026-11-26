@@ -20,7 +20,7 @@ Repositório: https://github.com/26122024Ahlberg/Revaulte-
 | --- | --- |
 | `frontend/` | Aplicativo Reflex (páginas, estado, estilos e testes). Ver `frontend/README.md` |
 | `xano/` | Código XanoScript do backend (tabelas, endpoints e funções), sincronizado pelo Xano CLI |
-| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`) e Changes arquivadas |
+| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`, nenhuma em 26/11/2026), concluídas (`changes/archive/`) e canceladas (`changes-canceladas/`) |
 | `docs/` | Visão geral, modelo de domínio, guia de colaboração e roteiros de teste e de vídeo |
 | `frontend-html/`, `frontend-rascunho/` | Versões anteriores em HTML/CSS/JS, mantidas só como referência |
 
@@ -67,7 +67,7 @@ Todos os campos são obrigatórios: nome completo, e-mail, CPF (com dígitos ver
 
 - **Entrar (`/entrar`)**: e-mail e senha. Credenciais erradas mostram sempre “E-mail ou senha incorretos.”, sem revelar se o e-mail existe.
 - A sessão dura até 24 horas.
-- **Sair** (menu ☰ ou página Minha conta): apaga a sessão do navegador e volta à página inicial.
+- **Sair** (menu ☰ ou página Minha conta): apaga a sessão do navegador e o menu volta a oferecer “Entrar” e “Cadastrar”. A partir de uma página pública, o site vai para a página inicial; em teste com backend simulado, a partir de `/conta`, `/admin` ou `/meus-anuncios` o navegador terminou na tela de login.
 
 ### Cliente
 
@@ -97,11 +97,10 @@ reflex compile
 Na raiz do repositório:
 
 ```bash
-openspec validate contas-acesso --strict
-openspec validate --all
+openspec validate --all --strict
 ```
 
-Com `--all --strict`, cinco especificações antigas (`contato-vendedor`, `navegacao-site`, `pagina-inicial`, `simulador-financiamento` e `visual-paginas-internas`) recebem apenas o aviso de requisito com mais de 500 caracteres, que o modo estrito trata como falha.
+Em 26/11/2026, `openspec validate --all --strict` passa em todos os itens, sem avisos.
 
 Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de testes manuais de ponta a ponta, com dados fictícios, está em `docs/testes-contas-acesso.md`.
 
@@ -110,14 +109,16 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - Nenhum token, senha ou credencial é versionado; o token de sessão fica só no cookie `revaulte_sessao` do navegador.
 - As senhas são armazenadas pelo Xano somente como hash; os registros de evento não guardam senha, hash, CPF, telefone, data de nascimento nem endereço.
 - O perfil de acesso é sempre conferido no backend; esconder itens do menu é apenas interface.
-- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404.
+- Os endpoints de exemplo do Quick Start do Xano considerados inseguros (envio de e-mail de boas-vindas, link de redefinição de senha e login por link mágico) foram desativados e respondem 404. O `GET logs/user/my_events` foi restringido a `id`, `created_at` e `action` da própria conta; essa correção e a regra da data de nascimento no cadastro (data de hoje em Brasília) foram publicadas no Xano em 24/11/2026 e verificadas em execução (a data de hoje é recusada; `my_events` só devolve `id`, `created_at` e `action` da própria conta). Detalhes em `docs/seguranca-endpoints-quick-start.md`.
 
 ## Limitações conhecidas
 
-- O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra uma mensagem genérica de erro.
-- Recuperação de senha, confirmação de e-mail e chat ainda não existem (estão planejados no OpenSpec). Anúncios pelo site não têm fotos, edição nem exclusão.
-- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos.
-- Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
+- O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra “Muitas tentativas em pouco tempo…” em login, cadastro, anúncios e favoritos.
+- Recuperação de senha e confirmação de e-mail não existem nesta versão. Anúncios pelo site não têm fotos, edição nem exclusão.
+- Não há chat interno: o contato entre comprador e vendedor é feito exclusivamente pelo WhatsApp, quando o anunciante autoriza (a Change `chat-interno` foi cancelada em 26/11/2026).
+- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos. Em 26/11/2026 a tabela tinha 3 registros, que devem ser preservados.
+- O parâmetro `?proximo=` do login foi verificado no Edge e no Opera (uma ocorrência sem o parâmetro no Opera, em 21/11/2026, não se repetiu). O site **não foi testado no Chrome**.
+- Parte dos cenários **não foi testada no site real**, entre eles o cadastro e o envio de anúncio pelo formulário, as páginas com sessão a 375 px e o limite de 20 rascunhos. A lista completa, com motivo e data, está na seção “Ressalvas” dos `tasks.md` em `openspec/changes/archive/2026-11-26-contas-acesso/`, `openspec/changes/archive/2026-11-26-anuncios-cliente/` e `openspec/changes/archive/2026-11-26-favoritos/`.
 
 ## Documentação
 
@@ -127,5 +128,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - `docs/testes-contas-acesso.md`: roteiro de testes manuais das contas.
 - `docs/testes-anuncios-cliente.md`: roteiro de testes de anúncios dos Clientes.
 - `docs/testes-favoritos.md`: roteiro de testes de Favoritos.
+- `docs/seguranca-endpoints-quick-start.md`: endpoints do Quick Start desativados e logs de eventos.
+- `docs/roteiro-fechamento-openspec.md`: roteiro de fechamento das Changes e pendências.
 - `docs/roteiro-video.md`: roteiro do vídeo de apresentação.
-- `openspec/changes/contas-acesso/`: proposta, decisões (`design.md`), requisitos e tarefas das contas de acesso.
+- `openspec/specs/`: requisitos atuais de cada capacidade; `openspec/changes/archive/`: propostas, decisões, tarefas e ressalvas das Changes concluídas.

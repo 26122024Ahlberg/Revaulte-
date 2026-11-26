@@ -364,7 +364,7 @@ Representa a intenção de um visitante ou cliente de entrar em contato com o an
 
 ---
 
-## 11-A. Anunciante (planejado)
+## 11-A. Anunciante
 
 ### Descrição
 
@@ -390,7 +390,7 @@ Representa quem anuncia um veículo na Revaulte: futuramente, particulares, loja
 - nenhum dado de contato pode ser inventado;
 - o contato só é enviado ao site quando o Anunciante autorizou e o veículo está Disponível.
 
-Especificado pela Change `contato-vendedor` (tabela `seller` e vínculo `vehicle.seller_id`). Em 07/11/2026 o código local está pronto e o envio ao Xano aguarda autorização do usuário.
+Especificado pela Change `contato-vendedor` (tabela `seller` e vínculo `vehicle.seller_id`). O backend está publicado no Xano; os requisitos estão em `openspec/specs/contato-vendedor/`.
 
 ---
 
@@ -419,7 +419,7 @@ Representa o conjunto de veículos apresentados publicamente no Revaulte, em uma
 - veículos vendidos, quando apresentados, devem estar claramente identificados como “Vendido” e indisponíveis para negociação;
 - veículos modificados/preparados devem possuir uma identificação como “Modificado” ou “Preparado”;
 - o catálogo oferece pesquisa por marca, modelo e versão e filtros por condição (novo/usado) e por modificação (modificados/originais), aplicados sobre os veículos publicados; filtros por ano e faixa de preço e ordenações relevantes continuam planejados;
-- a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com os três veículos Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque.
+- a página inicial exibe uma seção de veículos em destaque, separada do Catálogo, com até três veículos Disponíveis: os de destaque editorial (identificadores 4, 5 e 6, por configuração no frontend) têm prioridade e as vagas restantes são completadas com os Disponíveis cadastrados mais recentemente; veículos vendidos não são destaque (Change `destaques-editoriais`).
 
 ---
 
@@ -469,10 +469,10 @@ Detalhes que ainda não foram definidos, como:
 - tratamento de potência e combustível quando diferem entre a configuração original e o estado atual do veículo;
 - transições permitidas entre os estados do veículo;
 - taxa administrável da simulação e encargos (IOF, tarifas, seguros);
-- funcionamento detalhado do contato com o anunciante e do chat interno;
+- registro e acompanhamento dos contatos com o anunciante (hoje o contato é feito exclusivamente pelo WhatsApp, fora do site; não há chat interno, por decisão de 26/11/2026);
 - quem pode ser Anunciante, como se cadastra e como os anúncios são moderados;
 - permissões específicas da área administrativa e criação do primeiro Administrador;
-- critério administrativo de destaque na página inicial (no MVP, os destaques são os três veículos Disponíveis mais recentes);
+- critério administrativo de destaque na página inicial (hoje, destaques editoriais fixos em configuração do frontend, completados pelos Disponíveis mais recentes; sem campo no banco);
 - existência de opções selecionáveis oferecidas pelo anunciante;
 
 deverão ser definidos incrementalmente por meio das especificações e Changes do OpenSpec.

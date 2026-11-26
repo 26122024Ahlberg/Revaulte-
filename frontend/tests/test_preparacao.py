@@ -190,21 +190,71 @@ class TestRecortes(unittest.TestCase):
     def test_destaques_tres_disponiveis_mais_recentes(self):
         # Cinco disponíveis, do mais recente (id 10) para o mais antigo (id 14).
         cartoes = [preparar_cartao(veiculo(id=i)) for i in range(10, 15)]
-        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques")], [10, 11, 12])
+        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques", ids_destaque=())], [10, 11, 12])
 
     def test_destaques_ignoram_vendido_mais_recente(self):
         cartoes = [preparar_cartao(veiculo(id=1, status="sold"))] + [
             preparar_cartao(veiculo(id=i)) for i in range(2, 6)
         ]
-        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques")], [2, 3, 4])
+        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques", ids_destaque=())], [2, 3, 4])
 
     def test_destaques_com_menos_de_tres(self):
         cartoes = [preparar_cartao(veiculo(id=1)), preparar_cartao(veiculo(id=2, status="sold")), preparar_cartao(veiculo(id=3))]
-        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques")], [1, 3])
+        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "destaques", ids_destaque=())], [1, 3])
 
     def test_destaques_sem_disponiveis(self):
         cartoes = [preparar_cartao(veiculo(id=1, status="sold"))]
-        self.assertEqual(aplicar_recorte(cartoes, "destaques"), [])
+        self.assertEqual(aplicar_recorte(cartoes, "destaques", ids_destaque=()), [])
+
+    # --- Destaques editoriais (Change destaques-editoriais) ---
+
+    def destaques(self, ids_e_estados, **kwargs):
+        """ids_e_estados: [(id, status)] na ordem do catálogo (mais recente primeiro)."""
+        cartoes = [preparar_cartao(veiculo(id=i, status=s)) for i, s in ids_e_estados]
+        return [c.id for c in aplicar_recorte(cartoes, "destaques", **kwargs)]
+
+    def test_destaques_editoriais_presentes_tem_prioridade_sobre_os_mais_novos(self):
+        # Novos (13, 12, 11) são mais recentes, mas 6, 5 e 4 ficam em destaque, na ordem do catálogo.
+        catalogo = [(i, "available") for i in (13, 12, 11, 6, 5, 4, 3, 2, 1)]
+        self.assertEqual(self.destaques(catalogo), [6, 5, 4])
+
+    def test_destaques_ordem_padrao_usa_os_ids_reais(self):
+        from revaulte.state import IDS_DESTAQUES
+
+        self.assertEqual(IDS_DESTAQUES, (4, 5, 6))
+
+    def test_destaque_editorial_vendido_cede_a_vaga_ao_mais_recente(self):
+        catalogo = [(13, "available"), (12, "available"), (6, "available"), (5, "sold"), (4, "available"), (3, "available")]
+        self.assertEqual(self.destaques(catalogo), [6, 4, 13])
+
+    def test_destaques_editoriais_ausentes_voltam_aos_mais_recentes(self):
+        catalogo = [(13, "available"), (12, "available"), (11, "available"), (3, "available")]
+        self.assertEqual(self.destaques(catalogo), [13, 12, 11])
+
+    def test_apenas_alguns_editoriais_presentes(self):
+        catalogo = [(13, "available"), (12, "available"), (11, "available"), (5, "available"), (3, "available")]
+        self.assertEqual(self.destaques(catalogo), [5, 13, 12])
+
+    def test_todos_os_editoriais_vendidos(self):
+        catalogo = [(13, "available"), (6, "sold"), (5, "sold"), (4, "sold"), (3, "available"), (2, "available")]
+        self.assertEqual(self.destaques(catalogo), [13, 3, 2])
+
+    def test_destaques_lista_vazia(self):
+        self.assertEqual(self.destaques([]), [])
+
+    def test_destaques_menos_de_tres_com_editorial(self):
+        self.assertEqual(self.destaques([(6, "available"), (2, "available")]), [6, 2])
+
+    def test_destaques_nunca_repetem_nem_passam_de_tres(self):
+        catalogo = [(i, "available") for i in range(1, 12)]
+        resultado = self.destaques(catalogo)
+        self.assertEqual(len(resultado), 3)
+        self.assertEqual(len(set(resultado)), 3)
+
+    def test_ordenacao_do_estoque_nao_muda(self):
+        cartoes = [preparar_cartao(veiculo(id=i)) for i in (13, 12, 6, 5, 4, 1)]
+        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "todos")], [13, 12, 6, 5, 4, 1])
+        self.assertEqual([c.id for c in aplicar_recorte(cartoes, "usados")], [13, 12, 6, 5, 4, 1])
 
     def test_abrir_pagina_define_recorte_e_descarta_lista_anterior(self):
         abrir = CatalogState.event_handlers["abrir_pagina"].fn

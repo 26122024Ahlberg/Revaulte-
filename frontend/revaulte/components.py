@@ -614,7 +614,7 @@ def carrossel_inicial() -> rx.Component:
 
 
 def secao_destaques() -> rx.Component:
-    """Os 3 veículos Disponíveis mais recentes, vindos do Xano (recorte "destaques")."""
+    """Até 3 Disponíveis vindos do Xano: editoriais (IDS_DESTAQUES) primeiro, depois os mais recentes (recorte "destaques")."""
     return rx.el.section(
         rx.el.div(
             rx.el.h2("Veículos em destaque", class_name="section-title"),
