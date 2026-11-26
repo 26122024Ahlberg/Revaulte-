@@ -128,4 +128,3 @@ A integração `docs/openspec-pos-merge` → `main` leva também código do fron
 | 4 | Abrir `/conta` e `/admin` sem sessão no Chrome, **ou** retirar formalmente o Chrome do critério | Usuário | `contas-acesso` 3.7 |
 
 Com 1 a 4 resolvidos: arquivar `contas-acesso` → `anuncios-cliente` → `favoritos`.
-
