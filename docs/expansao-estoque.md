@@ -25,7 +25,7 @@ Para os veículos 2 a 5, o único dado registrado sobre preparação é a marca�
 
 Consequência na ficha: a página dos veículos modificados mostra a seção “Modificações e preparação” com a mensagem “Veículo modificado/preparado. Os detalhes das modificações não foram informados.” Ocultar essa seção seria uma melhoria possível, mas **não foi implementada**: a spec `detalhes-veiculo` (cenário “Veículo modificado sem detalhes”) exige a mensagem e o teste `test_detalhes.py` a confere; ocultar exigiria alterar a spec e o teste.
 
-**Sem teste real:** os cenários de modificações agrupadas por área, com registros reais, continuam sem verificação no navegador (não há registros em `vehicle_modification`). A tarefa 3.1 de `detalhes-veiculo` no OpenSpec continua pendente.
+**Sem teste real:** os cenários de modificações agrupadas por área, com registros reais, continuam sem verificação no navegador (não há registros em `vehicle_modification`). Em 26/11/2026 esse cenário foi retirado formalmente do escopo de verificação de `detalhes-veiculo` (tarefa 3.1), registrado como não testado.
 
 ## O que é demonstrativo
 
@@ -61,10 +61,11 @@ Os scripts de apoio ficam fora do repositório, em `~/xano-backups/2026-11-24-an
 
 **Reversão:** remover os veículos 8 a 13 pelo painel (ou restaurar a partir do backup).
 
-## Ainda falta verificar no navegador
+## Verificação no navegador (26/11/2026)
 
-- Home: seção “Veículos em destaque” com os veículos 6, 5 e 4.
-- Estoque, Usados e Modificados: contagens e cartões dos seis veículos novos, com as imagens carregando.
-- Fichas de `/veiculo/8` a `/veiculo/13`: dados, imagem, “Contato não disponível” e, nos modificados (11 a 13 e 2 a 5), a seção de modificações com a mensagem de detalhes não informados.
-- Layout a 375 px das páginas acima, sem rolagem horizontal.
-- Console e rede sem erros.
+Verificação automatizada em Edge sem janela, como visitante, em `localhost:3001` (roteiro e capturas temporários, não versionados).
+
+- Home com os destaques 6, 5 e 4; `/estoque` e `/usados` com 12 veículos e `/modificados` com 7, sem imagens quebradas.
+- Fichas de `/veiculo/8` a `/veiculo/13` abertas a 1280 px, sem erros; a mensagem de detalhes não informados foi conferida nos veículos 2 e 11.
+- Sem rolagem horizontal a 375 e 560 px na Home, no Estoque, em Usados, em Modificados e nas fichas 1, 7 e 11; as demais fichas **não foram conferidas** em tela estreita.
+- Console sem erros e nenhuma requisição do navegador ao Xano.

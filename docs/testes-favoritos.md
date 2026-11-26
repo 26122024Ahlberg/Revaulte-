@@ -57,6 +57,8 @@ Conferir que `/estoque` ainda lista os seis veículos, o anúncio 7 continua em 
 
 ## 6. Limpeza e registro
 
+> **Atenção (26/11/2026):** a tabela `favorite` tem hoje **3 registros** (contas 3 e 4), que devem ser **preservados**. Não execute as linhas 6.1 e 6.2 nem remova favoritos existentes sem nova autorização. O estado “tabela vazia” citado neste roteiro é o de 24/11/2026.
+
 | # | Ação | Resultado esperado |
 | --- | --- | --- |
 | 6.1 | Com A e depois com B, abrir `/favoritos` e usar “Remover dos favoritos” em cada cartão | As duas listas ficam vazias |

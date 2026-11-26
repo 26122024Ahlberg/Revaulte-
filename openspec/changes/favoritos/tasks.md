@@ -1,5 +1,7 @@
 # Tasks
 
+> **Situação (26/11/2026): tarefas completas, ABERTA por dependência.** Arquivar depois de `contas-acesso` e `anuncios-cliente`. O delta de `navegacao-site` foi corrigido para manter o cenário “Visitante aciona Anunciar veículo”. Leitura do Xano em 26/11/2026: a tabela `favorite` tem **3 registros** (`user_id` 3: veículos 13 e 6; `user_id` 4: veículo 3), criados depois dos testes de 24/11/2026 descritos abaixo; **preservar**.
+
 > **Pós-merge (24/11/2026):** a PR #4 foi integrada à `main` (merge `32b5a68`), com os commits `4db828c`, `5bacd6d` e `43f3df1`. Tarefas completas; o arquivamento deve vir depois de `contas-acesso` e `anuncios-cliente` (mesmo requisito “Menu da conta” de `navegacao-site`). Este delta agora também modifica “Menu em tela estreita”, para que o texto final não mantenha “Favoritos” como “Em breve”.
 
 > **Situação (24/11/2026):** implementação concluída (410 testes, `reflex compile --dry`, `xano_validate_xanoscript` com 37 arquivos válidos e `openspec validate favoritos --strict`); `favorite` e o grupo `Favoritos` publicados no Xano pelo usuário; teste manual no navegador com os Clientes A e B (favoritar, listar por conta, remover; listas e tabela vazias ao final). Registros não inspecionados no banco enquanto existiam; índice único e concorrência não testados (ver `design.md`). Nada enviado ao GitHub.

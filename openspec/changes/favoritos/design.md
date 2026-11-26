@@ -19,6 +19,10 @@ Somente arquivos locais nesta fase. O envio ao Xano depende de autorização: c�
 
 Testes unitários de funções e estados (respostas simuladas), teste estático dos `.xs`, `xano_validate_xanoscript`, `reflex compile`, e roteiro manual em `docs/testes-favoritos.md` com o Xano real após o envio.
 
+## Estado dos registros (26/11/2026)
+
+Leitura do banco em 26/11/2026 (`pull --records`): `favorite` tem **3 registros** (`user_id` 3: veículos 13 e 6; `user_id` 4: veículo 3), criados depois da verificação de 24/11/2026 descrita abaixo. Eles **devem ser preservados**: a limpeza prevista no roteiro de testes não se aplica a eles. A mesma leitura não permite afirmar como foram criados.
+
 ## Verificação real (24/11/2026)
 
 **Publicação (leitura no Xano, sem alterar nada):** tabela `favorite` com índice único composto (`user_id`, `vehicle_id`) e índice comum em `vehicle_id`, três endpoints e o grupo `Favoritos`; prévia `--dry-run` com “No changes to push”; sem token, `GET`, `POST` e `DELETE` respondem 401, e token inválido responde 401.

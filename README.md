@@ -117,7 +117,7 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - O plano do Xano aceita 10 requisições a cada 20 segundos; acima disso o site mostra “Muitas tentativas em pouco tempo…” em login, cadastro, anúncios e favoritos.
 - Recuperação de senha e confirmação de e-mail não existem nesta versão. Anúncios pelo site não têm fotos, edição nem exclusão.
 - Não há chat interno: o contato entre comprador e vendedor é feito exclusivamente pelo WhatsApp, quando o anunciante autoriza (a Change `chat-interno` foi cancelada em 26/11/2026).
-- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos.
+- Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos. Em 26/11/2026 a tabela tinha 3 registros, que devem ser preservados.
 - Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
 
 ## Documentação
