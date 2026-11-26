@@ -1,5 +1,9 @@
 # Spec Delta
 
+## Purpose
+
+Permite que o Cliente autenticado guarde os veículos públicos de interesse, vinculados à própria conta, consulte-os em uma página própria e remova-os, sem que outra conta tenha acesso à sua lista.
+
 ## ADDED Requirements
 
 ### Requirement: Favoritar veículo

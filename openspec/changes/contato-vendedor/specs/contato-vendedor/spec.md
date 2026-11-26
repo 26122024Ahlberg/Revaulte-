@@ -14,7 +14,7 @@ A página de um veículo Disponível SHALL exibir o nome de exibição do anunci
 - **THEN** a página exibe o nome de exibição desse anunciante
 
 ### Requirement: Contato autorizado pelo WhatsApp
-Quando o veículo Disponível tem anunciante real vinculado, com número de WhatsApp válido e autorização explícita para exibi-lo, a página SHALL oferecer, no bloco “Anunciado por”, a ação “Conversar no WhatsApp”, que abre o WhatsApp com o número do anunciante e uma mensagem inicial que identifica o veículo pelo título e pelo ano. Enquanto não houver domínio público, a mensagem MUST NOT incluir endereço do anúncio, e nunca um endereço local (`localhost`). Em qualquer outro caso, a página SHALL exibir “Contato não disponível”. O site MUST NOT enviar mensagens em nome do visitante nem registrar o contato.
+Quando o veículo Disponível tem anunciante real vinculado, com número de WhatsApp válido e autorização explícita para exibi-lo, a página SHALL oferecer, no bloco “Anunciado por”, a ação “Conversar no WhatsApp”, que abre o WhatsApp com o número do anunciante e uma mensagem inicial que identifica o veículo pelo título e pelo ano. Em qualquer outro caso, a página SHALL exibir “Contato não disponível”.
 
 #### Scenario: Visitante aciona o contato
 - **WHEN** o visitante aciona “Conversar no WhatsApp” em um veículo cujo anunciante autorizou o contato
@@ -27,6 +27,17 @@ Quando o veículo Disponível tem anunciante real vinculado, com número de What
 #### Scenario: Número inválido
 - **WHEN** o número cadastrado não tem somente dígitos, com DDI e DDD (12 ou 13 dígitos)
 - **THEN** a página exibe “Contato não disponível” e não exibe link
+
+### Requirement: Limites do contato pelo WhatsApp
+Enquanto não houver domínio público, a mensagem inicial MUST NOT incluir endereço do anúncio, e nunca um endereço local (`localhost`). O site MUST NOT enviar mensagens em nome do visitante nem registrar o contato.
+
+#### Scenario: Mensagem sem endereço local
+- **WHEN** a ação “Conversar no WhatsApp” é montada para um veículo sem que exista domínio público
+- **THEN** a mensagem inicial não contém endereço do anúncio nem `localhost`
+
+#### Scenario: Envio e registro ficam fora do site
+- **WHEN** o visitante aciona “Conversar no WhatsApp”
+- **THEN** o site apenas abre o link do WhatsApp, sem enviar mensagem em nome do visitante e sem registrar o contato
 
 ### Requirement: Veículo vendido sem contato
 A página de um veículo Vendido MUST NOT exibir o contato do anunciante.

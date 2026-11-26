@@ -9,6 +9,10 @@ Todas as páginas públicas SHALL exibir, no canto superior direito do cabeçalh
 - **WHEN** um visitante sem sessão aciona o botão ☰
 - **THEN** a seção “Minha conta” exibe “Entrar”, “Cadastrar”, “Anunciar veículo”, “Meus anúncios” e “Favoritos”, todos como links
 
+#### Scenario: Visitante aciona Anunciar veículo
+- **WHEN** um visitante sem sessão aciona “Anunciar veículo” no painel
+- **THEN** o painel é fechado e ele é levado a `/entrar?proximo=/anunciar`
+
 #### Scenario: Visitante aciona Favoritos
 - **WHEN** um visitante sem sessão aciona “Favoritos” no painel
 - **THEN** o painel é fechado e ele é levado a `/entrar?proximo=/favoritos`
