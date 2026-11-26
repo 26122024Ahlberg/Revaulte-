@@ -115,4 +115,3 @@ Verificação automatizada em Edge sem janela, como visitante, em `localhost:300
 Ordem para o que falta: `contas-acesso` → `anuncios-cliente` → `favoritos`. Enquanto isso, `openspec/specs/navegacao-site` ainda descreve o menu anterior, com os itens “Em breve”; o menu atual está descrito no delta de `favoritos`.
 
 A integração `docs/openspec-pos-merge` → `main` leva também código do frontend, testes e dois arquivos `.xs` já publicados (commits `0d32eb5` e `0d157a1`); a integração em si não envia nada ao Xano. Isso substitui a observação “Sem código nem Xano na PR” acima.
-
