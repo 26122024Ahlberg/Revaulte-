@@ -469,7 +469,7 @@ Detalhes que ainda não foram definidos, como:
 - tratamento de potência e combustível quando diferem entre a configuração original e o estado atual do veículo;
 - transições permitidas entre os estados do veículo;
 - taxa administrável da simulação e encargos (IOF, tarifas, seguros);
-- funcionamento detalhado do contato com o anunciante e do chat interno;
+- registro e acompanhamento dos contatos com o anunciante (hoje o contato é feito exclusivamente pelo WhatsApp, fora do site; não há chat interno, por decisão de 26/11/2026);
 - quem pode ser Anunciante, como se cadastra e como os anúncios são moderados;
 - permissões específicas da área administrativa e criação do primeiro Administrador;
 - critério administrativo de destaque na página inicial (hoje, destaques editoriais fixos em configuração do frontend, completados pelos Disponíveis mais recentes; sem campo no banco);

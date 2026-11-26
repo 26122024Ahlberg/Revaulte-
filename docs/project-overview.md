@@ -8,7 +8,7 @@ O Revaulte é um marketplace automotivo especializado em carros clássicos, anti
 
 - A Revaulte é a intermediadora da descoberta e do contato entre comprador e vendedor. Ela não é uma concessionária nem proprietária do estoque anunciado.
 - Futuramente, particulares, lojas e vendedores profissionais poderão anunciar seus veículos. Quem anuncia é chamado de **Anunciante** (ver `docs/domain-model.md`).
-- Os anúncios podem ser cadastrados pela equipe diretamente no backend ou enviados por Clientes autenticados pelo site; os enviados por Clientes nascem como Rascunho e são publicados pela equipe (Change `anuncios-cliente`). O Cliente também pode favoritar veículos (Change `favoritos`). O chat interno é funcionalidade futura, planejada no OpenSpec (Change `chat-interno`).
+- Os anúncios podem ser cadastrados pela equipe diretamente no backend ou enviados por Clientes autenticados pelo site; os enviados por Clientes nascem como Rascunho e são publicados pela equipe (Change `anuncios-cliente`). O Cliente também pode favoritar veículos (Change `favoritos`). O contato entre comprador e vendedor é feito exclusivamente pelo WhatsApp; não há chat interno (decisão de 26/11/2026).
 - A negociação e a conclusão da venda ocorrem entre comprador e anunciante, fora do fluxo de compra do site.
 
 ### Identidade nominal
@@ -171,7 +171,7 @@ A fórmula e a taxa exatas serão definidas durante a especificação dessa func
 
 ### Contato com o anunciante
 
-Após consultar um veículo e suas condições, o usuário poderá utilizar a plataforma para iniciar contato com o anunciante, por um meio de contato autorizado por ele. Futuramente, comprador e anunciante também poderão conversar por um chat interno associado ao anúncio.
+Após consultar um veículo e suas condições, o usuário poderá utilizar a plataforma para iniciar contato com o anunciante exclusivamente pelo WhatsApp, quando ele autoriza a exibição do número. Não há chat interno (decisão de 26/11/2026).
 
 A negociação e conclusão da venda ocorrerão fora do fluxo de compra do site.
 
@@ -277,7 +277,7 @@ A sequência prevista, sujeita a revisão a cada Change, é:
 4. cadastro e login;
 5. administração de veículos.
 
-Em seguida: favoritos, simulação de financiamento, simulações salvas, contato com o anunciante, chat interno e seção de destaques na página inicial.
+Em seguida: favoritos, simulação de financiamento, simulações salvas, contato com o anunciante pelo WhatsApp e seção de destaques na página inicial.
 
 ## 12. Fonte de verdade e documentação
 
