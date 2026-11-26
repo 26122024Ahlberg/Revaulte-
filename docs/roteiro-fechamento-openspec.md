@@ -143,3 +143,17 @@ O relato foi registrado em `contas-acesso` e `anuncios-cliente`. **Nenhuma das t
 | `favoritos` | Somente a dependência das duas anteriores |
 
 Fecham com a execução desses itens ou com a retirada formal e explícita deles do critério pelo usuário, sempre registrada como não testada.
+
+## Encerramento (26/11/2026)
+
+Esta seção substitui as situações anteriores deste documento.
+
+Decisão de escopo do usuário: sem novos cadastros, anúncios reais, instalação do Chrome nem novas baterias manuais; critérios adicionais de validação revisados, preservados os requisitos funcionais. Os cenários não executados **não** contam como aprovados.
+
+| Change | Situação | Onde estão as ressalvas |
+| --- | --- | --- |
+| `destaques-editoriais`, `catalogo-publico`, `detalhes-veiculo`, `contato-vendedor` | Arquivadas | `tasks.md` de cada pasta em `openspec/changes/archive/2026-11-26-*/` |
+| `contas-acesso`, `anuncios-cliente`, `favoritos` | Arquivadas, nesta ordem, com ressalvas | Seção “Ressalvas” do `tasks.md` de cada uma |
+| `chat-interno` | Cancelada | `openspec/changes-canceladas/chat-interno/CANCELADA.md` |
+
+Não há Change ativa. `openspec/specs/` descreve o menu atual, com todos os itens como links.

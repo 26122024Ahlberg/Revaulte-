@@ -364,7 +364,7 @@ Representa a intenção de um visitante ou cliente de entrar em contato com o an
 
 ---
 
-## 11-A. Anunciante (planejado)
+## 11-A. Anunciante
 
 ### Descrição
 

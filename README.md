@@ -20,7 +20,7 @@ Repositório: https://github.com/26122024Ahlberg/Revaulte-
 | --- | --- |
 | `frontend/` | Aplicativo Reflex (páginas, estado, estilos e testes). Ver `frontend/README.md` |
 | `xano/` | Código XanoScript do backend (tabelas, endpoints e funções), sincronizado pelo Xano CLI |
-| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`), concluídas (`changes/archive/`) e canceladas (`changes-canceladas/`) |
+| `openspec/` | Especificações (`specs/`), Changes em andamento (`changes/`, nenhuma em 26/11/2026), concluídas (`changes/archive/`) e canceladas (`changes-canceladas/`) |
 | `docs/` | Visão geral, modelo de domínio, guia de colaboração e roteiros de teste e de vídeo |
 | `frontend-html/`, `frontend-rascunho/` | Versões anteriores em HTML/CSS/JS, mantidas só como referência |
 
@@ -67,7 +67,7 @@ Todos os campos são obrigatórios: nome completo, e-mail, CPF (com dígitos ver
 
 - **Entrar (`/entrar`)**: e-mail e senha. Credenciais erradas mostram sempre “E-mail ou senha incorretos.”, sem revelar se o e-mail existe.
 - A sessão dura até 24 horas.
-- **Sair** (menu ☰ ou página Minha conta): apaga a sessão do navegador e volta à página inicial.
+- **Sair** (menu ☰ ou página Minha conta): apaga a sessão do navegador e o menu volta a oferecer “Entrar” e “Cadastrar”. A partir de uma página pública, o site vai para a página inicial; em teste com backend simulado, a partir de `/conta`, `/admin` ou `/meus-anuncios` o navegador terminou na tela de login.
 
 ### Cliente
 
@@ -97,8 +97,7 @@ reflex compile
 Na raiz do repositório:
 
 ```bash
-openspec validate contas-acesso --strict
-openspec validate --all
+openspec validate --all --strict
 ```
 
 Em 26/11/2026, `openspec validate --all --strict` passa em todos os itens, sem avisos.
@@ -118,7 +117,8 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - Recuperação de senha e confirmação de e-mail não existem nesta versão. Anúncios pelo site não têm fotos, edição nem exclusão.
 - Não há chat interno: o contato entre comprador e vendedor é feito exclusivamente pelo WhatsApp, quando o anunciante autoriza (a Change `chat-interno` foi cancelada em 26/11/2026).
 - Favoritos: a tabela `favorite` e o grupo `Favoritos` estão publicados no Xano e foram testados manualmente no navegador (favoritar, listar por conta e remover). Não foram testados em execução o índice único nem envios simultâneos. Em 26/11/2026 a tabela tinha 3 registros, que devem ser preservados.
-- Em um teste no Opera, o endereço `/entrar` apareceu sem o parâmetro `?proximo=`; não foi reproduzido em outros navegadores (tarefa 3.7 da Change `contas-acesso`).
+- O parâmetro `?proximo=` do login foi verificado no Edge e no Opera (uma ocorrência sem o parâmetro no Opera, em 21/11/2026, não se repetiu). O site **não foi testado no Chrome**.
+- Parte dos cenários **não foi testada no site real**, entre eles o cadastro e o envio de anúncio pelo formulário, as páginas com sessão a 375 px e o limite de 20 rascunhos. A lista completa, com motivo e data, está na seção “Ressalvas” dos `tasks.md` em `openspec/changes/archive/2026-11-26-contas-acesso/`, `openspec/changes/archive/2026-11-26-anuncios-cliente/` e `openspec/changes/archive/2026-11-26-favoritos/`.
 
 ## Documentação
 
@@ -131,4 +131,4 @@ Os testes automáticos não acessam a rede (o Xano é simulado). O roteiro de te
 - `docs/seguranca-endpoints-quick-start.md`: endpoints do Quick Start desativados e logs de eventos.
 - `docs/roteiro-fechamento-openspec.md`: roteiro de fechamento das Changes e pendências.
 - `docs/roteiro-video.md`: roteiro do vídeo de apresentação.
-- `openspec/changes/contas-acesso/`: proposta, decisões (`design.md`), requisitos e tarefas das contas de acesso.
+- `openspec/specs/`: requisitos atuais de cada capacidade; `openspec/changes/archive/`: propostas, decisões, tarefas e ressalvas das Changes concluídas.
